@@ -9,9 +9,9 @@ public class LID {
 	   */
 	 public int slotNo;
 	  
-	  /** public PageId pageNo
+	  /** public PageID pageNo
 	   */
-	  public PageId pageNo = new PageId();
+	  public PageID pageNo = new PageID();
 	  
 	  /**
 	   * default constructor of class
@@ -21,7 +21,7 @@ public class LID {
 	  /**
 	   *  constructor of class
 	   */
-	  public LID (PageId pageno, int slotno)
+	  public LID (PageID pageno, int slotno)
 	    {
 	      pageNo = pageno;
 	      slotNo = slotno;
