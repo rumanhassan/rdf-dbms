@@ -3,16 +3,16 @@
 package labelheap;
 import chainexception.*;
 
-public class HFException extends ChainException{
+public class LHFException extends ChainException{
 
 
-  public HFException()
+  public LHFException()
   {
      super();
   
   }
 
-  public HFException(Exception ex, String name)
+  public LHFException(Exception ex, String name)
   {
     super(ex, name);
   }
