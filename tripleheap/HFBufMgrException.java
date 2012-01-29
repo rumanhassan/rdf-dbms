@@ -1,16 +1,16 @@
 package tripleheap;
 import chainexception.*;
 
-public class HFBufMgrException extends ChainException{
+public class THFBufMgrException extends ChainException{
 
 
-  public HFBufMgrException()
+  public THFBufMgrException()
   {
      super();
   
   }
 
-  public HFBufMgrException(Exception ex, String name)
+  public THFBufMgrException(Exception ex, String name)
   {
     super(ex, name);
   }
