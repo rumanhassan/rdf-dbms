@@ -85,10 +85,10 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
      user record(rid) and true if record is found.
      If the user record cannot be found, return false.
   */
-  private boolean  _findDataPage( RID rid,
+  private boolean  _findDataPage( LID lid,
 				  PageID dirPageId, LHFPage dirpage,
 				  PageID dataPageId, LHFPage datapage,
-				  RID rpDataPageRid) 
+				  LID lpDataPageLid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   LHFException,
@@ -146,9 +146,9 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	      // - currentDataPage, currentDataPageRid, dpinfo valid
 	      // - currentDataPage pinned
 	      
-	      if(dpinfo.pageId.pid==rid.pageNo.pid)
+	      if(dpinfo.pageId.pid==lid.pageNo.pid)
 		{
-		  atuple = currentDataPage.returnRecord(rid);
+		  atuple = currentDataPage.returnRecord(lid);
 		  // found user's record on the current datapage which itself
 		  // is indexed on the current dirpage.  Return both of these.
 		  
@@ -158,8 +158,8 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  datapage.setpage(currentDataPage.getpage());
 		  dataPageId.pid = dpinfo.pageId.pid;
 		  
-		  rpDataPageRid.pageNo.pid = currentDataPageRid.pageNo.pid;
-		  rpDataPageRid.slotNo = currentDataPageRid.slotNo;
+		  lpDataPageLid.pageNo.pid = currentDataPageRid.pageNo.pid;
+		  lpDataPageLid.slotNo = currentDataPageRid.slotNo;
 		  return true;
 		}
 	      else
@@ -204,11 +204,11 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       
     } // end of _findDatapage		     
   
-  /** Initialize.  A null name produces a temporary heapfile which will be
+  /** Initialize.  A null name produces a temporary LabelHeapFile which will be
    * deleted by the destructor.  If the name already denotes a file, the
    * file is opened; otherwise, a new empty file is created.
    *
-   * @exception LHFException heapfile exception
+   * @exception LHFException LabelHeapFile exception
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
@@ -299,7 +299,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    */
-  public int getRecCnt() 
+  public int getLabelCnt() 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   LHFDiskMgrException,
@@ -319,13 +319,13 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	{
 	   pinPage(currentDirPageId, currentDirPage, false);
 	   
-	   RID rid = new RID();
+	   LID lid = new LID();
 	   Label atuple;
-	   for (rid = currentDirPage.firstRecord();
-	        rid != null;	// rid==NULL means no more record
-	        rid = currentDirPage.nextRecord(rid))
+	   for (lid = currentDirPage.firstRecord();
+	        lid != null;	// rid==NULL means no more record
+	        lid = currentDirPage.nextRecord(lid))
 	     {
-	       atuple = currentDirPage.getRecord(rid);
+	       atuple = currentDirPage.getLabel(lid);
 	       DataPageInfo dpinfo = new DataPageInfo(atuple);
 	       
 	       answer += dpinfo.recct;
@@ -347,7 +347,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       
       
       return answer;
-    } // end of getRecCnt
+    } // end of getLabelCnt
   
   /** Insert record into file, return its Rid.
    *
@@ -362,9 +362,9 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    *
-   * @return the rid of the record
+   * @return the lid of the record
    */
-  public RID insertRecord(byte[] recPtr) 
+  public LID insertLabel(byte[] recPtr) 
     throws InvalidSlotNumberException,  
 	   InvalidTupleSizeException,
 	   SpaceNotAvailableException,
@@ -376,7 +376,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       int dpinfoLen = 0;	
       int recLen = recPtr.length;
       boolean found;
-      RID currentDataPageRid = new RID();
+      LID currentDataPageLid = new LID();
       Page pageinbuffer = new Page();
       LHFPage currentDirPage = new LHFPage();
       LHFPage currentDataPage = new LHFPage();
@@ -388,19 +388,19 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       pinPage(currentDirPageId, currentDirPage, false/*Rdisk*/);
       
       found = false;
-      Label atuple;
+      Label aLabel;
       DataPageInfo dpinfo = new DataPageInfo();
       while (found == false)
 	{ //Start While01
 	  // look for suitable dpinfo-struct
-	  for (currentDataPageRid = currentDirPage.firstRecord();
-	       currentDataPageRid != null;
-	       currentDataPageRid = 
-		 currentDirPage.nextRecord(currentDataPageRid))
+	  for (currentDataPageLid = currentDirPage.firstRecord();
+	       currentDataPageLid != null;
+	       currentDataPageLid = 
+		 currentDirPage.nextRecord(currentDataPageLid))
 	    {
-	      atuple = currentDirPage.getRecord(currentDataPageRid);
+	      aLabel = currentDirPage.getLabel(currentDataPageLid);
 	      
-	      dpinfo = new DataPageInfo(atuple);
+	      dpinfo = new DataPageInfo(aLabel);
 	      
 	      // need check the record length == DataPageInfo'slength
 	      
@@ -456,16 +456,16 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  
 		  
 		  
-		  atuple = dpinfo.convertToTuple();
+		  aLabel = dpinfo.convertToTuple(); //TODO fix this line.
 		  
-		  byte [] tmpData = atuple.getTupleByteArray();
-		  currentDataPageRid = currentDirPage.insertRecord(tmpData);
+		  byte [] tmpData = aLabel.getTupleByteArray();
+		  currentDataPageLid = currentDirPage.insertRecord(tmpData);
 		  
-		  RID tmprid = currentDirPage.firstRecord();
+		  LID tmplid = currentDirPage.firstRecord();
 		  
 		  
 		  // need catch error here!
-		  if(currentDataPageRid == null)
+		  if(currentDataPageLid == null)
 		    throw new LHFException(null, "no space to insert rec.");  
 		  
 		  // end the loop, because a new datapage with its record
@@ -573,8 +573,8 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	throw new LHFException(null, "can't find Data page");
       
       
-      RID rid;
-      rid = currentDataPage.insertRecord(recPtr);
+      LID lid;
+      lid = currentDataPage.insertRecord(recPtr);
       
       dpinfo.recct++;
       dpinfo.availspace = currentDataPage.available_space();
@@ -583,8 +583,8 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       unpinPage(dpinfo.pageId, true /* = DIRTY */);
       
       // DataPage is now released
-      atuple = currentDirPage.returnRecord(currentDataPageRid);
-      DataPageInfo dpinfo_ondirpage = new DataPageInfo(atuple);
+      aLabel = currentDirPage.returnRecord(currentDataPageLid);
+      DataPageInfo dpinfo_ondirpage = new DataPageInfo(aLabel);
       
       
       dpinfo_ondirpage.availspace = dpinfo.availspace;
@@ -596,7 +596,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       unpinPage(currentDirPageId, true /* = DIRTY */);
       
       
-      return rid;
+      return lid;
       
     }
   
@@ -625,12 +625,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       PageID currentDirPageId = new PageID();
       LHFPage currentDataPage = new LHFPage();
       PageID currentDataPageId = new PageID();
-      RID currentDataPageRid = new RID();
+      LID currentDataPageLid = new LID();
       
       status = _findDataPage(lid,
 			     currentDirPageId, currentDirPage, 
 			     currentDataPageId, currentDataPage,
-			     currentDataPageRid);
+			     currentDataPageLid);
       
       if(status != true) return status;	// record not found
       
@@ -639,10 +639,10 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       // - currentDataPage, currentDataPageid valid and pinned
       
       // get datapageinfo from the current directory page:
-      Label atuple;	
+      Label aLabel;	
       
-      atuple = currentDirPage.returnRecord(currentDataPageRid);
-      DataPageInfo pdpinfo = new DataPageInfo(atuple);
+      aLabel = currentDirPage.returnRecord(currentDataPageLid);
+      DataPageInfo pdpinfo = new DataPageInfo(aLabel);
       
       // delete the record on the datapage
       currentDataPage.deleteRecord(lid);
@@ -678,7 +678,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	  // delete corresponding DataPageInfo-entry on the directory page:
 	  // currentDataPageRid points to datapage (from for loop above)
 	  
-	  currentDirPage.deleteRecord(currentDataPageRid);
+	  currentDirPage.deleteRecord(currentDataPageLid);
 	  
 	  
 	  // ASSERTIONS:
@@ -687,12 +687,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	  
 	  // now check whether the directory page is empty:
 	  
-	  currentDataPageRid = currentDirPage.firstRecord();
+	  currentDataPageLid = currentDirPage.firstRecord();
 	  
 	  // st == OK: we still found a datapageinfo record on this directory page
 	  PageID pageId;
 	  pageId = currentDirPage.getPrevPage();
-	  if((currentDataPageRid == null)&&(pageId.pid != INVALID_PAGE))
+	  if((currentDataPageLid == null)&&(pageId.pid != INVALID_PAGE))
 	    {
 	      // the directory-page is not the first directory page and it is empty:
 	      // delete it
@@ -759,7 +759,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @exception Exception other exception
    * @return ture:update success   false: can't find the record
    */
-  public boolean updateRecord(RID rid, Label newtuple) 
+  public boolean updateLabel(LID lid, String newLabel) 
     throws InvalidSlotNumberException, 
 	   InvalidUpdateException, 
 	   InvalidTupleSizeException,
@@ -773,21 +773,21 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       PageID currentDirPageId = new PageID();
       LHFPage dataPage = new LHFPage();
       PageID currentDataPageId = new PageID();
-      RID currentDataPageRid = new RID();
+      LID currentDataPageLid = new LID();
       
-      status = _findDataPage(rid,
+      status = _findDataPage(lid,
 			     currentDirPageId, dirPage, 
 			     currentDataPageId, dataPage,
-			     currentDataPageRid);
+			     currentDataPageLid);
       
       if(status != true) return status;	// record not found
-      Label atuple = new Label();
-      atuple = dataPage.returnRecord(rid);
+      Label aLabel = new Label();
+      aLabel = dataPage.returnRecord(lid);
       
       // Assume update a record with a record whose length is equal to
       // the original record
       
-      if(newtuple.getLength() != atuple.getLength())
+      if(newLabel.length() != aLabel.getLength())
 	{
 	  unpinPage(currentDataPageId, false /*undirty*/);
 	  unpinPage(currentDirPageId, false /*undirty*/);
@@ -797,7 +797,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	}
 
       // new copy of this record fits in old space;
-      atuple.tupleCopy(newtuple);
+      aLabel.tupleCopy(newLabel);
       unpinPage(currentDataPageId, true /* = DIRTY */);
       
       unpinPage(currentDirPageId, false /*undirty*/);
@@ -808,7 +808,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   
   
   /** Read record from file, returning pointer and length.
-   * @param rid Record ID
+   * @param lid Record ID
    *
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidTupleSizeException invalid tuple size
@@ -820,7 +820,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    *
    * @return a Tuple. if Tuple==null, no more tuple
    */
-  public  Label getRecord(RID rid) 
+  public String getLabel(LID lid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   LHFException, 
@@ -833,17 +833,17 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       PageID currentDirPageId = new PageID();
       LHFPage dataPage = new LHFPage();
       PageID currentDataPageId = new PageID();
-      RID currentDataPageRid = new RID();
+      LID currentDataPageLid = new LID();
       
-      status = _findDataPage(rid,
+      status = _findDataPage(lid,
 			     currentDirPageId, dirPage, 
 			     currentDataPageId, dataPage,
-			     currentDataPageRid);
+			     currentDataPageLid);
       
       if(status != true) return null; // record not found 
       
-      Label atuple = new Label();
-      atuple = dataPage.getRecord(rid);
+      Label aLabel = new Label();
+      aLabel = dataPage.getRecord(lid);
       
       /*
        * getRecord has copied the contents of rid into recPtr and fixed up
@@ -856,7 +856,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       unpinPage(currentDirPageId,false /*undirty*/);
       
       
-      return  atuple;  //(true?)OK, but the caller need check if atuple==NULL
+      return  aLabel.getLabel();  //(true?)OK, but the caller need check if atuple==NULL
       
     }
   
@@ -906,20 +906,20 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       nextDirPageId.pid = 0;
       Page pageinbuffer = new Page();
       LHFPage currentDirPage =  new LHFPage();
-      Label atuple;
+      Label aLabel;
       
       pinPage(currentDirPageId, currentDirPage, false);
       //currentDirPage.openHFpage(pageinbuffer);
       
-      RID rid = new RID();
+      LID lid = new LID();
       while(currentDirPageId.pid != INVALID_PAGE)
 	{      
-	  for(rid = currentDirPage.firstRecord();
-	      rid != null;
-	      rid = currentDirPage.nextRecord(rid))
+	  for(lid = currentDirPage.firstRecord();
+	      lid != null;
+	      lid = currentDirPage.nextRecord(lid))
 	    {
-	      atuple = currentDirPage.getRecord(rid);
-	      DataPageInfo dpinfo = new DataPageInfo( atuple);
+	      aLabel = currentDirPage.getLabel(lid);
+	      DataPageInfo dpinfo = new DataPageInfo( aLabel);
 	      //int dpinfoLen = arecord.length;
 	      
 	      freePage(dpinfo.pageId);
