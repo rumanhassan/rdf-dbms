@@ -3,16 +3,16 @@
 package tripleheap;
 import chainexception.*;
 
-public class HFDiskMgrException extends ChainException{
+public class THFDiskMgrException extends ChainException{
 
 
-  public HFDiskMgrException()
+  public THFDiskMgrException()
   {
      super();
   
   }
 
-  public HFDiskMgrException(Exception ex, String name)
+  public THFDiskMgrException(Exception ex, String name)
   {
     super(ex, name);
   }
