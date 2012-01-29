@@ -55,7 +55,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
      @param dpinfop the information in the new HFPage
   */
   private THFPage _newDatapage(DataPageInfo dpinfop)
-    throws HFException,
+    throws THFException,
 	   HFBufMgrException,
 	   HFDiskMgrException,
 	   IOException
@@ -65,18 +65,18 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       pageId = newPage(apage, 1);
       
       if(pageId == null)
-	throw new HFException(null, "can't new pae");
+	throw new THFException(null, "can't new page");
       
       // initialize internal values of the new page:
       
-      THFPage hfpage = new THFPage();
-      hfpage.init(pageId, apage);
+      THFPage thfpage = new THFPage();
+      thfpage.init(pageId, apage);
       
       dpinfop.pageId.pid = pageId.pid;
       dpinfop.recct = 0;
-      dpinfop.availspace = hfpage.available_space();
+      dpinfop.availspace = thfpage.available_space();
       
-      return hfpage;
+      return thfpage;
       
     } // end of _newDatapage
   
@@ -91,9 +91,9 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 				  RID rpDataPageRid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
-	   HFException,
-	   HFBufMgrException,
-	   HFDiskMgrException,
+	   THFException,
+	   THFBufMgrException,
+	   THFDiskMgrException,
 	   Exception
     {
       PageID currentDirPageId = new PageID(_firstDirPageId.pid);
@@ -182,7 +182,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	    unpinPage(currentDirPageId, false /*undirty*/);
 	  }
 	  catch(Exception e) {
-	    throw new HFException (e, "heapfile,_find,unpinpage failed");
+	    throw new THFException (e, "heapfile,_find,unpinpage failed");
 	  }
 	  
 	  currentDirPageId.pid = nextDirPageId.pid;
@@ -190,7 +190,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	    {
 	      pinPage(currentDirPageId, currentDirPage, false/*Rdisk*/);
 	      if(currentDirPage == null)
-		throw new HFException(null, "pinPage return null page");  
+		throw new THFException(null, "pinPage return null page");  
 	    }
 	  
 	  
@@ -208,15 +208,15 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * deleted by the destructor.  If the name already denotes a file, the
    * file is opened; otherwise, a new empty file is created.
    *
-   * @exception HFException heapfile exception
+   * @exception THFException heapfile exception
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    */
   public  TripleHeapFile(String name) 
-    throws HFException, 
-	   HFBufMgrException,
-	   HFDiskMgrException,
+    throws THFException, 
+	   THFBufMgrException,
+	   THFDiskMgrException,
 	   IOException
 	   
     {
@@ -266,7 +266,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	  _firstDirPageId = newPage(apage, 1);
 	  // check error
 	  if(_firstDirPageId == null)
-	    throw new HFException(null, "can't new page");
+	    throw new THFException(null, "can't new page");
 	  
 	  add_file_entry(_fileName, _firstDirPageId);
 	  // check error(new exception: Could not add file entry
@@ -357,7 +357,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidTupleSizeException invalid tuple size
    * @exception SpaceNotAvailableException no space left
-   * @exception HFException heapfile exception
+   * @exception THFException heapfile exception
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
@@ -368,7 +368,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
     throws InvalidSlotNumberException,  
 	   InvalidTupleSizeException,
 	   SpaceNotAvailableException,
-	   HFException,
+	   THFException,
 	   HFBufMgrException,
 	   HFDiskMgrException,
 	   IOException
@@ -466,7 +466,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		  
 		  // need catch error here!
 		  if(currentDataPageRid == null)
-		    throw new HFException(null, "no space to insert rec.");  
+		    throw new THFException(null, "no space to insert rec.");  
 		  
 		  // end the loop, because a new datapage with its record
 		  // in the current directorypage was created and inserted into
@@ -511,7 +511,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		      nextDirPageId = newPage(pageinbuffer, 1);
 		      // need check error!
 		      if(nextDirPageId == null)
-			throw new HFException(null, "can't new pae");
+			throw new THFException(null, "can't new pae");
 		      
 		      // initialize new directory page
 		      nextDirPage.init(nextDirPageId, pageinbuffer);
@@ -564,13 +564,13 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       // - currentDataPage is pinned!
       
       if ((dpinfo.pageId).pid == INVALID_PAGE) // check error!
-	throw new HFException(null, "invalid PageId");
+	throw new THFException(null, "invalid PageId");
       
       if (!(currentDataPage.available_space() >= recLen))
 	throw new SpaceNotAvailableException(null, "no available space");
       
       if (currentDataPage == null)
-	throw new HFException(null, "can't find Data page");
+	throw new THFException(null, "can't find Data page");
       
       
       RID rid;
@@ -604,7 +604,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    *
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidTupleSizeException invalid tuple size
-   * @exception HFException heapfile exception
+   * @exception THFException heapfile exception
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception Exception other exception
@@ -614,7 +614,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   public boolean deleteRecord(RID rid)  
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
-	   HFException, 
+	   THFException, 
 	   HFBufMgrException,
 	   HFDiskMgrException,
 	   Exception
@@ -753,7 +753,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidUpdateException invalid update on record
    * @exception InvalidTupleSizeException invalid tuple size
-   * @exception HFException heapfile exception
+   * @exception THFException heapfile exception
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception Exception other exception
@@ -763,7 +763,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
     throws InvalidSlotNumberException, 
 	   InvalidUpdateException, 
 	   InvalidTupleSizeException,
-	   HFException, 
+	   THFException, 
 	   HFDiskMgrException,
 	   HFBufMgrException,
 	   Exception
@@ -813,7 +813,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidTupleSizeException invalid tuple size
    * @exception SpaceNotAvailableException no space left
-   * @exception HFException heapfile exception
+   * @exception THFException heapfile exception
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception Exception other exception
@@ -823,7 +823,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   public  Triple getRecord(RID rid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
-	   HFException, 
+	   THFException, 
 	   HFDiskMgrException,
 	   HFBufMgrException,
 	   Exception
