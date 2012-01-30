@@ -11,7 +11,7 @@ import java.io.*;
 import java.lang.*;
 import global.*;
 import diskmgr.*;
-import heap.*;
+import tripleheap.*;
 
 
 /**
@@ -19,7 +19,7 @@ import heap.*;
  * just holds abstract records in sorted order, based 
  * on how they compare using the key interface from BT.java.
  */
-public class BTSortedPage  extends HFPage{
+public class BTSortedPage  extends THFPage{
 
   
   int keyType; //it will be initialized in BTFile
@@ -89,15 +89,15 @@ public class BTSortedPage  extends HFPage{
    *  the same positions on the  page.
    * 
    *@param entry the entry to be inserted. Input parameter.
-   *@return its rid where the entry was inserted; null if no space left.
+   *@return its tid where the entry was inserted; null if no space left.
    *@exception  InsertRecException error when insert
    */
-   protected RID insertRecord( KeyDataEntry entry)
+   protected TID insertRecord( KeyDataEntry entry)
           throws InsertRecException 
    {
      int i;
      short  nType;
-     RID rid;
+     TID tid;
      byte[] record;
      // ASSERTIONS:
      // - the slot directory is compressed; Inserts will occur at the end
@@ -111,8 +111,8 @@ public class BTSortedPage  extends HFPage{
      try {
        
        record=BT.getBytesFromEntry(entry);  
-       rid=super.insertRecord(record);
-         if (rid==null) return null;
+       tid=super.insertRecord(record);
+         if (tid==null) return null;
 	 
          if ( entry.data instanceof LeafData )
 	   nType= NodeType.LEAF;
@@ -152,8 +152,8 @@ public class BTSortedPage  extends HFPage{
 	 // (starting at slot 0)
 	 // - slot directory compacted
 	 
-	 rid.slotNo = i;
-	 return rid;
+	 tid.slotNo = i;
+	 return tid;
      }
      catch (Exception e ) { 
        throw new InsertRecException(e, "insert record failed"); 
@@ -165,16 +165,16 @@ public class BTSortedPage  extends HFPage{
 
   /**  Deletes a record from a sorted record page. It also calls
    *    HFPage.compact_slot_dir() to compact the slot directory.
-   *@param rid it specifies where a record will be deleted
-   *@return true if success; false if rid is invalid(no record in the rid).
+   *@param tid it specifies where a record will be deleted
+   *@return true if success; false if tid is invalid(no record in the tid).
    *@exception DeleteRecException error when delete
    */
-  public  boolean deleteSortedRecord(RID rid)
+  public  boolean deleteSortedRecord(TID tid)
     throws DeleteRecException
     {
       try {
 	
-	deleteRecord(rid);
+	deleteRecord(tid);
 	compact_slot_dir();
 	return true;  
 	// ASSERTIONS:

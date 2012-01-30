@@ -11,7 +11,7 @@ import java.lang.*;
 import global.*;
 import diskmgr.*;
 import bufmgr.*;
-import heap.*;
+import tripleheap.*;
 
 /**  
  * This file contains, among some debug utilities, the interface to our
@@ -107,7 +107,7 @@ public class BT  implements GlobalConst{
   /** It gets the length of the (key,data) pair in leaf or index page. 
    *@param  key    an object of KeyClass.  Input parameter.
    *@param  pageType  NodeType.LEAF or  NodeType.INDEX. Input parameter.
-   *@return return the lenrth of the (key,data) pair.
+   *@return return the length of the (key,data) pair.
    *@exception  KeyNotMatchException key is neither StringKey nor  IntegerKey 
    *@exception NodeNotMatchException pageType is neither NodeType.LEAF 
    *  nor NodeType.INDEX.
@@ -156,11 +156,11 @@ public class BT  implements GlobalConst{
 	}
 	else if ( nodeType==NodeType.LEAF) {
 	  n=8;
-	  RID rid=new RID();
-	  rid.slotNo =   Convert.getIntValue(offset+length-8, from);
-	  rid.pageNo =new PageID();
-	  rid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
-	  data = new LeafData(rid);
+	  TID tid=new TID();
+	  tid.slotNo =   Convert.getIntValue(offset+length-8, from);
+	  tid.pageNo =new PageID();
+	  tid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
+	  data = new LeafData(tid);
 	}
 	else throw new NodeNotMatchException(null, "node types do not match"); 
 	
@@ -272,10 +272,10 @@ public class BT  implements GlobalConst{
         System.out.println("Current Page ID: "+ indexPage.getCurPage().pid);
         System.out.println("Left Link      : "+ indexPage.getLeftLink().pid);
 	
-        RID rid=new RID();
+        TID tid=new TID();
 	
-        for(KeyDataEntry entry=indexPage.getFirst(rid); entry!=null; 
-	    entry=indexPage.getNext(rid)){
+        for(KeyDataEntry entry=indexPage.getFirst(tid); entry!=null; 
+	    entry=indexPage.getNext(tid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, pageId):   ("+ 
 			       (IntegerKey)entry.key + ",  "+(IndexData)entry.data+ " )");
@@ -297,10 +297,10 @@ public class BT  implements GlobalConst{
         System.out.println("Left Link      : "+ leafPage.getPrevPage().pid);
         System.out.println("Right Link     : "+ leafPage.getNextPage().pid);
 	
-        RID rid=new RID();
+        TID tid=new TID();
 	
-        for(KeyDataEntry entry=leafPage.getFirst(rid); entry!=null; 
-	    entry=leafPage.getNext(rid)){
+        for(KeyDataEntry entry=leafPage.getFirst(tid); entry!=null; 
+	    entry=leafPage.getNext(tid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, [pageNo, slotNo]):   ("+ 
 			       (IntegerKey)entry.key+ ",  "+(LeafData)entry.data+ " )");
@@ -381,9 +381,9 @@ public class BT  implements GlobalConst{
 	System.out.println(i+prefix+ indexPage.getPrevPage());
 	_printTree( indexPage.getPrevPage(), prefix, i, keyType);
 	
-	RID rid=new RID();
-	for( KeyDataEntry entry=indexPage.getFirst(rid); entry!=null; 
-	     entry=indexPage.getNext(rid)) {
+	TID tid=new TID();
+	for( KeyDataEntry entry=indexPage.getFirst(tid); entry!=null; 
+	     entry=indexPage.getNext(tid)) {
 	  System.out.println(i+prefix+(IndexData)entry.data);
 	  _printTree( ((IndexData)entry.data).getData(), prefix, i, keyType);
 	}
@@ -449,9 +449,9 @@ public class BT  implements GlobalConst{
 	
 	_printAllLeafPages( indexPage.getPrevPage(),  keyType);
 	
-	RID rid=new RID();
-	for( KeyDataEntry entry=indexPage.getFirst(rid); entry!=null; 
-	     entry=indexPage.getNext(rid)) {
+	TID tid=new TID();
+	for( KeyDataEntry entry=indexPage.getFirst(tid); entry!=null; 
+	     entry=indexPage.getNext(tid)) {
 	  _printAllLeafPages( ((IndexData)entry.data).getData(),  keyType);
 	}
       }
