@@ -17,6 +17,4 @@ public class THFException extends ChainException{
     super(ex, name);
   }
 
-
-
 }
