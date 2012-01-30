@@ -5,8 +5,8 @@ import diskmgr.*;
 import bufmgr.*;
 import global.*;
 
-/**  This heapfile implementation is directory-based. We maintain a
- *  directory of info about the data pages (which are of type HFPage
+/**  This Triple heapfile implementation is directory-based. We maintain a
+ *  directory of info about the data pages (which are of type THFPage
  *  when loaded into memory).  The directory itself is also composed
  *  of HFPages, with each record being of type DataPageInfo
  *  as defined below.
@@ -30,7 +30,7 @@ import global.*;
 
 /** DataPageInfo class : the type of records stored on a directory page.
 *
-* April 9, 1998
+* January 29, 2012
 */
 
 
@@ -56,13 +56,13 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   */
   private THFPage _newDatapage(DataPageInfo dpinfop)
     throws THFException,
-	   HFBufMgrException,
-	   HFDiskMgrException,
+	   THFBufMgrException,
+	   THFDiskMgrException,
 	   IOException
     {
       Page apage = new Page();
       PageID pageId = new PageID();
-      pageId = newPage(apage, 1);
+      pageId = newPage(apage,1);
       
       if(pageId == null)
 	throw new THFException(null, "can't new page");
@@ -302,8 +302,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   public int getRecCnt() 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
-	   HFDiskMgrException,
-	   HFBufMgrException,
+	   THFDiskMgrException,
+	   THFBufMgrException,
 	   IOException
 	   
     {
@@ -369,8 +369,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	   InvalidTupleSizeException,
 	   SpaceNotAvailableException,
 	   THFException,
-	   HFBufMgrException,
-	   HFDiskMgrException,
+	   THFBufMgrException,
+	   THFDiskMgrException,
 	   IOException
     {
       int dpinfoLen = 0;	
@@ -615,8 +615,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   THFException, 
-	   HFBufMgrException,
-	   HFDiskMgrException,
+	   THFBufMgrException,
+	   THFDiskMgrException,
 	   Exception
   
     {
@@ -764,8 +764,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	   InvalidUpdateException, 
 	   InvalidTupleSizeException,
 	   THFException, 
-	   HFDiskMgrException,
-	   HFBufMgrException,
+	   THFDiskMgrException,
+	   THFBufMgrException,
 	   Exception
     {
       boolean status;
@@ -824,8 +824,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   THFException, 
-	   HFDiskMgrException,
-	   HFBufMgrException,
+	   THFDiskMgrException,
+	   THFBufMgrException,
 	   Exception
     {
       boolean status;
@@ -888,8 +888,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
     throws InvalidSlotNumberException, 
 	   FileAlreadyDeletedException, 
 	   InvalidTupleSizeException, 
-	   HFBufMgrException,
-	   HFDiskMgrException,
+	   THFBufMgrException,
+	   THFDiskMgrException,
 	   IOException
     {
       if(_file_deleted ) 
@@ -948,13 +948,13 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @see bufmgr.pinPage
    */
   private void pinPage(PageID pageno, Page page, boolean emptyPage)
-    throws HFBufMgrException {
+    throws THFBufMgrException {
     
     try {
       SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Heapfile.java: pinPage() failed");
+      throw new THFBufMgrException(e,"Heapfile.java: pinPage() failed");
     }
     
   } // end of pinPage
@@ -964,31 +964,31 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @see bufmgr.unpinPage
    */
   private void unpinPage(PageID pageno, boolean dirty)
-    throws HFBufMgrException {
+    throws THFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.unpinPage(pageno, dirty);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Heapfile.java: unpinPage() failed");
+      throw new THFBufMgrException(e,"Heapfile.java: unpinPage() failed");
     }
 
   } // end of unpinPage
 
   private void freePage(PageID pageno)
-    throws HFBufMgrException {
+    throws THFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.freePage(pageno);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Heapfile.java: freePage() failed");
+      throw new THFBufMgrException(e,"Heapfile.java: freePage() failed");
     }
 
   } // end of freePage
 
   private PageID newPage(Page page, int num)
-    throws HFBufMgrException {
+    throws THFBufMgrException {
 
     PageID tmpId = new PageID();
 
@@ -996,7 +996,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       tmpId = SystemDefs.JavabaseBM.newPage(page,num);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Heapfile.java: newPage() failed");
+      throw new THFBufMgrException(e,"Heapfile.java: newPage() failed");
     }
 
     return tmpId;
@@ -1004,7 +1004,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   } // end of newPage
 
   private PageID get_file_entry(String filename)
-    throws HFDiskMgrException {
+    throws THFDiskMgrException {
 
     PageID tmpId = new PageID();
 
@@ -1012,7 +1012,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       tmpId = SystemDefs.JavabaseDB.get_file_entry(filename);
     }
     catch (Exception e) {
-      throw new HFDiskMgrException(e,"Heapfile.java: get_file_entry() failed");
+      throw new THFDiskMgrException(e,"Heapfile.java: get_file_entry() failed");
     }
 
     return tmpId;
@@ -1020,29 +1020,29 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   } // end of get_file_entry
 
   private void add_file_entry(String filename, PageID pageno)
-    throws HFDiskMgrException {
+    throws THFDiskMgrException {
 
     try {
       SystemDefs.JavabaseDB.add_file_entry(filename,pageno);
     }
     catch (Exception e) {
-      throw new HFDiskMgrException(e,"Heapfile.java: add_file_entry() failed");
+      throw new THFDiskMgrException(e,"Heapfile.java: add_file_entry() failed");
     }
 
   } // end of add_file_entry
 
   private void delete_file_entry(String filename)
-    throws HFDiskMgrException {
+    throws THFDiskMgrException {
 
     try {
       SystemDefs.JavabaseDB.delete_file_entry(filename);
     }
     catch (Exception e) {
-      throw new HFDiskMgrException(e,"Heapfile.java: delete_file_entry() failed");
+      throw new THFDiskMgrException(e,"Heapfile.java: delete_file_entry() failed");
     }
 
   } // end of delete_file_entry
 
 
   
-}// End of HeapFile 
+}// End of Triple HeapFile 
