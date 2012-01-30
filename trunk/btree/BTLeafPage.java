@@ -10,11 +10,11 @@ import java.io.*;
 import java.lang.*;
 import global.*;
 import diskmgr.*;
-import heap.*;
+import tripleheap.*;
 
 /**
  * A BTLeafPage is a leaf page on a B+ tree.  It holds abstract 
- * <key, RID> pairs; it doesn't know anything about the keys 
+ * <key, TID> pairs; it doesn't know anything about the keys 
  * (their lengths or their types), instead relying on the abstract
  * interface consisting of BT.java.
  */
@@ -72,27 +72,27 @@ public class BTLeafPage extends BTSortedPage {
 
   
   /** insertRecord
-   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO RIDs
+   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO TIDs
    * WHICH MEAN TWO DIFFERENT THINGS.
-   * Inserts a key, rid value into the leaf node. This is
+   * Inserts a key, tid value into the leaf node. This is
    * accomplished by a call to SortedPage::insertRecord()
    *  Parameters:
    *@param key - the key value of the data record. Input parameter.
-   *@param dataRid - the rid of the data record. This is
+   *@param dataTid - the tid of the data record. This is
    *               stored on the leaf page along with the
    *               corresponding key value. Input parameter.
    *
-   *@return - the rid of the inserted leaf record data entry,
-   *           i.e., the <key, dataRid> pair.
+   *@return - the tid of the inserted leaf record data entry,
+   *           i.e., the <key, dataTid> pair.
    *@exception  LeafInsertRecException error when insert
    */   
-  public RID insertRecord(KeyClass key, RID dataRid) 
+  public TID insertRecord(KeyClass key, TID dataTid) 
     throws  LeafInsertRecException
     {
       KeyDataEntry entry;
       
       try {
-        entry = new KeyDataEntry( key,dataRid);
+        entry = new KeyDataEntry( key,dataTid);
 	
         return insertRecord(entry);
       }
@@ -105,21 +105,21 @@ public class BTLeafPage extends BTSortedPage {
   /**  Iterators. 
    * One of the two functions: getFirst and getNext
    * which  provide an iterator interface to the records on a BTLeafPage.
-   *@param rid It will be modified and the first rid in the leaf page
+   *@param tid It will be modified and the first tid in the leaf page
    * will be passed out by itself. Input and Output parameter.
    *@return return the first KeyDataEntry in the leaf page.
    * null if no more record
    *@exception  IteratorException iterator error
    */
-  public KeyDataEntry getFirst(RID rid) 
+  public KeyDataEntry getFirst(TID tid) 
     throws  IteratorException
     {
       
       KeyDataEntry  entry; 
       
       try {
-        rid.pageNo = getCurPage();
-        rid.slotNo = 0; // begin with first slot
+        tid.pageNo = getCurPage();
+        tid.slotNo = 0; // begin with first slot
 	
         if ( getSlotCnt() <= 0) {
           return null;
@@ -139,23 +139,23 @@ public class BTLeafPage extends BTSortedPage {
    /**Iterators.  
     * One of the two functions: getFirst and getNext which  provide an
     * iterator interface to the records on a BTLeafPage.
-    *@param rid It will be modified and the next rid will be passed out 
+    *@param tid It will be modified and the next tid will be passed out 
     *by itself. Input and Output parameter.
     *@return return the next KeyDataEntry in the leaf page. 
     *null if no more record.
     *@exception IteratorException iterator error
     */
 
-   public KeyDataEntry getNext (RID rid)
+   public KeyDataEntry getNext (TID tid)
      throws  IteratorException
    {
      KeyDataEntry  entry; 
      int i;
      try{
-       rid.slotNo++; //must before any return;
-       i=rid.slotNo;
+       tid.slotNo++; //must before any return;
+       i=tid.slotNo;
        
-       if ( rid.slotNo >= getSlotCnt())
+       if ( tid.slotNo >= getSlotCnt())
        {
 	 return null;
        }
@@ -175,16 +175,16 @@ public class BTLeafPage extends BTSortedPage {
   /**
    * getCurrent returns the current record in the iteration; it is like
    * getNext except it does not advance the iterator.
-   *@param rid  the current rid. Input and Output parameter. But
+   *@param tid  the current tid. Input and Output parameter. But
    *    Output=Input.
    *@return return the current KeyDataEntry
    *@exception  IteratorException iterator error
    */ 
-   public KeyDataEntry getCurrent (RID rid)
+   public KeyDataEntry getCurrent (TID tid)
        throws  IteratorException
    {  
-     rid.slotNo--;
-     return getNext(rid);
+     tid.slotNo--;
+     return getNext(tid);
    }
   
   
@@ -198,13 +198,13 @@ public class BTLeafPage extends BTSortedPage {
      throws  LeafDeleteException
     {
       KeyDataEntry  entry;
-      RID rid=new RID(); 
+      TID tid=new TID(); 
       
       try {
-	for(entry = getFirst(rid); entry!=null; entry=getNext(rid)) 
+	for(entry = getFirst(tid); entry!=null; entry=getNext(tid)) 
 	  {  
 	    if ( entry.equals(dEntry) ) {
-	      if ( super.deleteSortedRecord( rid ) == false )
+	      if ( super.deleteSortedRecord( tid ) == false )
 		throw new LeafDeleteException(null, "Delete record failed");
 	      return true;
 	    }
@@ -251,18 +251,18 @@ public class BTLeafPage extends BTSortedPage {
 	    
 	    
             //get its sibling's first record's key for adjusting parent pointer
-            RID dummyRid=new RID();
+            TID dummyTid=new TID();
             KeyDataEntry firstEntry;
-            firstEntry=leafPage.getFirst(dummyRid);
+            firstEntry=leafPage.getFirst(dummyTid);
 
             // insert it into its sibling            
             leafPage.insertRecord(lastEntry);
             
             // delete the last record from the old page
-            RID delRid=new RID();
-            delRid.pageNo = getCurPage();
-            delRid.slotNo = getSlotCnt()-1;
-            if ( deleteSortedRecord(delRid) == false )
+            TID delTid=new TID();
+            delTid.pageNo = getCurPage();
+            delTid.slotNo = getSlotCnt()-1;
+            if ( deleteSortedRecord(delTid) == false )
 	      throw new LeafRedistributeException(null, "delete record failed");
 
 	    
@@ -292,22 +292,22 @@ public class BTLeafPage extends BTSortedPage {
 					    NodeType.LEAF);
 	    
             // insert it into its sibling
-            RID dummyRid=new RID();
+            TID dummyTid=new TID();
             leafPage.insertRecord(firstEntry);
             
 
             // delete the first record from the old page
-            RID delRid=new RID();
-            delRid.pageNo = getCurPage();
-            delRid.slotNo = 0;
-            if ( deleteSortedRecord(delRid) == false) 
+            TID delTid=new TID();
+            delTid.pageNo = getCurPage();
+            delTid.slotNo = 0;
+            if ( deleteSortedRecord(delTid) == false) 
 	      throw new LeafRedistributeException(null, "delete record failed");  
 	    
 	    
             // get the current first record of the old page
             // for adjusting parent pointer.
             KeyDataEntry tmpEntry;
-            tmpEntry = getFirst(dummyRid);
+            tmpEntry = getFirst(dummyTid);
          
             
             // adjust the entry pointing to itself in its parent

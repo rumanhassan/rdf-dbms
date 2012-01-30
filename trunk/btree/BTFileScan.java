@@ -7,7 +7,7 @@
 package btree;
 import java.io.*;
 import global.*;
-import heap.*;
+import tripleheap.*;
 
 /**
  * BTFileScan implements a search/iterate interface to B+ tree 
@@ -21,8 +21,8 @@ public class BTFileScan  extends IndexFileScan
   BTreeFile bfile; 
   String treeFilename;     // B+ tree we're scanning 
   BTLeafPage leafPage;   // leaf page containing current record
-  RID curRid;       // position in current leaf; note: this is 
-                             // the RID of the key/RID pair within the
+  TID curTid;       // position in current leaf; note: this is 
+                             // the TID of the key/TID pair within the
                              // leaf page.                                    
   boolean didfirst;        // false only before getNext is called
   boolean deletedcurrent;  // true after deleteCurrent is called (read
@@ -54,10 +54,10 @@ public class BTFileScan  extends IndexFileScan
       if ((deletedcurrent && didfirst) || (!deletedcurrent && !didfirst)) {
          didfirst = true;
          deletedcurrent = false;
-         entry=leafPage.getCurrent(curRid);
+         entry=leafPage.getCurrent(curTid);
       }
       else {
-         entry = leafPage.getNext(curRid);
+         entry = leafPage.getNext(curTid);
       }
 
       while ( entry == null ) {
@@ -70,7 +70,7 @@ public class BTFileScan  extends IndexFileScan
 
          leafPage=new BTLeafPage(nextpage, keyType);
 	 	
-	 entry=leafPage.getFirst(curRid);
+	 entry=leafPage.getFirst(curTid);
       }
 
       if (endkey != null)  
@@ -108,10 +108,10 @@ public class BTFileScan  extends IndexFileScan
       if( (deletedcurrent == true) || (didfirst==false) ) 
 	return;    
       
-      entry=leafPage.getCurrent(curRid);  
+      entry=leafPage.getCurrent(curTid);  
       SystemDefs.JavabaseBM.unpinPage( leafPage.getCurPage(), false);
       bfile.Delete(entry.key, ((LeafData)entry.data).getData());
-      leafPage=bfile.findRunStart(entry.key, curRid);
+      leafPage=bfile.findRunStart(entry.key, curTid);
       
       deletedcurrent = true;
       return;

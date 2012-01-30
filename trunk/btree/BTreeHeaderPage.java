@@ -12,7 +12,7 @@ import java.io.*;
 import diskmgr.*;
 import bufmgr.*;
 import global.*;
-import heap.*;
+import tripleheap.*;
 
   /**
    * Intefrace of a B+ tree index header page.  
@@ -22,7 +22,7 @@ import heap.*;
    * magic0, rootId, keyType, maxKeySize, deleteFashion,
    * and type(=NodeType.BTHEAD)
    */
-class BTreeHeaderPage extends HFPage {
+class BTreeHeaderPage extends THFPage {
   
   void setPageId(PageID pageno) 
     throws IOException 
