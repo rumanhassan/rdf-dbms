@@ -56,6 +56,7 @@ public class Triple implements GlobalConst {
 		subjectId = new EID();
 		predicateId = new PID();
 		objectId = new EID();
+		try {
 		subjectId.slotNo = Convert.getIntValue(0, atriple);
 		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
 		predicateId.slotNo = Convert.getIntValue(2, atriple);
@@ -63,6 +64,10 @@ public class Triple implements GlobalConst {
 		objectId.slotNo = Convert.getIntValue(4, atriple);
 		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
 		triple_offset = offset;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -124,13 +129,18 @@ public class Triple implements GlobalConst {
 		subjectId = new EID();
 		predicateId = new PID();
 		objectId = new EID();
-		subjectId.slotNo = Convert.getIntValue(0, atriple);
+		try {
+		subjectId.slotNo = Convert.getIntValue(0, atriple);	
 		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
 		predicateId.slotNo = Convert.getIntValue(2, atriple);
 		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
 		objectId.slotNo = Convert.getIntValue(4, atriple);
 		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
 		triple_offset = offset;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -145,6 +155,7 @@ public class Triple implements GlobalConst {
 		subjectId = new EID();
 		predicateId = new PID();
 		objectId = new EID();
+		try {
 		subjectId.slotNo = Convert.getIntValue(0, atriple);
 		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
 		predicateId.slotNo = Convert.getIntValue(2, atriple);
@@ -152,6 +163,10 @@ public class Triple implements GlobalConst {
 		objectId.slotNo = Convert.getIntValue(4, atriple);
 		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
 		triple_offset = offset;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -163,12 +178,17 @@ public class Triple implements GlobalConst {
 
 	public byte[] getTripleByteArray() {
 		byte[] triplecopy = new byte[triple_length];
+		try {
 		Convert.setIntValue(subjectId.slotNo, 0, triplecopy);
 		Convert.setIntValue(subjectId.pageNo.pid, 1, triplecopy);
 		Convert.setIntValue(predicateId.slotNo, 2, triplecopy);
 		Convert.setIntValue(predicateId.pageNo.pid, 3, triplecopy);
 		Convert.setIntValue(objectId.slotNo, 4, triplecopy);
 		Convert.setIntValue(objectId.pageNo.pid, 5, triplecopy);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return triplecopy;
 	}
 
