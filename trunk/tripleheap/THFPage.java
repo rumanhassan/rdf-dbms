@@ -499,10 +499,10 @@ public class THFPage extends Page
    * @exception  IOException I/O errors
    * in C++ Status nextRecord (RID curRid, RID& nextRid)
    */
-  public RID nextRecord (TID curTid) 
+  public TID nextRecord (TID curTid) 
     throws IOException 
     {
-      RID rid = new RID();
+      TID tid = new TID();
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
       int i=curTid.slotNo;
@@ -521,11 +521,11 @@ public class THFPage extends Page
       
       // found a non-empty slot
       
-      rid.slotNo = i;
+      tid.slotNo = i;
       curPage.pid = Convert.getIntValue(CUR_PAGE, data);
-      rid.pageNo.pid = curPage.pid;
+      tid.pageNo.pid = curPage.pid;
       
-      return rid;
+      return tid;
     }
   
   /**
