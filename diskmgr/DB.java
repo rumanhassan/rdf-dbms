@@ -29,7 +29,7 @@ public class DB implements GlobalConst {
     
     name = fname;
     
-    // Creaat a random access file
+    // Creat a random access file
     fp = new RandomAccessFile(fname, "rw");
     
     PageID pageId = new PageID();

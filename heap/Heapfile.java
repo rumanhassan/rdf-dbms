@@ -30,7 +30,7 @@ import global.*;
 
 /** DataPageInfo class : the type of records stored on a directory page.
 *
-* April 9, 1998
+* April 9, 2012
 */
 
 

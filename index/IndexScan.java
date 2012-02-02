@@ -4,7 +4,7 @@ import bufmgr.*;
 import diskmgr.*; 
 import btree.*;
 import iterator.*;
-import heap.*; 
+import tripleheap.*; 
 import java.io.*;
 
 
@@ -61,10 +61,10 @@ public class IndexScan extends Iterator {
     
     AttrType[] Jtypes = new AttrType[noOutFlds];
     short[] ts_sizes;
-    Jtuple = new Tuple();
+    Jtriple = new Triple();
     
     try {
-      ts_sizes = TupleUtils.setup_op_tuple(Jtuple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
+      ts_sizes = TupleUtils.setup_op_tuple(Jtriple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
     }
     catch (TupleUtilsException e) {
       throw new IndexException(e, "IndexScan.java: TupleUtilsException caught from TupleUtils.setup_op_tuple()");
@@ -76,19 +76,19 @@ public class IndexScan extends Iterator {
     _selects = selects;
     perm_mat = outFlds;
     _noOutFlds = noOutFlds;
-    tuple1 = new Tuple();    
+    triple1 = new Triple();    
     try {
-      tuple1.setHdr((short) noInFlds, types, str_sizes);
+      triple1.setHdr((short) noInFlds, types, str_sizes);
     }
     catch (Exception e) {
       throw new IndexException(e, "IndexScan.java: Heapfile error");
     }
     
-    t1_size = tuple1.size();
+    t1_size = triple1.size();
     index_only = indexOnly;  // added by bingjie miao
     
     try {
-      f = new Heapfile(relName);
+      f = new TripleHeapfile(relName);
     }
     catch (Exception e) {
       throw new IndexException(e, "IndexScan.java: Heapfile not created");
@@ -133,7 +133,7 @@ public class IndexScan extends Iterator {
    * @exception UnknownKeyTypeException key type unknown
    * @exception IOException from the lower layer
    */
-  public Tuple get_next() 
+  public Triple get_next() 
     throws IndexException, 
 	   UnknownKeyTypeException,
 	   IOException
@@ -159,14 +159,14 @@ public class IndexScan extends Iterator {
 	if (_types[_fldNum -1].attrType == AttrType.attrInteger) {
 	  attrType[0] = new AttrType(AttrType.attrInteger);
 	  try {
-	    Jtuple.setHdr((short) 1, attrType, s_sizes);
+	    Jtriple.setHdr((short) 1, attrType, s_sizes);
 	  }
 	  catch (Exception e) {
 	    throw new IndexException(e, "IndexScan.java: Heapfile error");
 	  }
 	  
 	  try {
-	    Jtuple.setIntFld(1, ((IntegerKey)nextentry.key).getKey().intValue());
+	    Jtriple.setIntFld(1, ((IntegerKey)nextentry.key).getKey().intValue());
 	  }
 	  catch (Exception e) {
 	    throw new IndexException(e, "IndexScan.java: Heapfile error");
@@ -184,14 +184,14 @@ public class IndexScan extends Iterator {
 	  s_sizes[0] = _s_sizes[count-1];
 	  
 	  try {
-	    Jtuple.setHdr((short) 1, attrType, s_sizes);
+	    Jtriple.setHdr((short) 1, attrType, s_sizes);
 	  }
 	  catch (Exception e) {
 	    throw new IndexException(e, "IndexScan.java: Heapfile error");
 	  }
 	  
 	  try {
-	    Jtuple.setStrFld(1, ((StringKey)nextentry.key).getKey());
+	    Jtriple.setStrFld(1, ((StringKey)nextentry.key).getKey());
 	  }
 	  catch (Exception e) {
 	    throw new IndexException(e, "IndexScan.java: Heapfile error");
@@ -201,13 +201,13 @@ public class IndexScan extends Iterator {
 	  // attrReal not supported for now
 	  throw new UnknownKeyTypeException("Only Integer and String keys are supported so far"); 
 	}
-	return Jtuple;
+	return Jtriple;
       }
       
       // not index_only, need to return the whole tuple
-      rid = ((LeafData)nextentry.data).getData();
+      tid = ((LeafData)nextentry.data).getData();
       try {
-	tuple1 = f.getRecord(rid);
+	triple1 = f.getRecord(rid);
       }
       catch (Exception e) {
 	throw new IndexException(e, "IndexScan.java: getRecord failed");
@@ -231,13 +231,13 @@ public class IndexScan extends Iterator {
       if (eval) {
 	// need projection.java
 	try {
-	  Projection.Project(tuple1, _types, Jtuple, perm_mat, _noOutFlds);
+	  Projection.Project(tuple1, _types, Jtriple, perm_mat, _noOutFlds);
 	}
 	catch (Exception e) {
 	  throw new IndexException(e, "IndexScan.java: Heapfile error");
 	}
 
-	return Jtuple;
+	return Jtriple;
       }
 
       try {
@@ -281,9 +281,9 @@ public class IndexScan extends Iterator {
   private CondExpr[]    _selects;
   private int           _noInFlds;
   private int           _noOutFlds;
-  private Heapfile      f;
-  private Tuple         tuple1;
-  private Tuple         Jtuple;
+  private TripleHeapfile      f;
+  private Triple         triple1;
+  private Triple         Jtriple;
   private int           t1_size;
   private int           _fldNum;       
   private boolean       index_only;    

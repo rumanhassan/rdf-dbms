@@ -7,8 +7,6 @@
 package catalog;
 
 import global.*;
-import diskmgr.*;
-import bufmgr.*;
 
 // IndexDesc class: schema for index catalog
 public class IndexDesc
