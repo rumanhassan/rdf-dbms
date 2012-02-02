@@ -100,7 +100,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       
       THFPage currentDirPage = new THFPage();
       THFPage currentDataPage = new THFPage();
-      RID currentDataPageRid = new RID();
+      TID currentDataPageRid = new TID();
       PageID nextDirPageId = new PageID();
       // datapageId is stored in dpinfo.pageId 
       
@@ -461,7 +461,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		  byte [] tmpData = atuple.getTupleByteArray();
 		  currentDataPageRid = currentDirPage.insertRecord(tmpData);
 		  
-		  RID tmprid = currentDirPage.firstRecord();
+		  TID tmprid = currentDirPage.firstRecord();
 		  
 		  
 		  // need catch error here!
@@ -611,7 +611,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    *
    * @return true record deleted  false:record not found
    */
-  public boolean deleteRecord(RID rid)  
+  public boolean deleteTriple(TID tid)  
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   THFException, 
@@ -627,7 +627,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       PageID currentDataPageId = new PageID();
       RID currentDataPageRid = new RID();
       
-      status = _findDataPage(rid,
+      status = _findDataPage(tid,
 			     currentDirPageId, currentDirPage, 
 			     currentDataPageId, currentDataPage,
 			     currentDataPageRid);
@@ -645,7 +645,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       DataPageInfo pdpinfo = new DataPageInfo(atuple);
       
       // delete the record on the datapage
-      currentDataPage.deleteRecord(rid);
+      currentDataPage.deleteRecord(tid);
       
       pdpinfo.recct--;
       pdpinfo.flushToTuple();	//Write to the buffer pool
@@ -797,7 +797,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	}
 
       // new copy of this record fits in old space;
-      atuple.tupleCopy(newtuple);
+      atuple.tripleCopy(newtuple);
       unpinPage(currentDataPageId, true /* = DIRTY */);
       
       unpinPage(currentDirPageId, false /*undirty*/);
