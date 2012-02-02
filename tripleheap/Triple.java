@@ -56,12 +56,12 @@ public class Triple implements GlobalConst {
 		subjectId = new EID();
 		predicateId = new PID();
 		objectId = new EID();
-		subjectId.slotNo = Convert.getIntValue(1, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
-		predicateId.slotNo = Convert.getIntValue(3, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
-		objectId.slotNo = Convert.getIntValue(1, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(2, atriple);
+		subjectId.slotNo = Convert.getIntValue(0, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
+		predicateId.slotNo = Convert.getIntValue(2, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
+		objectId.slotNo = Convert.getIntValue(4, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
 		triple_offset = offset;
 	}
 
@@ -124,12 +124,12 @@ public class Triple implements GlobalConst {
 		subjectId = new EID();
 		predicateId = new PID();
 		objectId = new EID();
-		subjectId.slotNo = Convert.getIntValue(1, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
-		predicateId.slotNo = Convert.getIntValue(3, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
-		objectId.slotNo = Convert.getIntValue(1, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(2, atriple);
+		subjectId.slotNo = Convert.getIntValue(0, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
+		predicateId.slotNo = Convert.getIntValue(2, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
+		objectId.slotNo = Convert.getIntValue(4, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
 		triple_offset = offset;
 	}
 
@@ -145,12 +145,12 @@ public class Triple implements GlobalConst {
 		subjectId = new EID();
 		predicateId = new PID();
 		objectId = new EID();
-		subjectId.slotNo = Convert.getIntValue(1, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
-		predicateId.slotNo = Convert.getIntValue(3, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
-		objectId.slotNo = Convert.getIntValue(1, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(2, atriple);
+		subjectId.slotNo = Convert.getIntValue(0, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
+		predicateId.slotNo = Convert.getIntValue(2, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
+		objectId.slotNo = Convert.getIntValue(4, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
 		triple_offset = offset;
 	}
 
@@ -163,12 +163,12 @@ public class Triple implements GlobalConst {
 
 	public byte[] getTripleByteArray() {
 		byte[] triplecopy = new byte[triple_length];
-		Convert.setIntValue(subjectId.slotNo, 1, triplecopy);
-		Convert.setIntValue(subjectId.pageNo.pid, 2, triplecopy);
-		Convert.setIntValue(predicateId.slotNo, 3, triplecopy);
-		Convert.setIntValue(predicateId.pageNo.pid, 4, triplecopy);
-		Convert.setIntValue(objectId.slotNo, 5, triplecopy);
-		Convert.setIntValue(objectId.pageNo.pid, 6, triplecopy);
+		Convert.setIntValue(subjectId.slotNo, 0, triplecopy);
+		Convert.setIntValue(subjectId.pageNo.pid, 1, triplecopy);
+		Convert.setIntValue(predicateId.slotNo, 2, triplecopy);
+		Convert.setIntValue(predicateId.pageNo.pid, 3, triplecopy);
+		Convert.setIntValue(objectId.slotNo, 4, triplecopy);
+		Convert.setIntValue(objectId.pageNo.pid, 5, triplecopy);
 		return triplecopy;
 	}
 
