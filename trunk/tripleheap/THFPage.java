@@ -332,10 +332,10 @@ public class THFPage extends Page
    * @exception IOException I/O errors
    * in C++ Status insertRecord(char *recPtr, int recLen, RID& rid)
    */
-  public RID insertRecord ( byte [] record)		
+  public TID insertRecord ( byte [] record)		
     throws IOException
     {
-      RID rid = new RID();
+      TID tid = new TID();
       
       int recLen = record.length;
       int spaceNeeded = recLen + SIZE_OF_SLOT;
@@ -387,24 +387,24 @@ public class THFPage extends Page
 	// insert data onto the data page
 	System.arraycopy (record, 0, data, usedPtr, recLen);
 	curPage.pid = Convert.getIntValue (CUR_PAGE, data);
-	rid.pageNo.pid = curPage.pid;
-	rid.slotNo = i;
-	return   rid ;
+	tid.pageNo.pid = curPage.pid;
+	tid.slotNo = i;
+	return   tid ;
       }
     } 
   
   /**
    * delete the record with the specified rid
-   * @param	rid 	the record ID
+   * @param	tid 	the record ID
    * @exception	InvalidSlotNumberException Invalid slot number
    * @exception IOException I/O errors
    * in C++ Status deleteRecord(const RID& rid)
    */
-  public void deleteRecord ( RID rid )
+  public void deleteRecord ( TID tid )
     throws IOException,  
 	   InvalidSlotNumberException
     {
-      int slotNo = rid.slotNo;
+      int slotNo = tid.slotNo;
       short recLen = getSlotLength (slotNo);
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
@@ -465,7 +465,7 @@ public class THFPage extends Page
   public TID firstRecord() 
     throws IOException
     {
-      TID rid = new TID();
+      TID tid = new TID();
       // find the first non-empty slot
       
       
@@ -485,11 +485,11 @@ public class THFPage extends Page
       
       // found a non-empty slot
       
-      rid.slotNo = i;
+      tid.slotNo = i;
       curPage.pid= Convert.getIntValue(CUR_PAGE, data);
-      rid.pageNo.pid = curPage.pid;
+      tid.pageNo.pid = curPage.pid;
       
-      return rid;
+      return tid;
     }
   
   /**
@@ -532,13 +532,13 @@ public class THFPage extends Page
    * copies out record with RID rid into record pointer.
    * <br>
    * Status getRecord(RID rid, char *recPtr, int& recLen)
-   * @param	rid 	the record ID
+   * @param	currentDataPageTid 	the record ID
    * @return 	a tuple contains the record
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception  	IOException I/O errors
    * @see 	Triple
    */
-  public Triple getRecord ( RID rid ) 
+  public Triple getRecord ( TID currentDataPageTid ) 
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -546,9 +546,9 @@ public class THFPage extends Page
       short offset;
       byte []record;
       PageID pageNo = new PageID();
-      pageNo.pid= rid.pageNo.pid;
+      pageNo.pid= currentDataPageTid.pageNo.pid;
       curPage.pid = Convert.getIntValue (CUR_PAGE, data);
-      int slotNo = rid.slotNo;
+      int slotNo = currentDataPageTid.slotNo;
       
       // length of record being returned
       recLen = getSlotLength (slotNo);
@@ -580,17 +580,17 @@ public class THFPage extends Page
    * @exception   IOException I/O errors
    * @see 	Triple
    */  
-  public Triple returnRecord ( RID rid )
+  public Triple returnRecord ( TID tid )
     throws IOException, 
 	   InvalidSlotNumberException
     {
       short recLen;
       short offset;
       PageID pageNo = new PageID();
-      pageNo.pid = rid.pageNo.pid;
+      pageNo.pid = tid.pageNo.pid;
       
       curPage.pid = Convert.getIntValue (CUR_PAGE, data);
-      int slotNo = rid.slotNo;
+      int slotNo = tid.slotNo;
       
       // length of record being returned
       recLen = getSlotLength (slotNo);
