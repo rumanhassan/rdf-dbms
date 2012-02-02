@@ -1,4 +1,4 @@
-package heap;
+package tripleheap;
 
 /** JAVA */
 /**
@@ -29,7 +29,7 @@ public class TScan implements GlobalConst{
      */
 
     /** The triplelheapfile we are using. */
-    private TriplelHeapFile  _thf;
+    private TripleHeapFile  _thf;
 
     /** PageId of current directory page (which is itself an THFPage) */
     private PageID dirpageId = new PageID();

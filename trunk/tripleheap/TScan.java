@@ -624,13 +624,13 @@ public class TScan implements GlobalConst{
    * @see bufmgr.pinPage
    */
   private void pinPage(PageID pageno, Page page, boolean emptyPage)
-    throws HFBufMgrException {
+    throws THFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Scan.java: pinPage() failed");
+      throw new THFBufMgrException(e,"Scan.java: pinPage() failed");
     }
 
   } // end of pinPage
@@ -640,13 +640,13 @@ public class TScan implements GlobalConst{
    * @see bufmgr.unpinPage
    */
   private void unpinPage(PageID pageno, boolean dirty)
-    throws HFBufMgrException {
+    throws THFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.unpinPage(pageno, dirty);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Scan.java: unpinPage() failed");
+      throw new THFBufMgrException(e,"Scan.java: unpinPage() failed");
     }
 
   } // end of unpinPage

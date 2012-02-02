@@ -8,20 +8,20 @@ package catalog;
 
 import java.io.*;
 import global.*;
-import heap.*;
+import tripleheap.*;
 import bufmgr.*;
 import diskmgr.*;
 
 
-public class AttrCatalog extends Heapfile
+public class AttrCatalog extends TripleHeapfile
 	implements GlobalConst, Catalogglobal
 {
   //OPEN ATTRIBUTE CATALOG
   AttrCatalog(String filename)
     throws java.io.IOException, 
-	   HFException,
-	   HFDiskMgrException,
-	   HFBufMgrException,
+	   THFException,
+	   THFDiskMgrException,
+	   THFBufMgrException,
 	   AttrCatalogException
     {
       super(filename);
