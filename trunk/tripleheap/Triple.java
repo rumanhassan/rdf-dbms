@@ -11,7 +11,7 @@ public class Triple implements GlobalConst{
 
 
  /** 
-  * Maximum size of any tuple
+  * Maximum size of any triple
   */
   public static final int max_size = MINIBASE_PAGESIZE;
 
@@ -21,18 +21,18 @@ public class Triple implements GlobalConst{
   private byte [] data;
 
   /**
-   * start position of this tuple in data[]
+   * start position of this triple in data[]
    */
-  private int tuple_offset;
+  private int triple_offset;
 
   /**
-   * length of this tuple
+   * length of this triple
    */
-  private int tuple_length;
+  private int triple_length;
 
-  /** 
+   /** 
    * private field
-   * Number of fields in this tuple
+   * Number of fields in this triple
    */
   private short fldCnt;
 
@@ -45,131 +45,131 @@ public class Triple implements GlobalConst{
 
    /**
     * Class constructor
-    * Creat a new tuple with length = max_size,tuple offset = 0.
+    * Create a new triple with length = max_size,triple offset = 0.
     */
 
   public  Triple()
   {
-       // Creat a new tuple
+       // Create a new triple
        data = new byte[max_size];
-       tuple_offset = 0;
-       tuple_length = max_size;
+       triple_offset = 0;
+       triple_length = max_size;
   }
    
    /** Constructor
-    * @param atuple a byte array which contains the tuple
-    * @param offset the offset of the tuple in the byte array
-    * @param length the length of the tuple
+    * @param a triple a byte array which contains the triple
+    * @param offset the offset of the triple in the byte array
+    * @param length is the length of the triple
     */
 
-   public Triple(byte [] atuple, int offset, int length)
+   public Triple(byte [] atriple, int offset, int length)
    {
-      data = atuple;
-      tuple_offset = offset;
-      tuple_length = length;
+      data = atriple;
+      triple_offset = offset;
+      triple_length = length;
     //  fldCnt = getShortValue(offset, data);
    }
    
-   /** Constructor(used as tuple copy)
-    * @param fromTuple   a byte array which contains the tuple
+   /** Constructor(used as triple copy)
+    * @param fromTuple   a byte array which contains the triple
     * 
     */
-   public Triple(Triple fromTuple)
+   public Triple(Triple fromTriple)
    {
-       data = fromTuple.getTupleByteArray();
-       tuple_length = fromTuple.getLength();
-       tuple_offset = 0;
-       fldCnt = fromTuple.noOfFlds(); 
-       fldOffset = fromTuple.copyFldOffset(); 
+       data = fromTriple.getTupleByteArray();
+       triple_length = fromTriple.getLength();
+       triple_offset = 0;
+       fldCnt = fromTriple.noOfFlds(); 
+       fldOffset = fromTriple.copyFldOffset(); 
    }
 
    /**  
     * Class constructor
-    * Creat a new tuple with length = size,tuple offset = 0.
+    * Creat a new triple with length = size,triple offset = 0.
     */
  
   public  Triple(int size)
   {
-       // Creat a new tuple
+       // Create a new triple
        data = new byte[size];
-       tuple_offset = 0;
-       tuple_length = size;     
+       triple_offset = 0;
+       triple_length = size;     
   }
    
-   /** Copy a tuple to the current tuple position
-    *  you must make sure the tuple lengths must be equal
-    * @param fromTuple the tuple being copied
+   /** Copy a triple to the current triple position
+    *  you must make sure the triple lengths must be equal
+    * @param fromTuple the triple being copied
     */
-   public void tupleCopy(Triple fromTuple)
+   public void tripleCopy(Triple fromTriple)
    {
-       byte [] temparray = fromTuple.getTupleByteArray();
-       System.arraycopy(temparray, 0, data, tuple_offset, tuple_length);   
+       byte [] temparray = fromTriple.getTupleByteArray();
+       System.arraycopy(temparray, 0, data, triple_offset, triple_length);   
 //       fldCnt = fromTuple.noOfFlds(); 
 //       fldOffset = fromTuple.copyFldOffset(); 
    }
 
    /** This is used when you don't want to use the constructor
-    * @param atuple  a byte array which contains the tuple
-    * @param offset the offset of the tuple in the byte array
-    * @param length the length of the tuple
+    * @param atriple  a byte array which contains the triple
+    * @param offset the offset of the triple in the byte array
+    * @param length the length of the triple
     */
 
-   public void tupleInit(byte [] atuple, int offset, int length)
+   public void tripleInit(byte [] atriple, int offset, int length)
    {
-      data = atuple;
-      tuple_offset = offset;
-      tuple_length = length;
+      data = atriple;
+      triple_offset = offset;
+      triple_length = length;
    }
 
  /**
-  * Set a tuple with the given tuple length and offset
-  * @param	record	a byte array contains the tuple
-  * @param	offset  the offset of the tuple ( =0 by default)
-  * @param	length	the length of the tuple
+  * Set a triple with the given triple length and offset
+  * @param	record	a byte array contains the triple
+  * @param	offset  the offset of the triple ( =0 by default)
+  * @param	length	the length of the triple
   */
- public void tupleSet(byte [] record, int offset, int length)  
+ public void tripleSet(byte [] record, int offset, int length)  
   {
       System.arraycopy(record, offset, data, 0, length);
-      tuple_offset = 0;
-      tuple_length = length;
+      triple_offset = 0;
+      triple_length = length;
   }
   
- /** get the length of a tuple, call this method if you did not 
+ /** get the length of a triple, call this method if you did not 
   *  call setHdr () before
-  * @return 	length of this tuple in bytes
+  * @return 	length of this triple in bytes
   */   
   public int getLength()
    {
-      return tuple_length;
+      return triple_length;
    }
 
-/** get the length of a tuple, call this method if you did 
+/** get the length of a triple, call this method if you did 
   *  call setHdr () before
-  * @return     size of this tuple in bytes
+  * @return     size of this triple in bytes
   */
   public short size()
    {
-      return ((short) (fldOffset[fldCnt] - tuple_offset));
+      return ((short) (fldOffset[fldCnt] - triple_offset));
    }
  
-   /** get the offset of a tuple
-    *  @return offset of the tuple in byte array
+   /** get the offset of a triple
+    *  @return offset of the triple in byte array
     */   
    public int getOffset()
    {
-      return tuple_offset;
+      return triple_offset;
    }   
    
-   /** Copy the tuple byte array out
-    *  @return  byte[], a byte array contains the tuple
-    *		the length of byte[] = length of the tuple
+   /** Copy the triple byte array out
+    *  @return  byte[], a byte array contains the triple
+    *		the length of byte[] = length of the triple
     */
     
    public byte [] getTupleByteArray() 
    {
-       byte [] tuplecopy = new byte [tuple_length];
-       System.arraycopy(data, tuple_offset, tuplecopy, 0, tuple_length);
-       return tuplecopy;
+       byte [] triplecopy = new byte [triple_length];
+       System.arraycopy(data, triple_offset, triplecopy, 0, triple_length);
+       return triplecopy;
    }
    
    /** return the data byte array 
@@ -342,10 +342,10 @@ public class Triple implements GlobalConst{
 
 
    /**
-    * setHdr will set the header of this tuple.   
+    * setHdr will set the header of this triple.   
     *
     * @param	numFlds	  number of fields
-    * @param	types[]	  contains the types that will be in this tuple
+    * @param	types[]	  contains the types that will be in this triple
     * @param	strSizes[]      contains the sizes of the string 
     *				
     * @exception IOException I/O errors
@@ -361,13 +361,13 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
     throw new InvalidTupleSizeException (null, "TUPLE: TUPLE_TOOBIG_ERROR");
   
   fldCnt = numFlds;
-  Convert.setShortValue(numFlds, tuple_offset, data);
+  Convert.setShortValue(numFlds, triple_offset, data);
   fldOffset = new short[numFlds+1];
-  int pos = tuple_offset+2;  // start position for fldOffset[]
+  int pos = triple_offset+2;  // start position for fldOffset[]
   
   //sizeof short =2  +2: array siaze = numFlds +1 (0 - numFilds) and
   //another 1 for fldCnt
-  fldOffset[0] = (short) ((numFlds +2) * 2 + tuple_offset);   
+  fldOffset[0] = (short) ((numFlds +2) * 2 + triple_offset);   
    
   Convert.setShortValue(fldOffset[0], pos, data);
   pos +=2;
@@ -421,17 +421,17 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
   fldOffset[numFlds] = (short) (fldOffset[i-1] + incr);
   Convert.setShortValue(fldOffset[numFlds], pos, data);
   
-  tuple_length = fldOffset[numFlds] - tuple_offset;
+  triple_length = fldOffset[numFlds] - triple_offset;
 
-  if(tuple_length > max_size)
+  if(triple_length > max_size)
    throw new InvalidTupleSizeException (null, "TUPLE: TUPLE_TOOBIG_ERROR");
 }
      
   
   /**
-   * Returns number of fields in this tuple
+   * Returns number of fields in this triple
    *
-   * @return the number of fields in this tuple
+   * @return the number of fields in this triple
    *
    */
 
@@ -458,8 +458,8 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
    }
 
  /**
-  * Print out the tuple
-  * @param type  the types in the tuple
+  * Print out the triple
+  * @param type  the types in the triple
   * @Exception IOException I/O exception
   */
  public void print(AttrType type[])
@@ -526,7 +526,7 @@ public void setHdr (short numFlds,  AttrType types[], short strSizes[])
    * Padding must be used when storing different types.
    * 
    * @param	offset
-   * @param type   the type of tuple
+   * @param type   the type of triple
    * @return short typle
    */
 
