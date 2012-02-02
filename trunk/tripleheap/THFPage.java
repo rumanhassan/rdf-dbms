@@ -464,10 +464,10 @@ public class THFPage extends Page
    * in C++ Status firstRecord(RID& firstRid)
    * 
    */ 
-  public RID firstRecord() 
+  public TID firstRecord() 
     throws IOException
     {
-      RID rid = new RID();
+      TID rid = new TID();
       // find the first non-empty slot
       
       
@@ -501,13 +501,13 @@ public class THFPage extends Page
    * @exception  IOException I/O errors
    * in C++ Status nextRecord (RID curRid, RID& nextRid)
    */
-  public RID nextRecord (RID curRid) 
+  public RID nextRecord (TID curTid) 
     throws IOException 
     {
       RID rid = new RID();
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
-      int i=curRid.slotNo;
+      int i=curTid.slotNo;
       short length; 
       
       // find the next non-empty slot
@@ -603,8 +603,8 @@ public class THFPage extends Page
 	{
 	  
 	  offset = getSlotOffset (slotNo);
-	  Triple tuple = new Triple(data, offset, recLen);
-	  return tuple;
+	  Triple triple = new Triple(data, offset, recLen);
+	  return triple;
 	}
       
       else {   
