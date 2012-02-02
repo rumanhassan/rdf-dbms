@@ -1,4 +1,4 @@
-/* File Tuple.java */
+/* File Triple.java */
 package tripleheap;
 
 import java.io.*;
