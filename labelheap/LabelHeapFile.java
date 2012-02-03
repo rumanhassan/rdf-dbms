@@ -6,9 +6,9 @@ import bufmgr.*;
 import global.*;
 
 /**  This heapfile implementation is directory-based. We maintain a
- *  directory of info about the data pages (which are of type HFPage
+ *  directory of info about the data pages (which are of type LHFPage
  *  when loaded into memory).  The directory itself is also composed
- *  of HFPages, with each record being of type DataPageInfo
+ *  of LHFPages, with each record being of type DataPageInfo
  *  as defined below.
  *
  *  The first directory page is a header page for the entire database
@@ -22,17 +22,10 @@ import global.*;
  *  into the free space in the middle of the page.
  *
  *  We can store roughly pagesize/sizeof(DataPageInfo) records per
- *  directory page; for any given HeapFile insertion, it is likely
+ *  directory page; for any given LabelHeapFile insertion, it is likely
  *  that at least one of those referenced data pages will have
  *  enough free space to satisfy the request.
  */
-
-
-/** DataPageInfo class : the type of records stored on a directory page.
-*
-* April 9, 1998
-*/
-
 
 interface  Filetype {
   int TEMP = 0;
@@ -80,7 +73,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       
     } // end of _newDatapage
   
-  /* Internal HeapFile function (used in getRecord and updateRecord):
+  /* Internal LabelHeapFile function (used in getRecord and updateRecord):
      returns pinned directory page and pinned data page of the specified 
      user record(rid) and true if record is found.
      If the user record cannot be found, return false.
@@ -90,7 +83,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 				  PageID dataPageId, LHFPage datapage,
 				  LID lpDataPageLid) 
     throws InvalidSlotNumberException, 
-	   InvalidTupleSizeException, 
+	   InvalidLabelSizeException, 
 	   LHFException,
 	   LHFBufMgrException,
 	   LHFDiskMgrException,
@@ -294,14 +287,14 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   /** Return number of records in file.
    *
    * @exception InvalidSlotNumberException invalid slot number
-   * @exception InvalidTupleSizeException invalid tuple size
+   * @exception InvalidLabelSizeException invalid tuple size
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    */
   public int getLabelCnt() 
     throws InvalidSlotNumberException, 
-	   InvalidTupleSizeException, 
+	   InvalidLabelSizeException, 
 	   LHFDiskMgrException,
 	   LHFBufMgrException,
 	   IOException
@@ -320,13 +313,13 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	   pinPage(currentDirPageId, currentDirPage, false);
 	   
 	   LID lid = new LID();
-	   Label atuple;
+	   Label aLabel;
 	   for (lid = currentDirPage.firstRecord();
 	        lid != null;	// rid==NULL means no more record
 	        lid = currentDirPage.nextRecord(lid))
 	     {
-	       atuple = currentDirPage.getLabel(lid);
-	       DataPageInfo dpinfo = new DataPageInfo(atuple);
+	       aLabel = currentDirPage.getLabel(lid);
+	       DataPageInfo dpinfo = new DataPageInfo(aLabel);
 	       
 	       answer += dpinfo.recct;
 	     }
@@ -355,7 +348,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @param recLen the length of the record
    *
    * @exception InvalidSlotNumberException invalid slot number
-   * @exception InvalidTupleSizeException invalid tuple size
+   * @exception InvalidLabelSizeException invalid tuple size
    * @exception SpaceNotAvailableException no space left
    * @exception LHFException LabelHeapFile exception
    * @exception LHFBufMgrException exception thrown from bufmgr layer
@@ -366,7 +359,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    */
   public LID insertLabel(byte[] recPtr) 
     throws InvalidSlotNumberException,  
-	   InvalidTupleSizeException,
+	   InvalidLabelSizeException,
 	   SpaceNotAvailableException,
 	   LHFException,
 	   LHFBufMgrException,
@@ -603,7 +596,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   /** Delete record from file with given rid.
    *
    * @exception InvalidSlotNumberException invalid slot number
-   * @exception InvalidTupleSizeException invalid tuple size
+   * @exception InvalidLabelSizeException invalid tuple size
    * @exception LHFException heapfile exception
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
@@ -613,7 +606,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    */
   public boolean deleteLabel(LID lid)  
     throws InvalidSlotNumberException, 
-	   InvalidTupleSizeException, 
+	   InvalidLabelSizeException, 
 	   LHFException, 
 	   LHFBufMgrException,
 	   LHFDiskMgrException,
@@ -752,7 +745,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    *
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidUpdateException invalid update on record
-   * @exception InvalidTupleSizeException invalid tuple size
+   * @exception InvalidLabelSizeException invalid tuple size
    * @exception LHFException heapfile exception
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
@@ -762,7 +755,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   public boolean updateLabel(LID lid, String newLabel) 
     throws InvalidSlotNumberException, 
 	   InvalidUpdateException, 
-	   InvalidTupleSizeException,
+	   InvalidLabelSizeException,
 	   LHFException, 
 	   LHFDiskMgrException,
 	   LHFBufMgrException,
@@ -811,7 +804,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @param lid Record ID
    *
    * @exception InvalidSlotNumberException invalid slot number
-   * @exception InvalidTupleSizeException invalid tuple size
+   * @exception InvalidLabelSizeException invalid tuple size
    * @exception SpaceNotAvailableException no space left
    * @exception LHFException heapfile exception
    * @exception LHFBufMgrException exception thrown from bufmgr layer
@@ -822,7 +815,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    */
   public String getLabel(LID lid) 
     throws InvalidSlotNumberException, 
-	   InvalidTupleSizeException, 
+	   InvalidLabelSizeException, 
 	   LHFException, 
 	   LHFDiskMgrException,
 	   LHFBufMgrException,
@@ -862,12 +855,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   
   
   /** Initiate a sequential scan.
-   * @exception InvalidTupleSizeException Invalid tuple size
+   * @exception InvalidLabelSizeException Invalid tuple size
    * @exception IOException I/O errors
    *
    */
   public LScan openScan() 
-    throws InvalidTupleSizeException,
+    throws InvalidLabelSizeException,
 	   IOException
     {
       LScan newscan = new LScan(this);
@@ -878,7 +871,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   /** Delete the file from the database.
    *
    * @exception InvalidSlotNumberException invalid slot number
-   * @exception InvalidTupleSizeException invalid tuple size
+   * @exception InvalidLabelSizeException invalid tuple size
    * @exception FileAlreadyDeletedException file is deleted already
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
@@ -887,7 +880,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   public void deleteFile()  
     throws InvalidSlotNumberException, 
 	   FileAlreadyDeletedException, 
-	   InvalidTupleSizeException, 
+	   InvalidLabelSizeException, 
 	   LHFBufMgrException,
 	   LHFDiskMgrException,
 	   IOException
