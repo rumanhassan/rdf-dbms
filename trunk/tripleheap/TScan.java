@@ -85,7 +85,7 @@ public class TScan implements GlobalConst{
     throws InvalidTripleSizeException,
 	   IOException
   {
-    Triple recptrtriple = null;
+    Triple triple = null;
     
     if (nextUserStatus != true) {
         nextDataPage();
@@ -98,7 +98,7 @@ public class TScan implements GlobalConst{
     tid.slotNo = usertid.slotNo;
          
     try {
-    	recptrtriple = datapage.getRecord(tid);
+    	triple = datapage.getRecord(tid);
     }
     
     catch (Exception e) {
@@ -110,7 +110,7 @@ public class TScan implements GlobalConst{
     if(usertid == null) nextUserStatus = false;
     else nextUserStatus = true;
      
-    return recptrtriple;
+    return triple;
   }
 
 
