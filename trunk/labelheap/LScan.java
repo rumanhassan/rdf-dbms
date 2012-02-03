@@ -29,7 +29,7 @@ public class LScan implements GlobalConst{
      */
 
     /** The labelheapfile we are using. */
-    private LabelHeapfile  _lhf;
+    private LabelHeapFile  _lhf;
 
     /** PageId of current directory page (which is itself an LHFPage) */
     private PageID dirpageId = new PageID();
@@ -64,7 +64,7 @@ public class LScan implements GlobalConst{
      *
      * @param lhf A LabelHeapFile object
      */
-  public LScan(LabelHeapfile lhf) 
+  public LScan(LabelHeapFile lhf) 
     throws InvalidLabelSizeException,
 	   IOException
   {
@@ -187,7 +187,7 @@ public class LScan implements GlobalConst{
      *
      * @param lhf A LabelHeapFile object
      */
-    private void init(LabelHeapfile lhf) 
+    private void init(LabelHeapFile lhf) 
       throws InvalidLabelSizeException,
 	     IOException
   {
@@ -624,13 +624,13 @@ public class LScan implements GlobalConst{
    * @see bufmgr.pinPage
    */
   private void pinPage(PageID pageno, Page page, boolean emptyPage)
-    throws HFBufMgrException {
+    throws LHFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Scan.java: pinPage() failed");
+      throw new LHFBufMgrException(e,"Scan.java: pinPage() failed");
     }
 
   } // end of pinPage
@@ -640,13 +640,13 @@ public class LScan implements GlobalConst{
    * @see bufmgr.unpinPage
    */
   private void unpinPage(PageID pageno, boolean dirty)
-    throws HFBufMgrException {
+    throws LHFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.unpinPage(pageno, dirty);
     }
     catch (Exception e) {
-      throw new HFBufMgrException(e,"Scan.java: unpinPage() failed");
+      throw new LHFBufMgrException(e,"Scan.java: unpinPage() failed");
     }
 
   } // end of unpinPage
