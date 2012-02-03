@@ -342,10 +342,9 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       return answer;
     } // end of getLabelCnt
   
-  /** Insert record into file, return its Rid.
+  /** Insert label into file, return its Lid.
    *
    * @param recPtr pointer of the record
-   * @param recLen the length of the record
    *
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidLabelSizeException invalid tuple size
@@ -448,13 +447,14 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  // calling a HFPage function
 		  
 		  
+		  /* TODO: Find another way to accomplish the next few lines of code
+		  aLabel = dpinfo.convertToTuple(); 
 		  
-		  aLabel = dpinfo.convertToTuple(); //TODO fix this line.
-		  
-		  byte [] tmpData = aLabel.getTupleByteArray();
+		  byte [] tmpData = aLabel.getLabelByteArray(); 
 		  currentDataPageLid = currentDirPage.insertRecord(tmpData);
 		  
 		  LID tmplid = currentDirPage.firstRecord();
+		  END TODO*/ 
 		  
 		  
 		  // need catch error here!
@@ -776,21 +776,9 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       if(status != true) return status;	// record not found
       Label aLabel = new Label();
       aLabel = dataPage.returnRecord(lid);
-      
-      // Assume update a record with a record whose length is equal to
-      // the original record
-      
-      if(newLabel.length() != aLabel.getLength())
-	{
-	  unpinPage(currentDataPageId, false /*undirty*/);
-	  unpinPage(currentDirPageId, false /*undirty*/);
-	  
-	  throw new InvalidUpdateException(null, "invalid record update");
-	  
-	}
 
-      // new copy of this record fits in old space;
-      aLabel.tupleCopy(newLabel);
+      // update the label to the String provided
+      aLabel.setLabel(newLabel);
       unpinPage(currentDataPageId, true /* = DIRTY */);
       
       unpinPage(currentDirPageId, false /*undirty*/);
@@ -1038,4 +1026,4 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 
 
   
-}// End of HeapFile 
+}// End of LabelHeapFile 
