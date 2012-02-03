@@ -1,5 +1,8 @@
 package labelheap;
 
+import iterator.LabelUtils;
+import java.io.*;
+
 public class Label {
 
 	private String label;
@@ -31,6 +34,16 @@ public class Label {
 	 */
 	public int getLength() {
 		return label.length();
+	}
+
+	/**
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	public byte[] returnLabelByteArray() 
+	throws UnsupportedEncodingException{
+		byte[] myBites = LabelUtils.convertStringToByteArray(label);
+		return myBites;
 	}
 
 }

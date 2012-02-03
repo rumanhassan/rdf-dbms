@@ -4,6 +4,7 @@ import java.io.*;
 import diskmgr.*;
 import bufmgr.*;
 import global.*;
+import iterator.LabelUtils;
 
 /**  This heapfile implementation is directory-based. We maintain a
  *  directory of info about the data pages (which are of type LHFPage
@@ -93,7 +94,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       
       LHFPage currentDirPage = new LHFPage();
       LHFPage currentDataPage = new LHFPage();
-      RID currentDataPageRid = new RID();
+      LID currentDataPageLid = new LID();
       PageID nextDirPageId = new PageID();
       // datapageId is stored in dpinfo.pageId 
       
@@ -107,12 +108,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	  // ASSERTIONS:
 	  //  currentDirPage, currentDirPageId valid and pinned and Locked.
 	  
-	  for( currentDataPageRid = currentDirPage.firstRecord();
-	       currentDataPageRid != null;
-	       currentDataPageRid = currentDirPage.nextRecord(currentDataPageRid))
+	  for( currentDataPageLid = currentDirPage.firstLabel();
+	       currentDataPageLid != null;
+	       currentDataPageLid = currentDirPage.nextLabel(currentDataPageLid))
 	    {
 	      try{
-		atuple = currentDirPage.getRecord(currentDataPageRid);
+		atuple = currentDirPage.getlabel(currentDataPageLid);
 	      }
 	      catch (InvalidSlotNumberException e)// check error! return false(done) 
 		{
@@ -141,7 +142,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	      
 	      if(dpinfo.pageId.pid==lid.pageNo.pid)
 		{
-		  atuple = currentDataPage.returnRecord(lid);
+		  atuple = currentDataPage.returnLabel(lid);
 		  // found user's record on the current datapage which itself
 		  // is indexed on the current dirpage.  Return both of these.
 		  
@@ -151,8 +152,8 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  datapage.setpage(currentDataPage.getpage());
 		  dataPageId.pid = dpinfo.pageId.pid;
 		  
-		  lpDataPageLid.pageNo.pid = currentDataPageRid.pageNo.pid;
-		  lpDataPageLid.slotNo = currentDataPageRid.slotNo;
+		  lpDataPageLid.pageNo.pid = currentDataPageLid.pageNo.pid;
+		  lpDataPageLid.slotNo = currentDataPageLid.slotNo;
 		  return true;
 		}
 	      else
@@ -314,13 +315,14 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	   
 	   LID lid = new LID();
 	   Label aLabel;
-	   for (lid = currentDirPage.firstRecord();
+	   for (lid = currentDirPage.firstLabel();
 	        lid != null;	// rid==NULL means no more record
-	        lid = currentDirPage.nextRecord(lid))
+	        lid = currentDirPage.nextLabel(lid))
 	     {
-	       aLabel = currentDirPage.getLabel(lid);
-	       DataPageInfo dpinfo = new DataPageInfo(aLabel);
-	       
+	       aLabel = currentDirPage.getlabel(lid);
+	       DataPageInfo dpinfo;
+
+	       dpinfo = new DataPageInfo(aLabel);	       
 	       answer += dpinfo.recct;
 	     }
 	   
@@ -385,12 +387,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       while (found == false)
 	{ //Start While01
 	  // look for suitable dpinfo-struct
-	  for (currentDataPageLid = currentDirPage.firstRecord();
+	  for (currentDataPageLid = currentDirPage.firstLabel();
 	       currentDataPageLid != null;
 	       currentDataPageLid = 
-		 currentDirPage.nextRecord(currentDataPageLid))
+		 currentDirPage.nextLabel(currentDataPageLid))
 	    {
-	      aLabel = currentDirPage.getLabel(currentDataPageLid);
+	      aLabel = currentDirPage.getlabel(currentDataPageLid);
 	      
 	      dpinfo = new DataPageInfo(aLabel);
 	      
@@ -447,14 +449,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  // calling a LHFPage function
 		  
 		  aLabel = dpinfo.convertToLabel(); //convert dpinfo into a Label object
-//		  byte [] tmpData = new byte[aLabel.getLabel().length()];
-//		  //write each char of the Label's string to a byte array
-//		  for(int pos=0; pos < aLabel.getLabel().length(); pos++ )
-//			  Convert.setCharValue(aLabel.getLabel().charAt(pos), pos, tmpData);
-		  // insert the Label into the page as a byte array, and get the LID
-		  currentDataPageLid = currentDirPage.insertRecord(aLabel); //
+
+		  // insert the Label into the page as a byte array, and get the LID		  
+		  byte[] labelByteArray = LabelUtils.convertStringToByteArray(aLabel.getLabel());
+		  currentDataPageLid = currentDirPage.insertLabel(labelByteArray);  //
 		  
-		  LID tmplid = currentDirPage.firstRecord();
+		  LID tmplid = currentDirPage.firstLabel();
 		  
 		  
 		  // need catch error here!
@@ -567,7 +567,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       
       
       LID lid;
-      lid = currentDataPage.insertRecord(recPtr);
+      lid = currentDataPage.insertLabel(recPtr);
       
       dpinfo.recct++;
       dpinfo.availspace = currentDataPage.available_space();
@@ -576,7 +576,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       unpinPage(dpinfo.pageId, true /* = DIRTY */);
       
       // DataPage is now released
-      aLabel = currentDirPage.returnRecord(currentDataPageLid);
+      aLabel = currentDirPage.returnLabel(currentDataPageLid);
       DataPageInfo dpinfo_ondirpage = new DataPageInfo(aLabel);
       
       
@@ -634,11 +634,11 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       // get datapageinfo from the current directory page:
       Label aLabel;	
       
-      aLabel = currentDirPage.returnRecord(currentDataPageLid);
+      aLabel = currentDirPage.returnLabel(currentDataPageLid);
       DataPageInfo pdpinfo = new DataPageInfo(aLabel);
       
       // delete the record on the datapage
-      currentDataPage.deleteRecord(lid);
+      currentDataPage.deleteLabel(lid);
       
       pdpinfo.recct--;
       pdpinfo.flushToTuple();	//Write to the buffer pool
@@ -671,7 +671,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	  // delete corresponding DataPageInfo-entry on the directory page:
 	  // currentDataPageRid points to datapage (from for loop above)
 	  
-	  currentDirPage.deleteRecord(currentDataPageLid);
+	  currentDirPage.deleteLabel(currentDataPageLid);
 	  
 	  
 	  // ASSERTIONS:
@@ -680,7 +680,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	  
 	  // now check whether the directory page is empty:
 	  
-	  currentDataPageLid = currentDirPage.firstRecord();
+	  currentDataPageLid = currentDirPage.firstLabel();
 	  
 	  // st == OK: we still found a datapageinfo record on this directory page
 	  PageID pageId;
@@ -775,7 +775,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       
       if(status != true) return status;	// record not found
       Label aLabel = new Label();
-      aLabel = dataPage.returnRecord(lid);
+      aLabel = dataPage.returnLabel(lid);
 
       // update the label to the String provided
       aLabel.setLabel(newLabel);
@@ -824,7 +824,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       if(status != true) return null; // record not found 
       
       Label aLabel = new Label();
-      aLabel = dataPage.getRecord(lid);
+      aLabel = dataPage.getlabel(lid);
       
       /*
        * getRecord has copied the contents of rid into recPtr and fixed up
@@ -837,7 +837,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       unpinPage(currentDirPageId,false /*undirty*/);
       
       
-      return  aLabel.getLabel();  //(true?)OK, but the caller need check if atuple==NULL
+      return  aLabel.getLabel();  //(true?)OK, but the caller need check if aLabel==NULL
       
     }
   
@@ -895,12 +895,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       LID lid = new LID();
       while(currentDirPageId.pid != INVALID_PAGE)
 	{      
-	  for(lid = currentDirPage.firstRecord();
+	  for(lid = currentDirPage.firstLabel();
 	      lid != null;
-	      lid = currentDirPage.nextRecord(lid))
+	      lid = currentDirPage.nextLabel(lid))
 	    {
-	      aLabel = currentDirPage.getLabel(lid);
-	      DataPageInfo dpinfo = new DataPageInfo( aLabel);
+	      aLabel = currentDirPage.getlabel(lid);
+	      DataPageInfo dpinfo = new DataPageInfo(aLabel);
 	      //int dpinfoLen = arecord.length;
 	      
 	      freePage(dpinfo.pageId);

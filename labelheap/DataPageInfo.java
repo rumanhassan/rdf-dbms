@@ -72,17 +72,17 @@ class DataPageInfo implements GlobalConst{
    *  it will make a copy of the data in the tuple
    * @param atuple: the input tuple
    */
-  public DataPageInfo(Label _atuple)
-       throws InvalidTupleSizeException, IOException
+  public DataPageInfo(Label _aLabel)
+       throws InvalidLabelSizeException, IOException
   {   
      // need check _atuple size == this.size ?otherwise, throw new exception
-    if (_atuple.getLength()!=12){
+    if (_aLabel.getLength()!=12){
       throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR");
     }
 
     else{
-      data = _atuple.returnTupleByteArray();
-      offset = _atuple.getOffset();
+      data = _aLabel.returnLabelByteArray();
+      offset = _aLabel.getOffset();
       
       availspace = Convert.getIntValue(offset, data);
       recct = Convert.getIntValue(offset+4, data);
