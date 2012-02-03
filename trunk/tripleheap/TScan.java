@@ -14,24 +14,24 @@ import diskmgr.*;
 
 /**	
  * A Scan object is created ONLY through the function openScan
- * of a HeapFile. It supports the getNext interface which will
- * simply retrieve the next record in the heapfile.
+ * of a TripleHeapFile. It supports the getNext interface which will
+ * simply retrieve the next record in the TripleHeapFile.
  *
  * An object of type scan will always have pinned one directory page
- * of the heapfile.
+ * of the TripleHeapFile.
  */
 public class TScan implements GlobalConst{
  
     /**
-     * Note that one record in our way-cool HeapFile implementation is
+     * Note that one record in our way-cool TripleHeapFile implementation is
      * specified by six (6) parameters, some of which can be determined
      * from others:
      */
 
-    /** The heapfile we are using. */
-    private TripleHeapFile  _hf;
+    /** The TripleHeapFile we are using. */
+    private TripleHeapFile  _thf;
 
-    /** PageId of current directory page (which is itself an HFPage) */
+    /** PageId of current directory page (which is itself an THFPage) */
     private PageID dirpageId = new PageID();
 
     /** pointer to in-core data of dirpageId (page is pinned) */
@@ -40,7 +40,7 @@ public class TScan implements GlobalConst{
     /** record ID of the DataPageInfo struct (in the directory page) which
      * describes the data page where our current record lives.
      */
-    private RID datapageRid = new RID();
+    private TID datapageTid = new TID();
 
     /** the actual PageId of the data page with the current record */
     private PageID datapageId = new PageID();
@@ -49,7 +49,7 @@ public class TScan implements GlobalConst{
     private THFPage datapage = new THFPage();
 
     /** record ID of the current record (from the current data page) */
-    private RID userrid = new RID();
+    private TID usertid = new TID();
 
     /** Status of next user status */
     private boolean nextUserStatus;
@@ -57,35 +57,35 @@ public class TScan implements GlobalConst{
      
     /** The constructor pins the first directory page in the file
      * and initializes its private data members from the private
-     * data member from hf
+     * data member from thf
      *
-     * @exception InvalidTupleSizeException Invalid tuple size
+     * @exception InvalidTripleSizeException Invalid triple size
      * @exception IOException I/O errors
      *
-     * @param hf A HeapFile object
+     * @param thf A TripleHeapFile object
      */
-  public TScan(TripleHeapFile hf) 
-    throws InvalidTupleSizeException,
+  public TScan(TripleHeapFile thf) 
+    throws InvalidTripleSizeException,
 	   IOException
   {
-	init(hf);
+	init(thf);
   }
 
 
   
   /** Retrieve the next record in a sequential scan
    *
-   * @exception InvalidTupleSizeException Invalid tuple size
+   * @exception InvalidTripleSizeException Invalid triple size
    * @exception IOException I/O errors
    *
-   * @param rid Record ID of the record
-   * @return the Tuple of the retrieved record.
+   * @param tid Record ID of the record
+   * @return the Triple of the retrieved record.
    */
-  public Triple getNext(RID rid) 
-    throws InvalidTupleSizeException,
+  public Triple getNext(TID tid) 
+    throws InvalidTripleSizeException,
 	   IOException
   {
-    Triple recptrtuple = null;
+    Triple recptrtriple = null;
     
     if (nextUserStatus != true) {
         nextDataPage();
@@ -94,11 +94,11 @@ public class TScan implements GlobalConst{
     if (datapage == null)
       return null;
     
-    rid.pageNo.pid = userrid.pageNo.pid;    
-    rid.slotNo = userrid.slotNo;
+    tid.pageNo.pid = usertid.pageNo.pid;    
+    tid.slotNo = usertid.slotNo;
          
     try {
-      recptrtuple = datapage.getRecord(rid);
+    	recptrtriple = datapage.getRecord(tid);
     }
     
     catch (Exception e) {
@@ -106,37 +106,37 @@ public class TScan implements GlobalConst{
       e.printStackTrace();
     }   
     
-    userrid = datapage.nextRecord(rid);
-    if(userrid == null) nextUserStatus = false;
+    usertid = datapage.nextRecord(tid);
+    if(usertid == null) nextUserStatus = false;
     else nextUserStatus = true;
      
-    return recptrtuple;
+    return recptrtriple;
   }
 
 
-    /** Position the scan cursor to the record with the given rid.
+    /** Position the scan cursor to the record with the given tid.
      * 
-     * @exception InvalidTupleSizeException Invalid tuple size
+     * @exception InvalidTripleSizeException Invalid triple size
      * @exception IOException I/O errors
-     * @param rid Record ID of the given record
+     * @param tid Record ID of the given record
      * @return 	true if successful, 
      *			false otherwise.
      */
-  public boolean position(RID rid) 
-    throws InvalidTupleSizeException,
+  public boolean position(TID tid) 
+    throws InvalidTripleSizeException,
 	   IOException
   { 
-    RID    nxtrid = new RID();
+    TID    nxttid = new TID();
     boolean bst;
 
-    bst = peekNext(nxtrid);
+    bst = peekNext(nxttid);
 
-    if (nxtrid.equals(rid)==true) 
+    if (nxttid.equals(tid)==true) 
     	return true;
 
     // This is kind lame, but otherwise it will take all day.
     PageID pgid = new PageID();
-    pgid.pid = rid.pageNo.pid;
+    pgid.pid = tid.pageNo.pid;
  
     if (!datapageId.equals(pgid)) {
 
@@ -158,23 +158,23 @@ public class TScan implements GlobalConst{
     // Now we are on the correct page.
     
     try{
-    	userrid = datapage.firstRecord();
+    	usertid = datapage.firstRecord();
 	}
     catch (Exception e) {
       e.printStackTrace();
     }
 	
 
-    if (userrid == null)
+    if (usertid == null)
       {
     	bst = false;
         return bst;
       }
     
-    bst = peekNext(nxtrid);
+    bst = peekNext(nxttid);
     
-    while ((bst == true) && (nxtrid != rid))
-      bst = mvNext(nxtrid);
+    while ((bst == true) && (nxttid != tid))
+      bst = mvNext(nxttid);
     
     return bst;
   }
@@ -182,16 +182,16 @@ public class TScan implements GlobalConst{
 
     /** Do all the constructor work
      *
-     * @exception InvalidTupleSizeException Invalid tuple size
+     * @exception InvalidTripleSizeException Invalid triple size
      * @exception IOException I/O errors
      *
-     * @param hf A HeapFile object
+     * @param thf A TripleHeapFile object
      */
-    private void init(TripleHeapFile hf) 
-      throws InvalidTupleSizeException,
+    private void init(TripleHeapFile thf) 
+      throws InvalidTripleSizeException,
 	     IOException
   {
-	_hf = hf;
+	_thf = thf;
 
     	firstDataPage();
   }
@@ -239,22 +239,22 @@ public class TScan implements GlobalConst{
  
  
   /** Move to the first data page in the file. 
-   * @exception InvalidTupleSizeException Invalid tuple size
+   * @exception InvalidTripleSizeException Invalid triple size
    * @exception IOException I/O errors
    * @return true if successful
    *         false otherwise
    */
   private boolean firstDataPage() 
-    throws InvalidTupleSizeException,
+    throws InvalidTripleSizeException,
 	   IOException
   {
     DataPageInfo dpinfo;
-    Triple        rectuple = null;
+    Triple        rectriple = null;
     Boolean      bst;
 
     /** copy data about first directory page */
  
-    dirpageId.pid = _hf._firstDirPageId.pid;  
+    dirpageId.pid = _thf._firstDirPageId.pid;  
     nextUserStatus = true;
 
     /** get first directory page and pin it */
@@ -269,13 +269,13 @@ public class TScan implements GlobalConst{
 	}
     
     /** now try to get a pointer to the first datapage */
-	 datapageRid = dirpage.firstRecord();
+	 datapageTid = dirpage.firstRecord();
 	 
-    	if (datapageRid != null) {
+    	if (datapageTid != null) {
     /** there is a datapage record on the first directory page: */
 	
 	try {
-          rectuple = dirpage.getRecord(datapageRid);
+          rectriple = dirpage.getRecord(datapageTid);
 	}  
 				
 	catch (Exception e) {
@@ -283,7 +283,7 @@ public class TScan implements GlobalConst{
 		e.printStackTrace();
 	}		
       			    
-    	dpinfo = new DataPageInfo(rectuple);
+    	dpinfo = new DataPageInfo(rectriple);
         datapageId.pid = dpinfo.pageId.pid;
 
     } else {
@@ -291,7 +291,7 @@ public class TScan implements GlobalConst{
     /** the first directory page is the only one which can possibly remain
      * empty: therefore try to get the next directory page and
      * check it. The next one has to contain a datapage record, unless
-     * the heapfile is empty:
+     * the TripleHeapFile is empty:
      */
       PageID nextDirPageId = new PageID();
       
@@ -324,7 +324,7 @@ public class TScan implements GlobalConst{
 	/** now try again to read a data record: */
 	
 	try {
-	  datapageRid = dirpage.firstRecord();
+	  datapageTid = dirpage.firstRecord();
 	}
         
 	catch (Exception e) {
@@ -333,11 +333,11 @@ public class TScan implements GlobalConst{
 	  datapageId.pid = INVALID_PAGE;
 	}
        
-	if(datapageRid != null) {
+	if(datapageTid != null) {
           
 	  try {
 	  
-	    rectuple = dirpage.getRecord(datapageRid);
+	    rectriple = dirpage.getRecord(datapageTid);
 	  }
 	  
 	  catch (Exception e) {
@@ -345,18 +345,18 @@ public class TScan implements GlobalConst{
 	    e.printStackTrace();
 	  }
 	  
-	  if (rectuple.getLength() != DataPageInfo.size)
+	  if (rectriple.getLength() != DataPageInfo.size)
 	    return false;
 	  
-	  dpinfo = new DataPageInfo(rectuple);
+	  dpinfo = new DataPageInfo(rectriple);
 	  datapageId.pid = dpinfo.pageId.pid;
 	  
          } else {
-	   // heapfile empty
+	   // TripleHeapFile empty
            datapageId.pid = INVALID_PAGE;
          }
        }//end if01
-       else {// heapfile empty
+       else {// TripleHeapFile empty
 	datapageId.pid = INVALID_PAGE;
 	}
 }	
@@ -378,10 +378,10 @@ public class TScan implements GlobalConst{
        * - first directory page pinned
        * - this->dirpageId has Id of first directory page
        * - this->dirpage valid
-       * - if heapfile empty:
+       * - if TripleHeapFile empty:
        *    - this->datapage == NULL, this->datapageId==INVALID_PAGE
-       * - if heapfile nonempty:
-       *    - this->datapage == NULL, this->datapageId, this->datapageRid valid
+       * - if TripleHeapFile nonempty:
+       *    - this->datapage == NULL, this->datapageId, this->datapageTid valid
        *    - first datapage is not yet pinned
        */
     
@@ -395,26 +395,26 @@ public class TScan implements GlobalConst{
    *			false if unsuccessful
    */
   private boolean nextDataPage() 
-    throws InvalidTupleSizeException,
+    throws InvalidTripleSizeException,
 	   IOException
   {
     DataPageInfo dpinfo;
     
     boolean nextDataPageStatus;
     PageID nextDirPageId = new PageID();
-    Triple rectuple = null;
+    Triple rectriple = null;
 
   // ASSERTIONS:
   // - this->dirpageId has Id of current directory page
   // - this->dirpage is valid and pinned
-  // (1) if heapfile empty:
+  // (1) if TripleHeapFile empty:
   //    - this->datapage==NULL; this->datapageId == INVALID_PAGE
-  // (2) if overall first record in heapfile:
+  // (2) if overall first record in TripleHeapFile:
   //    - this->datapage==NULL, but this->datapageId valid
-  //    - this->datapageRid valid
+  //    - this->datapageTid valid
   //    - current data page unpinned !!!
-  // (3) if somewhere in heapfile
-  //    - this->datapageId, this->datapage, this->datapageRid valid
+  // (3) if somewhere in TripleHeapFile
+  //    - this->datapageId, this->datapage, this->datapageTid valid
   //    - current data page pinned
   // (4)- if the scan had already been done,
   //        dirpage = NULL;  datapageId = INVALID_PAGE
@@ -424,7 +424,7 @@ public class TScan implements GlobalConst{
 
     if (datapage == null) {
       if (datapageId.pid == INVALID_PAGE) {
-	// heapfile is empty to begin with
+	// TripleHeapFile is empty to begin with
 	
 	try{
 	  unpinPage(dirpageId, false);
@@ -447,7 +447,7 @@ public class TScan implements GlobalConst{
 	}
 	
 	try {
-	  userrid = datapage.firstRecord();
+	  usertid = datapage.firstRecord();
 	}
 	catch (Exception e) {
 	  e.printStackTrace();
@@ -458,7 +458,7 @@ public class TScan implements GlobalConst{
     }
   
   // ASSERTIONS:
-  // - this->datapage, this->datapageId, this->datapageRid valid
+  // - this->datapage, this->datapageId, this->datapageTid valid
   // - current datapage pinned
 
     // unpin the current datapage
@@ -477,9 +477,9 @@ public class TScan implements GlobalConst{
       return false;
     }
     
-    datapageRid = dirpage.nextRecord(datapageRid);
+    datapageTid = dirpage.nextRecord(datapageTid);
     
-    if (datapageRid == null) {
+    if (datapageTid == null) {
       nextDataPageStatus = false;
       // we have read all datapage records on the current directory page
       
@@ -519,7 +519,7 @@ public class TScan implements GlobalConst{
 	  return false;
 	
     	try {
-	  datapageRid = dirpage.firstRecord();
+	  datapageTid = dirpage.firstRecord();
 	  nextDataPageStatus = true;
 	}
 	catch (Exception e){
@@ -533,22 +533,22 @@ public class TScan implements GlobalConst{
     // - this->dirpageId, this->dirpage valid
     // - this->dirpage pinned
     // - the new datapage to be read is on dirpage
-    // - this->datapageRid has the Rid of the next datapage to be read
+    // - this->datapageTid has the Lid of the next datapage to be read
     // - this->datapage, this->datapageId invalid
   
     // data page is not yet loaded: read its record from the directory page
    	try {
-	  rectuple = dirpage.getRecord(datapageRid);
+	  rectriple = dirpage.getRecord(datapageTid);
 	}
 	
 	catch (Exception e) {
-	  System.err.println("HeapFile: Error in Scan" + e);
+	  System.err.println("TripleHeapFile: Error in Scan" + e);
 	}
 	
-	if (rectuple.getLength() != DataPageInfo.size)
+	if (rectriple.getLength() != DataPageInfo.size)
 	  return false;
                         
-	dpinfo = new DataPageInfo(rectuple);
+	dpinfo = new DataPageInfo(rectriple);
 	datapageId.pid = dpinfo.pageId.pid;
 	
  	try {
@@ -557,18 +557,18 @@ public class TScan implements GlobalConst{
 	}
 	
 	catch (Exception e) {
-	  System.err.println("HeapFile: Error in Scan" + e);
+	  System.err.println("TripleHeapFile: Error in Scan" + e);
 	}
 	
      
      // - directory page is pinned
      // - datapage is pinned
      // - this->dirpageId, this->dirpage correct
-     // - this->datapageId, this->datapage, this->datapageRid correct
+     // - this->datapageId, this->datapage, this->datapageTid correct
 
-     userrid = datapage.firstRecord();
+     usertid = datapage.firstRecord();
      
-     if(userrid == null)
+     if(usertid == null)
      {
        nextUserStatus = false;
        return false;
@@ -578,41 +578,41 @@ public class TScan implements GlobalConst{
   }
 
 
-  private boolean peekNext(RID rid) {
+  private boolean peekNext(TID tid) {
     
-    rid.pageNo.pid = userrid.pageNo.pid;
-    rid.slotNo = userrid.slotNo;
+    tid.pageNo.pid = usertid.pageNo.pid;
+    tid.slotNo = usertid.slotNo;
     return true;
     
   }
 
 
   /** Move to the next record in a sequential scan.
-   * Also returns the RID of the (new) current record.
+   * Also returns the TID of the (new) current record.
    */
-  private boolean mvNext(RID rid) 
-    throws InvalidTupleSizeException,
+  private boolean mvNext(TID tid) 
+    throws InvalidTripleSizeException,
 	   IOException
   {
-    RID nextrid;
+    TID nextrid;
     boolean status;
 
     if (datapage == null)
         return false;
 
-    	nextrid = datapage.nextRecord(rid);
+    	nextrid = datapage.nextRecord(tid);
 	
 	if( nextrid != null ){
-	  userrid.pageNo.pid = nextrid.pageNo.pid;
-	  userrid.slotNo = nextrid.slotNo;
+	  usertid.pageNo.pid = nextrid.pageNo.pid;
+	  usertid.slotNo = nextrid.slotNo;
 	  return true;
 	} else {
 	  
 	  status = nextDataPage();
 
 	  if (status==true){
-	    rid.pageNo.pid = userrid.pageNo.pid;
-	    rid.slotNo = userrid.slotNo;
+	    tid.pageNo.pid = usertid.pageNo.pid;
+	    tid.slotNo = usertid.slotNo;
 	  }
 	
 	}
@@ -624,13 +624,13 @@ public class TScan implements GlobalConst{
    * @see bufmgr.pinPage
    */
   private void pinPage(PageID pageno, Page page, boolean emptyPage)
-    throws THFBufMgrException {
+    throws HFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage);
     }
     catch (Exception e) {
-      throw new THFBufMgrException(e,"Scan.java: pinPage() failed");
+      throw new HFBufMgrException(e,"Scan.java: pinPage() failed");
     }
 
   } // end of pinPage
@@ -640,13 +640,13 @@ public class TScan implements GlobalConst{
    * @see bufmgr.unpinPage
    */
   private void unpinPage(PageID pageno, boolean dirty)
-    throws THFBufMgrException {
+    throws HFBufMgrException {
 
     try {
       SystemDefs.JavabaseBM.unpinPage(pageno, dirty);
     }
     catch (Exception e) {
-      throw new THFBufMgrException(e,"Scan.java: unpinPage() failed");
+      throw new HFBufMgrException(e,"Scan.java: unpinPage() failed");
     }
 
   } // end of unpinPage
