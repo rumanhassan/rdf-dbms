@@ -1,4 +1,4 @@
-/* File HFPage.java */
+/* File THFPage.java */
 
 package tripleheap;
 
@@ -27,6 +27,7 @@ public class THFPage extends Page
   
   
   public static final int SIZE_OF_SLOT = 4;
+  public static final int LENGTH_OF_TRIPLE = 32;
   public static final int DPFIXED =  4 * 2  + 3 * 4;
   
   public static final int SLOT_CNT = 0;
@@ -85,8 +86,8 @@ public class THFPage extends Page
   public THFPage ()   {  }
   
   /**
-   * Constructor of class HFPage
-   * open a HFPage and make this HFpage piont to the given page
+   * Constructor of class THFPage
+   * open a THFPage and make this THFpage piont to the given page
    * @param  page  the given page in Page type
    */
   
@@ -96,18 +97,18 @@ public class THFPage extends Page
     }
   
   /**
-   * Constructor of class HFPage
-   * open a existed hfpage
+   * Constructor of class THFPage
+   * open a existed thfpage
    * @param  apage   a page in buffer pool
    */
   
-  public void openHFpage(Page apage)
+  public void openTHFpage(Page apage)
     {
       data = apage.getpage();
     }
   
   /**
-   * Constructor of class HFPage
+   * Constructor of class THFPage
    * initialize a new page
    * @param	pageNo	the page number of a new page to be initialized
    * @param	apage	the Page to be initialized 
@@ -143,7 +144,7 @@ public class THFPage extends Page
    * @return byte array
    */
   
-  public byte [] getHFpageArray()
+  public byte [] getTHFpageArray()
     {
       return data;
     }  
@@ -250,7 +251,7 @@ public class THFPage extends Page
     }
   
   /**
-   * @return 	the ype
+   * @return 	the type
    * @exception IOException I/O errors
    */
   public short getType() 
@@ -290,14 +291,13 @@ public class THFPage extends Page
    * @param	offset  offset of record
    * @exception IOException I/O errors
    */
-  public void setSlot(int slotno, int length, int offset)
+  
+  public void setSlot(int slotno, int offset)
     throws IOException
     {
-      int position = DPFIXED + slotno * SIZE_OF_SLOT;
-      Convert.setShortValue((short)length, position, data);
-      Convert.setShortValue((short)offset, position+2, data);
+      int position = DPFIXED + slotno * LENGTH_OF_TRIPLE;
+      Convert.setShortValue((short)offset, position, data);
     }
-  
   /**
    * @param	slotno	slot number
    * @exception IOException I/O errors
@@ -305,10 +305,13 @@ public class THFPage extends Page
    */
   public short getSlotLength(int slotno)
     throws IOException
-    {
-      int position = DPFIXED + slotno * SIZE_OF_SLOT;
-      short val= Convert.getShortValue(position, data);
-      return val;
+    {		
+	  		if(getSlotOffset(slotno)!=EMPTY_SLOT)
+	  		{
+            return LENGTH_OF_TRIPLE;
+	  		}
+	  		else
+	  			return EMPTY_SLOT;
     }
   
   /**
@@ -319,8 +322,8 @@ public class THFPage extends Page
   public short getSlotOffset(int slotno)
     throws IOException
     {
-      int position = DPFIXED + slotno * SIZE_OF_SLOT;
-      short val= Convert.getShortValue(position +2, data);
+      int position = DPFIXED + slotno * LENGTH_OF_TRIPLE;
+      short val= Convert.getShortValue(position, data);
       return val;
     }
   
@@ -338,12 +341,12 @@ public class THFPage extends Page
       TID tid = new TID();
       
       int recLen = record.length;
-      int spaceNeeded = recLen + SIZE_OF_SLOT;
+      int spaceNeeded = recLen;
       
       // Start by checking if sufficient space exists.
       // This is an upper bound check. May not actually need a slot
       // if we can find an empty one.
-      
+     
       freeSpace = Convert.getShortValue (FREE_SPACE, data);
       if (spaceNeeded > freeSpace) {
         return null;
@@ -353,11 +356,11 @@ public class THFPage extends Page
 	// look for an empty slot
 	slotCnt = Convert.getShortValue (SLOT_CNT, data); 
 	int i; 
-	short length;
+	int offset;
 	for (i= 0; i < slotCnt; i++) 
 	  {
-	    length = getSlotLength(i); 
-	    if (length == EMPTY_SLOT)
+	    offset = getSlotOffset(i); 
+	    if (offset == EMPTY_SLOT)
 	      break;
 	  }
 	
@@ -382,7 +385,7 @@ public class THFPage extends Page
 	Convert.setShortValue (usedPtr, USED_PTR, data);
 	
 	//insert the slot info onto the data page
-	setSlot(i, recLen, usedPtr);   
+	setSlot(i,usedPtr);   
 	
 	// insert data onto the data page
 	System.arraycopy (record, 0, data, usedPtr, recLen);
@@ -428,19 +431,19 @@ public class THFPage extends Page
 	  // to the left of the record being removed. (by the size of the hole)
 	  
 	  int i, n, chkoffset;
-	  for (i = 0, n = DPFIXED; i < slotCnt; n +=SIZE_OF_SLOT, i++) {
+	  for (i = 0, n = DPFIXED; i < slotCnt; n +=LENGTH_OF_TRIPLE, i++) {
 	    if ((getSlotLength(i) >= 0))
 	      {
 		chkoffset = getSlotOffset(i);
 		if(chkoffset < offset)
 		  {
 		    chkoffset += recLen;
-		    Convert.setShortValue((short)chkoffset, n+2, data);
+		    Convert.setShortValue((short)chkoffset, n, data);
 		  }
 	      }
 	  }
 	  
-	  // move used Ptr forwar
+	  // move used Ptr forward
 	  usedPtr += recLen;   
 	  Convert.setShortValue (usedPtr, USED_PTR, data);
 	  
@@ -449,7 +452,7 @@ public class THFPage extends Page
 	  freeSpace += recLen;  
 	  Convert.setShortValue (freeSpace, FREE_SPACE, data);
 	  
-	  setSlot(slotNo, EMPTY_SLOT, 0);  // mark slot free
+	  setSlot(slotNo, EMPTY_SLOT);  // mark slot free
 	} 
       else {
 	throw new InvalidSlotNumberException (null, "HEAPFILE: INVALID_SLOTNO");
@@ -472,11 +475,11 @@ public class THFPage extends Page
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
       int i;
-      short length;
+      int offset;
       for (i= 0; i < slotCnt; i++)
 	{
-	  length = getSlotLength (i);
-	  if (length != EMPTY_SLOT)
+	  offset = getSlotOffset(i);
+	  if (offset != EMPTY_SLOT)
 	    break;
 	}
       
@@ -506,13 +509,13 @@ public class THFPage extends Page
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
       int i=curTid.slotNo;
-      short length; 
+      int offset; 
       
       // find the next non-empty slot
       for (i++; i < slotCnt;  i++)
 	{
-	  length = getSlotLength(i);
-	  if (length != EMPTY_SLOT)
+    	  offset = getSlotOffset(i);
+	  if (offset != EMPTY_SLOT)
 	    break;
 	}
       
@@ -533,17 +536,17 @@ public class THFPage extends Page
    * <br>
    * Status getRecord(RID rid, char *recPtr, int& recLen)
    * @param	currentDataPageTid 	the record ID
-   * @return 	a tuple contains the record
+   * @return 	a triple contains the record
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception  	IOException I/O errors
    * @see 	Triple
    */
-  public Triple getRecord ( TID currentDataPageTid ) 
+  public Triple getTriple ( TID currentDataPageTid ) 
     throws IOException,  
 	   InvalidSlotNumberException
     {
       short recLen;
-      short offset;
+      int offset;
       byte []record;
       PageID pageNo = new PageID();
       pageNo.pid= currentDataPageTid.pageNo.pid;
@@ -559,8 +562,8 @@ public class THFPage extends Page
 	  offset = getSlotOffset (slotNo);
 	  record = new byte[recLen];
 	  System.arraycopy(data, offset, record, 0, recLen);
-	  Triple tuple = new Triple(record, 0, recLen);
-	  return tuple;
+	  Triple triple = new Triple(record, 0);
+	  return triple;
 	}
       
       else {
@@ -571,21 +574,21 @@ public class THFPage extends Page
     }
   
   /**
-   * returns a tuple in a byte array[pageSize] with given RID rid.
+   * returns a triple in a byte array[pageSize] with given RID rid.
    * <br>
    * in C++	Status returnRecord(RID rid, char*& recPtr, int& recLen)
    * @param       rid     the record ID
-   * @return      a tuple  with its length and offset in the byte array
+   * @return      a triple  with its length and offset in the byte array
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception   IOException I/O errors
    * @see 	Triple
    */  
-  public Triple returnRecord ( TID tid )
+  public Triple returnTriple( TID tid )
     throws IOException, 
 	   InvalidSlotNumberException
     {
       short recLen;
-      short offset;
+      int offset;
       PageID pageNo = new PageID();
       pageNo.pid = tid.pageNo.pid;
       
@@ -601,7 +604,7 @@ public class THFPage extends Page
 	{
 	  
 	  offset = getSlotOffset (slotNo);
-	  Triple triple = new Triple(data, offset, recLen);
+	  Triple triple = new Triple(data, offset);
 	  return triple;
 	}
       
@@ -632,14 +635,14 @@ public class THFPage extends Page
     throws IOException
     {
       int i;
-      short length;
+      int offset;
       // look for an empty slot
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
       for (i= 0; i < slotCnt; i++) 
 	{
-	  length = getSlotLength(i);
-	  if (length != EMPTY_SLOT)
+	  offset = getSlotOffset(i);
+	  if (offset != EMPTY_SLOT)
 	    return false;
 	}    
       
@@ -657,9 +660,9 @@ public class THFPage extends Page
     {
       int  current_scan_posn = 0;   // current scan position
       int  first_free_slot   = -1;   // An invalid position.
-      boolean move = false;          // Move a record? -- initially false
-      short length;
-      short offset;		
+      boolean move = false; 
+      int length;// Move a record? -- initially false
+      int offset;		
       
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       freeSpace = Convert.getShortValue (FREE_SPACE, data);
@@ -679,11 +682,11 @@ public class THFPage extends Page
 	      
 	      // slot[first_free_slot].length = slot[current_scan_posn].length;
 	      // slot[first_free_slot].offset = slot[current_scan_posn].offset; 
-	      setSlot ( first_free_slot, length, offset);
+	      setSlot ( first_free_slot, offset);
 	      
 	      // Mark the current_scan_posn as empty
 	      //  slot[current_scan_posn].length = EMPTY_SLOT;
-	      setSlot (current_scan_posn, EMPTY_SLOT, 0);
+	      setSlot (current_scan_posn, EMPTY_SLOT);
 	      
 	      // Now make the first_free_slot point to the next free slot.
 	      first_free_slot++;
@@ -701,7 +704,7 @@ public class THFPage extends Page
       if (move == true) 
 	{
 	  // Adjust amount of free space on page and slotCnt
-	  freeSpace += SIZE_OF_SLOT * (slotCnt - first_free_slot);
+	  freeSpace += LENGTH_OF_TRIPLE * (slotCnt - first_free_slot);
 	  slotCnt = (short) first_free_slot;
 	  Convert.setShortValue (freeSpace, FREE_SPACE, data);
 	  Convert.setShortValue (slotCnt, SLOT_CNT, data);
