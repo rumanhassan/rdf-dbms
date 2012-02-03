@@ -141,7 +141,7 @@ public class DB implements GlobalConst {
 
     if((pageno.pid < 0)||(pageno.pid >= num_pages))
       throw new InvalidPageNumberException(null, "BAD_PAGE_NUMBER");
-    
+    PCounter.readIncrement();
     // Seek to the correct page
     fp.seek((long)(pageno.pid *MINIBASE_PAGESIZE));
     
@@ -172,7 +172,7 @@ public class DB implements GlobalConst {
 
     if((pageno.pid < 0)||(pageno.pid >= num_pages))
       throw new InvalidPageNumberException(null, "INVALID_PAGE_NUMBER");
-    
+    PCounter.writeIncrement();
     // Seek to the correct page
     fp.seek((long)(pageno.pid *MINIBASE_PAGESIZE));
     
