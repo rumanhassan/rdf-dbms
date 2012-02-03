@@ -6,12 +6,11 @@ import java.lang.*;
 import global.*;
 
 public class Triple implements GlobalConst {
-
-	private int triple_length;
+	public static final int LENGTH_OF_TRIPLE = 32;
 	private EID subjectId;
 	private PID predicateId;
 	private EID objectId;
-	private double value;
+	private float value;
 
 	/**
 	 * Maximum size of any triple
@@ -38,7 +37,6 @@ public class Triple implements GlobalConst {
 	public Triple() {
 		// Create a new triple
 		triple_offset = 0;
-		triple_length = max_size;
 	}
 
 	/**
@@ -57,12 +55,13 @@ public class Triple implements GlobalConst {
 		predicateId = new PID();
 		objectId = new EID();
 		try {
-		subjectId.slotNo = Convert.getIntValue(0, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
-		predicateId.slotNo = Convert.getIntValue(2, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
-		objectId.slotNo = Convert.getIntValue(4, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
+		subjectId.slotNo = Convert.getIntValue(1, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
+		predicateId.slotNo = Convert.getIntValue(3, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
+		objectId.slotNo = Convert.getIntValue(5, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(6, atriple);
+		value=Convert.getFloValue(7, atriple);
 		triple_offset = offset;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -78,7 +77,7 @@ public class Triple implements GlobalConst {
 	 * 
 	 */
 	public Triple(Triple fromTriple) {
-		this.triple_length = fromTriple.triple_length;
+		this.triple_offset = fromTriple.triple_offset;
 		this.subjectId = fromTriple.subjectId;
 		this.predicateId = fromTriple.predicateId;
 		this.objectId = fromTriple.objectId;
@@ -113,12 +112,12 @@ public class Triple implements GlobalConst {
 		return value;
 	}
 
-	public void setConfidence(double value) {
+	public void setConfidence(float value) {
 		this.value = value;
 	}
 
 	public void tripleCopy(Triple fromTriple) {
-		this.triple_length = fromTriple.triple_length;
+		this.triple_offset = fromTriple.triple_offset;
 		this.subjectId = fromTriple.subjectId;
 		this.predicateId = fromTriple.predicateId;
 		this.objectId = fromTriple.objectId;
@@ -130,12 +129,13 @@ public class Triple implements GlobalConst {
 		predicateId = new PID();
 		objectId = new EID();
 		try {
-		subjectId.slotNo = Convert.getIntValue(0, atriple);	
-		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
-		predicateId.slotNo = Convert.getIntValue(2, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
-		objectId.slotNo = Convert.getIntValue(4, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
+		subjectId.slotNo = Convert.getIntValue(1, atriple);	
+		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
+		predicateId.slotNo = Convert.getIntValue(3, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
+		objectId.slotNo = Convert.getIntValue(5, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(6, atriple);
+		value=Convert.getFloValue(7, atriple);
 		triple_offset = offset;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -156,12 +156,13 @@ public class Triple implements GlobalConst {
 		predicateId = new PID();
 		objectId = new EID();
 		try {
-		subjectId.slotNo = Convert.getIntValue(0, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
-		predicateId.slotNo = Convert.getIntValue(2, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
-		objectId.slotNo = Convert.getIntValue(4, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
+		subjectId.slotNo = Convert.getIntValue(1, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
+		predicateId.slotNo = Convert.getIntValue(3, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
+		objectId.slotNo = Convert.getIntValue(5, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(6, atriple);
+		value=Convert.getFloValue(7, atriple);
 		triple_offset = offset;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -177,14 +178,16 @@ public class Triple implements GlobalConst {
 	 */
 
 	public byte[] getTripleByteArray() {
-		byte[] triplecopy = new byte[triple_length];
-		try {
-		Convert.setIntValue(subjectId.slotNo, 0, triplecopy);
-		Convert.setIntValue(subjectId.pageNo.pid, 1, triplecopy);
-		Convert.setIntValue(predicateId.slotNo, 2, triplecopy);
-		Convert.setIntValue(predicateId.pageNo.pid, 3, triplecopy);
-		Convert.setIntValue(objectId.slotNo, 4, triplecopy);
-		Convert.setIntValue(objectId.pageNo.pid, 5, triplecopy);
+		byte[] triplecopy = new byte[LENGTH_OF_TRIPLE];
+		try {	
+		Convert.setIntValue(triple_offset, 0, triplecopy);
+		Convert.setIntValue(subjectId.slotNo, 1, triplecopy);
+		Convert.setIntValue(subjectId.pageNo.pid, 2, triplecopy);
+		Convert.setIntValue(predicateId.slotNo, 3, triplecopy);
+		Convert.setIntValue(predicateId.pageNo.pid, 4, triplecopy);
+		Convert.setIntValue(objectId.slotNo, 5, triplecopy);
+		Convert.setIntValue(objectId.pageNo.pid, 6, triplecopy);
+		Convert.setFloValue(value, 7, triplecopy);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -198,7 +201,7 @@ public class Triple implements GlobalConst {
 	 * @return length of this triple in bytes
 	 */
 	public int size() {
-		return triple_length;
+		return LENGTH_OF_TRIPLE;
 	}
 
 	public void print() throws IOException {
@@ -208,6 +211,7 @@ public class Triple implements GlobalConst {
 				+ predicateId.pageNo.pid + " >");
 		System.out.print("< S:" + objectId.slotNo + ",P:" + objectId.pageNo.pid
 				+ " >");
+		System.out.print("C:"+value);
 	}
 
 }
