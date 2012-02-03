@@ -6,7 +6,7 @@ import java.lang.*;
 import global.*;
 
 public class Triple implements GlobalConst {
-	public static final int LENGTH_OF_TRIPLE = 32;
+	public static final int LENGTH_OF_TRIPLE = 28;
 	private EID subjectId;
 	private PID predicateId;
 	private EID objectId;
@@ -55,13 +55,13 @@ public class Triple implements GlobalConst {
 		predicateId = new PID();
 		objectId = new EID();
 		try {
-		subjectId.slotNo = Convert.getIntValue(1, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
-		predicateId.slotNo = Convert.getIntValue(3, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
-		objectId.slotNo = Convert.getIntValue(5, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(6, atriple);
-		value=Convert.getFloValue(7, atriple);
+		subjectId.slotNo = Convert.getIntValue(0, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
+		predicateId.slotNo = Convert.getIntValue(2, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
+		objectId.slotNo = Convert.getIntValue(4, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
+		value=Convert.getFloValue(6, atriple);
 		triple_offset = offset;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -129,13 +129,13 @@ public class Triple implements GlobalConst {
 		predicateId = new PID();
 		objectId = new EID();
 		try {
-		subjectId.slotNo = Convert.getIntValue(1, atriple);	
-		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
-		predicateId.slotNo = Convert.getIntValue(3, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
-		objectId.slotNo = Convert.getIntValue(5, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(6, atriple);
-		value=Convert.getFloValue(7, atriple);
+		subjectId.slotNo = Convert.getIntValue(0, atriple);	
+		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
+		predicateId.slotNo = Convert.getIntValue(2, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
+		objectId.slotNo = Convert.getIntValue(4, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
+		value=Convert.getFloValue(6, atriple);
 		triple_offset = offset;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -156,13 +156,13 @@ public class Triple implements GlobalConst {
 		predicateId = new PID();
 		objectId = new EID();
 		try {
-		subjectId.slotNo = Convert.getIntValue(1, atriple);
-		subjectId.pageNo.pid = Convert.getIntValue(2, atriple);
-		predicateId.slotNo = Convert.getIntValue(3, atriple);
-		predicateId.pageNo.pid = Convert.getIntValue(4, atriple);
-		objectId.slotNo = Convert.getIntValue(5, atriple);
-		objectId.pageNo.pid = Convert.getIntValue(6, atriple);
-		value=Convert.getFloValue(7, atriple);
+		subjectId.slotNo = Convert.getIntValue(0, atriple);
+		subjectId.pageNo.pid = Convert.getIntValue(1, atriple);
+		predicateId.slotNo = Convert.getIntValue(2, atriple);
+		predicateId.pageNo.pid = Convert.getIntValue(3, atriple);
+		objectId.slotNo = Convert.getIntValue(4, atriple);
+		objectId.pageNo.pid = Convert.getIntValue(5, atriple);
+		value=Convert.getFloValue(6, atriple);
 		triple_offset = offset;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -180,14 +180,13 @@ public class Triple implements GlobalConst {
 	public byte[] getTripleByteArray() {
 		byte[] triplecopy = new byte[LENGTH_OF_TRIPLE];
 		try {	
-		Convert.setIntValue(triple_offset, 0, triplecopy);
-		Convert.setIntValue(subjectId.slotNo, 1, triplecopy);
-		Convert.setIntValue(subjectId.pageNo.pid, 2, triplecopy);
-		Convert.setIntValue(predicateId.slotNo, 3, triplecopy);
-		Convert.setIntValue(predicateId.pageNo.pid, 4, triplecopy);
-		Convert.setIntValue(objectId.slotNo, 5, triplecopy);
-		Convert.setIntValue(objectId.pageNo.pid, 6, triplecopy);
-		Convert.setFloValue(value, 7, triplecopy);
+		Convert.setIntValue(subjectId.slotNo, 0, triplecopy);
+		Convert.setIntValue(subjectId.pageNo.pid, 1, triplecopy);
+		Convert.setIntValue(predicateId.slotNo, 2, triplecopy);
+		Convert.setIntValue(predicateId.pageNo.pid, 3, triplecopy);
+		Convert.setIntValue(objectId.slotNo, 4, triplecopy);
+		Convert.setIntValue(objectId.pageNo.pid, 5, triplecopy);
+		Convert.setFloValue(value, 6, triplecopy);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
