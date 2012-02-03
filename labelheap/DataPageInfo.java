@@ -93,11 +93,11 @@ class DataPageInfo implements GlobalConst{
   }
   
   
-  /** convert this class objcet to a tuple(like cast a DataPageInfo to Tuple)
+  /** convert this class object to a Label(like cast a DataPageInfo to Label)
    *  
    *
    */
-  public Label convertToTuple()
+  public Label convertToLabel()
        throws IOException
   {
 
@@ -107,11 +107,14 @@ class DataPageInfo implements GlobalConst{
     Convert.setIntValue(pageId.pid, offset+8, data);
 
 
-    // 2) creat a Tuple object using this array
-    Label atuple = new Label(data, offset, size); 
+    // 2) create a Label object using this array
+    //Label atuple = new Label(data, offset, size); 
+    String str = Convert.getStrValue(offset, data, size); // get the string from byte array
+    Label aLabel = new Label();
+    aLabel.setLabel(str);    
  
-    // 3) return tuple object
-    return atuple;
+    // 3) return Label object
+    return aLabel;
 
   }
   
