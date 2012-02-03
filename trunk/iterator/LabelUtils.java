@@ -35,7 +35,6 @@ public static int compareLabelWithLabel(Label  l1, Label  l2)
       l1_s = l1.getLabel();
       l2_s = l2.getLabel();
 	  
-	  // Now handle the special case that is posed by the max_values for strings...
 	  if(l1_s.compareTo( l2_s)>0)return 1;
 	  if (l1_s.compareTo( l2_s)<0)return -1;
 	  return 0;	
@@ -86,15 +85,15 @@ public static int compareLabelWithLabel(Label  l1, Label  l2)
     }
   
   /**
-   *get the string specified by the field number
+   *get the string from the specified Label object
    *@param label the Label 
    *@return the content of the field number
    *@exception IOException some I/O fault
-   *@exception TupleUtilsException exception from this class
+   *@exception LabelUtilsException exception from this class
    */
   public static String Value(Label  label)
     throws IOException,
-	   TupleUtilsException
+	   LabelUtilsException
     {
       String temp;
       temp = label.getLabel();
