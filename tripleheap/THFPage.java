@@ -16,9 +16,9 @@ interface ConstSlot{
   int INVALID_SLOT =  -1;
   int EMPTY_SLOT = -1;
 }
-
+     
 /** Class heap file page.
- * The design assumes that records are kept compacted when
+ * The design assumes that triples are kept compacted when
  * deletions are performed. 
  */
 
@@ -50,7 +50,7 @@ public class THFPage extends Page
   private    short     slotCnt;  
   
   /**
-   * offset of first used byte by data records in data[]
+   * offset of first used byte by data triples in data[]
    */
   private    short     usedPtr;   
   
@@ -287,8 +287,8 @@ public class THFPage extends Page
   /**
    * sets slot contents
    * @param       slotno  the slot number 
-   * @param 	length  length of record the slot contains
-   * @param	offset  offset of record
+   * @param 	length  length of triple the slot contains
+   * @param	offset  offset of triple
    * @exception IOException I/O errors
    */
   
@@ -301,7 +301,7 @@ public class THFPage extends Page
   /**
    * @param	slotno	slot number
    * @exception IOException I/O errors
-   * @return	the length of record the given slot contains
+   * @return	the length of triple the given slot contains
    */
   public short getSlotLength(int slotno)
     throws IOException
@@ -317,7 +317,7 @@ public class THFPage extends Page
   /**
    * @param       slotno  slot number
    * @exception IOException I/O errors
-   * @return      the offset of record the given slot contains
+   * @return      the offset of triple the given slot contains
    */
   public short getSlotOffset(int slotno)
     throws IOException
@@ -329,18 +329,18 @@ public class THFPage extends Page
   
   
   /**
-   * inserts a new record onto the page, returns RID of this record 
-   * @param	record 	a record to be inserted
-   * @return	RID of record, null if sufficient space does not exist
+   * inserts a new triple onto the page, returns TID of this triple 
+   * @param	triple 	a triple to be inserted
+   * @return	TID of triple, null if sufficient space does not exist
    * @exception IOException I/O errors
-   * in C++ Status insertRecord(char *recPtr, int recLen, RID& rid)
+   * in C++ Status insertTriple(char *recPtr, int recLen, RID& rid)
    */
-  public TID insertRecord ( byte [] record)		
+  public TID insertTriple ( byte [] triple)		
     throws IOException
     {
       TID tid = new TID();
       
-      int recLen = record.length;
+      int recLen = triple.length;
       int spaceNeeded = recLen;
       
       // Start by checking if sufficient space exists.
@@ -388,7 +388,7 @@ public class THFPage extends Page
 	setSlot(i,usedPtr);   
 	
 	// insert data onto the data page
-	System.arraycopy (record, 0, data, usedPtr, recLen);
+	System.arraycopy (triple, 0, data, usedPtr, recLen);
 	curPage.pid = Convert.getIntValue (CUR_PAGE, data);
 	tid.pageNo.pid = curPage.pid;
 	tid.slotNo = i;
@@ -397,13 +397,13 @@ public class THFPage extends Page
     } 
   
   /**
-   * delete the record with the specified rid
-   * @param	tid 	the record ID
+   * delete the triple with the specified rid
+   * @param	tid 	the triple ID
    * @exception	InvalidSlotNumberException Invalid slot number
    * @exception IOException I/O errors
-   * in C++ Status deleteRecord(const RID& rid)
+   * in C++ Status deleteTriple(const RID& rid)
    */
-  public void deleteRecord ( TID tid )
+  public void deleteTriple ( TID tid )
     throws IOException,  
 	   InvalidSlotNumberException
     {
@@ -411,14 +411,14 @@ public class THFPage extends Page
       short recLen = getSlotLength (slotNo);
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
-      // first check if the record being deleted is actually valid
+      // first check if the triple being deleted is actually valid
       if ((slotNo >= 0) && (slotNo < slotCnt) && (recLen > 0))
 	{ 
-	  // The records always need to be compacted, as they are
+	  // The triples always need to be compacted, as they are
 	  // not necessarily stored on the page in the order that
 	  // they are listed in the slot index.
 	  
-	  // offset of record being deleted
+	  // offset of triple being deleted
 	  int offset = getSlotOffset(slotNo); 
 	  usedPtr = Convert.getShortValue (USED_PTR, data);
 	  int newSpot= usedPtr + recLen;
@@ -428,7 +428,7 @@ public class THFPage extends Page
 	  System.arraycopy(data, usedPtr, data, newSpot, size);
 	  
 	  // now need to adjust offsets of all valid slots that refer
-	  // to the left of the record being removed. (by the size of the hole)
+	  // to the left of the triple being removed. (by the size of the hole)
 	  
 	  int i, n, chkoffset;
 	  for (i = 0, n = DPFIXED; i < slotCnt; n +=LENGTH_OF_TRIPLE, i++) {
@@ -460,12 +460,12 @@ public class THFPage extends Page
     }
   
   /**
-   * @return RID of first record on page, null if page contains no records.  
+   * @return RID of first triple on page, null if page contains no triples.  
    * @exception  IOException I/O errors
-   * in C++ Status firstRecord(RID& firstRid)
+   * in C++ Status firstTriple(RID& firstRid)
    * 
    */ 
-  public TID firstRecord() 
+  public TID firstTriple() 
     throws IOException
     {
       TID tid = new TID();
@@ -496,13 +496,13 @@ public class THFPage extends Page
     }
   
   /**
-   * @return RID of next record on the page, null if no more 
-   * records exist on the page
-   * @param 	curRid	current record ID
+   * @return RID of next triple on the page, null if no more 
+   * triples exist on the page
+   * @param 	curRid	current triple ID
    * @exception  IOException I/O errors
-   * in C++ Status nextRecord (RID curRid, RID& nextRid)
+   * in C++ Status nextTriple (RID curRid, RID& nextRid)
    */
-  public TID nextRecord (TID curTid) 
+  public TID nextTriple (TID curTid) 
     throws IOException 
     {
       TID tid = new TID();
@@ -532,11 +532,11 @@ public class THFPage extends Page
     }
   
   /**
-   * copies out record with RID rid into record pointer.
+   * copies out triple with RID rid into triple pointer.
    * <br>
-   * Status getRecord(RID rid, char *recPtr, int& recLen)
-   * @param	currentDataPageTid 	the record ID
-   * @return 	a triple contains the record
+   * Status getTriple(RID rid, char *recPtr, int& recLen)
+   * @param	currentDataPageTid 	the triple ID
+   * @return 	a triple contains the triple
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception  	IOException I/O errors
    * @see 	Triple
@@ -547,22 +547,22 @@ public class THFPage extends Page
     {
       short recLen;
       int offset;
-      byte []record;
+      byte []tripleArray;
       PageID pageNo = new PageID();
       pageNo.pid= currentDataPageTid.pageNo.pid;
       curPage.pid = Convert.getIntValue (CUR_PAGE, data);
       int slotNo = currentDataPageTid.slotNo;
       
-      // length of record being returned
+      // length of triple being returned
       recLen = getSlotLength (slotNo);
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       if (( slotNo >=0) && (slotNo < slotCnt) && (recLen >0) 
 	  && (pageNo.pid == curPage.pid))
 	{
 	  offset = getSlotOffset (slotNo);
-	  record = new byte[recLen];
-	  System.arraycopy(data, offset, record, 0, recLen);
-	  Triple triple = new Triple(record, 0);
+	  tripleArray = new byte[recLen];
+	  System.arraycopy(data, offset, tripleArray, 0, recLen);
+	  Triple triple = new Triple(tripleArray, 0);
 	  return triple;
 	}
       
@@ -576,8 +576,8 @@ public class THFPage extends Page
   /**
    * returns a triple in a byte array[pageSize] with given RID rid.
    * <br>
-   * in C++	Status returnRecord(RID rid, char*& recPtr, int& recLen)
-   * @param       rid     the record ID
+   * in C++	Status returnTriple(RID rid, char*& recPtr, int& recLen)
+   * @param       rid     the triple ID
    * @return      a triple  with its length and offset in the byte array
    * @exception   InvalidSlotNumberException Invalid slot number
    * @exception   IOException I/O errors
@@ -595,7 +595,7 @@ public class THFPage extends Page
       curPage.pid = Convert.getIntValue (CUR_PAGE, data);
       int slotNo = tid.slotNo;
       
-      // length of record being returned
+      // length of triple being returned
       recLen = getSlotLength (slotNo);
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
       
@@ -628,7 +628,7 @@ public class THFPage extends Page
   
   /**      
    * Determining if the page is empty
-   * @return true if the HFPage is has no records in it, false otherwise  
+   * @return true if the HFPage is has no triples in it, false otherwise  
    * @exception  IOException I/O errors
    */
   public boolean empty() 
@@ -652,7 +652,7 @@ public class THFPage extends Page
   /**
    * Compacts the slot directory on an HFPage.
    * WARNING -- this will probably lead to a change in the RIDs of
-   * records on the page.  You CAN'T DO THIS on most kinds of pages.
+   * triples on the page.  You CAN'T DO THIS on most kinds of pages.
    * @exception  IOException I/O errors
    */
   protected void compact_slot_dir()  
@@ -661,7 +661,7 @@ public class THFPage extends Page
       int  current_scan_posn = 0;   // current scan position
       int  first_free_slot   = -1;   // An invalid position.
       boolean move = false; 
-      int length;// Move a record? -- initially false
+      int length;// Move a triple? -- initially false
       int offset;		
       
       slotCnt = Convert.getShortValue (SLOT_CNT, data);
