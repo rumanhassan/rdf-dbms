@@ -117,6 +117,25 @@ public static int compareLabelWithLabel(Label  l1, Label  l2)
 	    return;
     }
   
+	  /** This method converts an byte array to a String object.
+	 * @param byte[] the array of bytes to be converted to a String
+	 * @return the string extracted from the byte array
+	 */
+	public static String convertByteArrayToString(byte[] byteArray) {      
+	      String value = new String(byteArray);      
+	      return value;
+	  }
+
+	/** This method converts a String to an array of bytes
+	 * @param stringToConvert the String to convert into a byte array
+	 * @return the array byte[] from the given String
+	 */
+	public static byte[] convertStringToByteArray(String stringToConvert) 
+	throws UnsupportedEncodingException {
+	    byte[] theByteArray = stringToConvert.getBytes("UTF-8");    
+	    return theByteArray;
+	}
+  
   
   /**
    *set up the Jlabel's attrtype, string size,field number for using join
