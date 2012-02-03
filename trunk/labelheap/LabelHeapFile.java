@@ -436,25 +436,25 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  //Start IF02
 		  // case (2.1) : add a new data page record into the
 		  //              current directory page
-		  currentDataPage = _newDatapage(dpinfo); 
+		  currentDataPage = _newDatapage(dpinfo);
 		  // currentDataPage is pinned! and dpinfo->pageId is also locked
-		  // in the exclusive mode  
+		  // in the exclusive mode
 		  
 		  // didn't check if currentDataPage==NULL, auto exception
 		  
 		  
 		  // currentDataPage is pinned: insert its record
-		  // calling a HFPage function
+		  // calling a LHFPage function
 		  
-		  
-		  /* TODO: Find another way to accomplish the next few lines of code
-		  aLabel = dpinfo.convertToTuple(); 
-		  
-		  byte [] tmpData = aLabel.getLabelByteArray(); 
-		  currentDataPageLid = currentDirPage.insertRecord(tmpData);
+		  aLabel = dpinfo.convertToLabel(); //convert dpinfo into a Label object
+//		  byte [] tmpData = new byte[aLabel.getLabel().length()];
+//		  //write each char of the Label's string to a byte array
+//		  for(int pos=0; pos < aLabel.getLabel().length(); pos++ )
+//			  Convert.setCharValue(aLabel.getLabel().charAt(pos), pos, tmpData);
+		  // insert the Label into the page as a byte array, and get the LID
+		  currentDataPageLid = currentDirPage.insertRecord(aLabel); //
 		  
 		  LID tmplid = currentDirPage.firstRecord();
-		  END TODO*/ 
 		  
 		  
 		  // need catch error here!
