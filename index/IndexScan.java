@@ -88,7 +88,7 @@ public class IndexScan extends Iterator {
     index_only = indexOnly;  // added by bingjie miao
     
     try {
-      f = new TripleHeapfile(relName);
+      f = new TripleHeapFile(relName);
     }
     catch (Exception e) {
       throw new IndexException(e, "IndexScan.java: Heapfile not created");
@@ -127,7 +127,7 @@ public class IndexScan extends Iterator {
    * returns the next tuple.
    * if <code>index_only</code>, only returns the key value 
    * (as the first field in a tuple)
-   * otherwise, retrive the tuple and returns the whole tuple
+   * otherwise, retrieve the tuple and returns the whole tuple
    * @return the tuple
    * @exception IndexException error from the lower layer
    * @exception UnknownKeyTypeException key type unknown
@@ -138,7 +138,7 @@ public class IndexScan extends Iterator {
 	   UnknownKeyTypeException,
 	   IOException
   {
-    RID rid;
+    TID tid;
     int unused;
     KeyDataEntry nextentry = null;
 
@@ -207,14 +207,14 @@ public class IndexScan extends Iterator {
       // not index_only, need to return the whole tuple
       tid = ((LeafData)nextentry.data).getData();
       try {
-	triple1 = f.getRecord(rid);
+	triple1 = f.getTriple(tid);
       }
       catch (Exception e) {
 	throw new IndexException(e, "IndexScan.java: getRecord failed");
       }
       
       try {
-	tuple1.setHdr((short) _noInFlds, _types, _s_sizes);
+	triple1.setHdr((short) _noInFlds, _types, _s_sizes);
       }
       catch (Exception e) {
 	throw new IndexException(e, "IndexScan.java: Heapfile error");
@@ -222,7 +222,7 @@ public class IndexScan extends Iterator {
     
       boolean eval;
       try {
-	eval = PredEval.Eval(_selects, tuple1, null, _types, null);
+	eval = PredEval.Eval(_selects, triple1, null, _types, null);
       }
       catch (Exception e) {
 	throw new IndexException(e, "IndexScan.java: Heapfile error");
@@ -231,7 +231,7 @@ public class IndexScan extends Iterator {
       if (eval) {
 	// need projection.java
 	try {
-	  Projection.Project(tuple1, _types, Jtriple, perm_mat, _noOutFlds);
+	  Projection.Project(triple1, _types, Jtriple, perm_mat, _noOutFlds);
 	}
 	catch (Exception e) {
 	  throw new IndexException(e, "IndexScan.java: Heapfile error");
@@ -281,7 +281,7 @@ public class IndexScan extends Iterator {
   private CondExpr[]    _selects;
   private int           _noInFlds;
   private int           _noOutFlds;
-  private TripleHeapfile      f;
+  private TripleHeapFile      f;
   private Triple         triple1;
   private Triple         Jtriple;
   private int           t1_size;
