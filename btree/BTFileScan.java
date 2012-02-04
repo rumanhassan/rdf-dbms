@@ -21,8 +21,8 @@ public class BTFileScan  extends IndexFileScan
   BTreeFile bfile; 
   String treeFilename;     // B+ tree we're scanning 
   BTLeafPage leafPage;   // leaf page containing current record
-  TID curTid;       // position in current leaf; note: this is 
-                             // the TID of the key/TID pair within the
+  GENID curGenid;       // position in current leaf; note: this is 
+                             // the GENID of the key/GENID pair within the
                              // leaf page.                                    
   boolean didfirst;        // false only before getNext is called
   boolean deletedcurrent;  // true after deleteCurrent is called (read
@@ -54,10 +54,10 @@ public class BTFileScan  extends IndexFileScan
       if ((deletedcurrent && didfirst) || (!deletedcurrent && !didfirst)) {
          didfirst = true;
          deletedcurrent = false;
-         entry=leafPage.getCurrent(curTid);
+         entry=leafPage.getCurrent(curGenid);
       }
       else {
-         entry = leafPage.getNext(curTid);
+         entry = leafPage.getNext(curGenid);
       }
 
       while ( entry == null ) {
@@ -70,7 +70,7 @@ public class BTFileScan  extends IndexFileScan
 
          leafPage=new BTLeafPage(nextpage, keyType);
 	 	
-	 entry=leafPage.getFirst(curTid);
+	 entry=leafPage.getFirst(curGenid);
       }
 
       if (endkey != null)  
@@ -108,10 +108,10 @@ public class BTFileScan  extends IndexFileScan
       if( (deletedcurrent == true) || (didfirst==false) ) 
 	return;    
       
-      entry=leafPage.getCurrent(curTid);  
+      entry=leafPage.getCurrent(curGenid);  
       SystemDefs.JavabaseBM.unpinPage( leafPage.getCurPage(), false);
       bfile.Delete(entry.key, ((LeafData)entry.data).getData());
-      leafPage=bfile.findRunStart(entry.key, curTid);
+      leafPage=bfile.findRunStart(entry.key, curGenid);
       
       deletedcurrent = true;
       return;
@@ -155,6 +155,7 @@ public class BTFileScan  extends IndexFileScan
 
 
 }
+
 
 
 
