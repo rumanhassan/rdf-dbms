@@ -202,7 +202,7 @@ public class Triple implements GlobalConst {
 	 * 
 	 * @return length of this triple in bytes
 	 */
-	public int length() {
+	public int size() {
 		return LENGTH_OF_TRIPLE;
 	}
 

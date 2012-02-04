@@ -83,10 +83,10 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   
   /* Internal HeapFile function (used in getTriple and updateRecord):
      returns pinned directory page and pinned data page of the specified 
-     user record(rid) and true if record is found.
+     user record(tid) and true if record is found.
      If the user record cannot be found, return false.
   */
-  private boolean  _findDataPage( TID rid,
+  private boolean  _findDataPage( TID tid,
 				  PageID dirPageId, THFPage dirpage,
 				  PageID dataPageId, THFPage datapage,
 				  TID tpDataPageTid) 
@@ -144,7 +144,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 
 	      
 	      // ASSERTIONS:
-	      // - currentDataPage, currentDataPageRid, dpinfo valid
+	      // - currentDataPage, currentDataPageTid, dpinfo valid
 	      // - currentDataPage pinned
 	      
 	      if(dpinfo.pageId.pid==currentDataPageTid.pageNo.pid)
@@ -299,13 +299,14 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
+ * @throws InvalidTripleSizeException 
    */
   public int getRecCnt() 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   THFDiskMgrException,
 	   THFBufMgrException,
-	   IOException
+	   IOException, InvalidTripleSizeException
 	   
     {
       int answer = 0;
@@ -323,7 +324,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	   TID tid = new TID();
 	   Triple atriple;
 	   for (tid = currentDirPage.firstTriple();
-	        tid != null;	// rid==NULL means no more record
+	        tid != null;	// tid==NULL means no more record
 	        tid = currentDirPage.nextTriple(tid))
 	     {
 	       atriple = currentDirPage.getTriple(tid);
@@ -350,7 +351,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       return answer;
     } // end of getRecCnt
   
-  /** Insert record into file, return its Rid.
+  /** Insert record into file, return its Tid.
    *
    * @param recPtr pointer of the record
    * @param recLen the length of the record
@@ -363,7 +364,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
    *
-   * @return the rid of the record
+   * @return the tid of the record
+ * @throws InvalidTripleSizeException 
    */
   public TID insertRecord(byte[] recPtr) 
     throws InvalidSlotNumberException,  
@@ -372,7 +374,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	   THFException,
 	   THFBufMgrException,
 	   THFDiskMgrException,
-	   IOException
+	   IOException, InvalidTripleSizeException
     {
       int dpinfoLen = 0;	
       int recLen = recPtr.length;
@@ -462,7 +464,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		  byte [] tmpData = atriple.getTripleByteArray();
 		  currentDataPageTid = currentDirPage.insertTriple(tmpData);
 		  
-		  TID tmprid = currentDirPage.firstTriple();
+		  TID tmptid = currentDirPage.firstTriple();
 		  
 		  
 		  // need catch error here!
@@ -561,7 +563,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       
       // ASSERTIONS:
       // - currentDirPageId, currentDirPage valid and pinned
-      // - dpinfo.pageId, currentDataPageRid valid
+      // - dpinfo.pageId, currentDataPageTid valid
       // - currentDataPage is pinned!
       
       if ((dpinfo.pageId).pid == INVALID_PAGE) // check error!
@@ -602,7 +604,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       
     }
   
-  /** Delete record from file with given rid.
+  /** Delete record from file with given tid.
    *
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidTupleSizeException invalid tuple size
@@ -678,7 +680,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	  freePage(currentDataPageId);
 	  
 	  // delete corresponding DataPageInfo-entry on the directory page:
-	  // currentDataPageRid points to datapage (from for loop above)
+	  // currentDataPageTid points to datapage (from for loop above)
 	  
 	  currentDirPage.deleteTriple(currentDataPageTid);
 	  
@@ -749,7 +751,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   
   
   /** Updates the specified record in the heapfile.
-   * @param rid: the record which needs update
+   * @param tid: the record which needs update
    * @param newtuple: the new content of the record
    *
    * @exception InvalidSlotNumberException invalid slot number
@@ -761,7 +763,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception Exception other exception
    * @return ture:update success   false: can't find the record
    */
-  public boolean updateRecord(RID rid, Triple newtriple) 
+  public boolean updateRecord(TID tid, Triple newtriple) 
     throws InvalidSlotNumberException, 
 	   InvalidUpdateException, 
 	   InvalidTupleSizeException,
@@ -810,7 +812,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   
   
   /** Read record from file, returning pointer and length.
-   * @param rid Record ID
+   * @param tid Record ID
    *
    * @exception InvalidSlotNumberException invalid slot number
    * @exception InvalidTupleSizeException invalid tuple size
@@ -822,7 +824,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    *
    * @return a Tuple. if Tuple==null, no more tuple
    */
-  public  Triple getTriple(RID rid) 
+  public  Triple getTriple(TID tid) 
     throws InvalidSlotNumberException, 
 	   InvalidTupleSizeException, 
 	   THFException, 
@@ -848,7 +850,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       atriple = dataPage.getTriple(currentDataPageTid);
       
       /*
-       * getTriple has copied the contents of rid into recPtr and fixed up
+       * getTriple has copied the contents of tid into recPtr and fixed up
        * recLen also.  We simply have to unpin dirpage and datapage which
        * were originally pinned by _findDataPage.
        */    
@@ -869,7 +871,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    *
    */
   public TScan openScan() 
-    throws InvalidTupleSizeException,
+    throws InvalidTripleSizeException,
 	   IOException
     {
       TScan newscan = new TScan(this);
@@ -885,6 +887,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @exception HFBufMgrException exception thrown from bufmgr layer
    * @exception HFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
+ * @throws InvalidTripleSizeException 
    */
   public void deleteFile()  
     throws InvalidSlotNumberException, 
@@ -892,7 +895,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	   InvalidTupleSizeException, 
 	   THFBufMgrException,
 	   THFDiskMgrException,
-	   IOException
+	   IOException, InvalidTripleSizeException
     {
       if(_file_deleted ) 
    	throw new FileAlreadyDeletedException(null, "file alread deleted");

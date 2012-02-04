@@ -73,15 +73,15 @@ class DataPageInfo implements GlobalConst{
    * @param atuple: the input tuple
    */
   public DataPageInfo(Triple _atuple)
-       throws InvalidTupleSizeException, IOException
+       throws InvalidTripleSizeException, IOException
   {   
      // need check _atuple size == this.size ?otherwise, throw new exception
-    if (_atuple.getLength()!=12){
-      throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR");
+    if (_atuple.size()!=12){
+      throw new InvalidTripleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR");
     }
 
     else{
-      data = _atuple.returnTupleByteArray();
+      data = _atuple.getTripleByteArray();
       offset = _atuple.getOffset();
       
       availspace = Convert.getIntValue(offset, data);
@@ -97,7 +97,7 @@ class DataPageInfo implements GlobalConst{
    *  
    *
    */
-  public Triple convertToTuple()
+  public Triple convertToTriple()
        throws IOException
   {
 
@@ -107,10 +107,10 @@ class DataPageInfo implements GlobalConst{
     Convert.setIntValue(pageId.pid, offset+8, data);
 
 
-    // 2) creat a Tuple object using this array
-    Triple atuple = new Triple(data, offset, size); 
+    // 2) creat a Triple object using this array
+    Triple atuple = new Triple(data, offset); 
  
-    // 3) return tuple object
+    // 3) return triple object
     return atuple;
 
   }
