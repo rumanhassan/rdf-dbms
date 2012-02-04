@@ -32,7 +32,7 @@ public class EID{
     }
   
   /**
-   * make a copy of the given rid
+   * make a copy of the given eid
    */
   public void copyEid (EID eid)
     {
@@ -40,7 +40,7 @@ public class EID{
       slotNo = eid.slotNo;
     }
   
-  /** Write the rid into a byte array at offset
+  /** Write the eid into a byte array at offset
    * @param ary the specified byte array
    * @param offset the offset of byte array to write 
    * @exception java.io.IOException I/O errors
