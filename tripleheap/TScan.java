@@ -98,7 +98,7 @@ public class TScan implements GlobalConst{
     tid.slotNo = usertid.slotNo;
          
     try {
-    	triple = datapage.getRecord(tid);
+    	triple = datapage.getTriple(tid);
     }
     
     catch (Exception e) {
@@ -249,7 +249,7 @@ public class TScan implements GlobalConst{
 	   IOException
   {
     DataPageInfo dpinfo;
-    Triple        rectriple = null;
+    Triple        triple = null;
     Boolean      bst;
 
     /** copy data about first directory page */
@@ -275,7 +275,7 @@ public class TScan implements GlobalConst{
     /** there is a datapage record on the first directory page: */
 	
 	try {
-          rectriple = dirpage.getRecord(datapageTid);
+          triple = dirpage.getTriple(datapageTid);
 	}  
 				
 	catch (Exception e) {
@@ -283,7 +283,7 @@ public class TScan implements GlobalConst{
 		e.printStackTrace();
 	}		
       			    
-    	dpinfo = new DataPageInfo(rectriple);
+    	dpinfo = new DataPageInfo(triple);
         datapageId.pid = dpinfo.pageId.pid;
 
     } else {
@@ -337,7 +337,7 @@ public class TScan implements GlobalConst{
           
 	  try {
 	  
-	    rectriple = dirpage.getRecord(datapageTid);
+	    triple = dirpage.getTriple(datapageTid);
 	  }
 	  
 	  catch (Exception e) {
@@ -345,10 +345,10 @@ public class TScan implements GlobalConst{
 	    e.printStackTrace();
 	  }
 	  
-	  if (rectriple.getLength() != DataPageInfo.size)
-	    return false;
+	/*  if (triple.getLength() != DataPageInfo.size)
+	    return false;*/
 	  
-	  dpinfo = new DataPageInfo(rectriple);
+	  dpinfo = new DataPageInfo(triple);
 	  datapageId.pid = dpinfo.pageId.pid;
 	  
          } else {
@@ -402,7 +402,7 @@ public class TScan implements GlobalConst{
     
     boolean nextDataPageStatus;
     PageID nextDirPageId = new PageID();
-    Triple rectriple = null;
+    Triple triple = null;
 
   // ASSERTIONS:
   // - this->dirpageId has Id of current directory page
@@ -538,17 +538,17 @@ public class TScan implements GlobalConst{
   
     // data page is not yet loaded: read its record from the directory page
    	try {
-	  rectriple = dirpage.getRecord(datapageTid);
+	  triple = dirpage.getTriple(datapageTid);
 	}
 	
 	catch (Exception e) {
 	  System.err.println("TripleHeapFile: Error in Scan" + e);
 	}
 	
-	if (rectriple.getLength() != DataPageInfo.size)
+	if (triple.getLength() != DataPageInfo.size)
 	  return false;
                         
-	dpinfo = new DataPageInfo(rectriple);
+	dpinfo = new DataPageInfo(triple);
 	datapageId.pid = dpinfo.pageId.pid;
 	
  	try {
