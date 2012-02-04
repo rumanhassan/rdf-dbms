@@ -75,13 +75,13 @@ public class rdfDB implements GlobalConst {
 	predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
  }  
   
- int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException{
+public int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException{
 	 return tripleHeapFile.getRecCnt();
  }
-  int getEntityCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException {
+public int getEntityCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException {
 		return entityLabelHeapFile.getLabelCnt();
   }
-  int getPredicateCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException{
+public int getPredicateCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException{
 	  return predicateLabelHeapFile.getLabelCnt();
   }
   /*int getSubjectCnt(){
@@ -90,25 +90,23 @@ public class rdfDB implements GlobalConst {
   int Objectcnt(){
 	  return ObjectCnt;
   }*/
-  TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException {
+public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException {
 	 return tripleHeapFile.insertRecord(recPtr);
   }
-  LID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
- return entityLabelHeapFile.insertLabel(recPtr);
+public PID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+ return (PID) entityLabelHeapFile.insertLabel(recPtr);
  }
  
- LID insertEntity(byte[] triplePtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
-	 return entityLabelHeapFile.insertLabel(triplePtr);
+public EID insertEntity(byte[] triplePtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+	 return (EID) entityLabelHeapFile.insertLabel(triplePtr);
  }
  
- /*boolean deleteTriple(byte[] triplePtr){
- 
+public boolean deleteEntity(LID lid) throws Exception{
+	 return entityLabelHeapFile.deleteLabel(lid);
+}
+public boolean deleteTriple(TID tid) throws Exception {
+	 return tripleHeapFile.deleteTriple(tid);
  }
- */
- /*Stream openStream(int orderType,String subjectFilter, String predicateFilter, String objectFileter,double confidenceFilter){
-	 
- }
-*/  
   
   
   /** DB Constructors.
