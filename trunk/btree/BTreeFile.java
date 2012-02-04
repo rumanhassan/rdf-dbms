@@ -294,11 +294,11 @@ public class BTreeFile extends IndexFile
       
       if (sortedPage.getType() == NodeType.INDEX) {
 	BTIndexPage indexPage= new BTIndexPage( page, headerPage.get_keyType());
-	TID      tid=new TID();
+	GENID      genid=new GENID();
 	PageID       childId;
 	KeyDataEntry entry;
-	for (entry = indexPage.getFirst(tid);
-	     entry!=null; entry = indexPage.getNext(tid))
+	for (entry = indexPage.getFirst(genid);
+	     entry!=null; entry = indexPage.getNext(genid))
 	  { 
 	    childId = ((IndexData)(entry.data)).getData();
 	    _destroyFile(childId);
@@ -336,9 +336,9 @@ public class BTreeFile extends IndexFile
     }
   
   
-  /** insert record with the given key and tid
+  /** insert record with the given key and genid
    *@param key the key of the record. Input parameter.
-   *@param tid the tid of the record. Input parameter.
+   *@param genid the genid of the record. Input parameter.
    *@exception  KeyTooLongException key size exceeds the max keysize.
    *@exception KeyNotMatchException key is not integer key nor string key
    *@exception IOException error from the lower layer
@@ -356,7 +356,7 @@ public class BTreeFile extends IndexFile
    *@exception LeafDeleteException error when delete in leaf page
    *@exception InsertException  error when insert in index page
    */    
-  public void insert(KeyClass key, TID tid) 
+  public void insert(KeyClass key, GENID genid) 
     throws KeyTooLongException, 
 	   KeyNotMatchException, 
 	   LeafInsertRecException,   
@@ -398,13 +398,13 @@ public class BTreeFile extends IndexFile
       //    - the tree is empty and we have to create a new first page;
       //    this page will be a leaf page
       // 2. headerPage.root != INVALID_PAGE:
-      //    - we call _insert() to insert the pair (key, tid)
+      //    - we call _insert() to insert the pair (key, genid)
       
       
       if ( trace != null )
 	{
-	  trace.writeBytes( "INSERT " + tid.pageNo + " "
-			    + tid.slotNo + " " + key + lineSep);
+	  trace.writeBytes( "INSERT " + genid.pageNo + " "
+			    + genid.slotNo + " " + key + lineSep);
 	  trace.writeBytes( "DO" + lineSep);
 	  trace.flush();
 	}
@@ -413,7 +413,7 @@ public class BTreeFile extends IndexFile
       if (headerPage.get_rootId().pid == INVALID_PAGE) {
 	PageID newRootPageId;
 	BTLeafPage newRootPage;
-	TID dummytid;
+	GENID dummygenid;
 	
 	newRootPage=new BTLeafPage( headerPage.get_keyType());
 	newRootPageId=newRootPage.getCurPage();
@@ -434,7 +434,7 @@ public class BTreeFile extends IndexFile
 	// ASSERTIONS:
 	// - newRootPage, newRootPageId valid and pinned
 	
-	newRootPage.insertRecord(key, tid); 
+	newRootPage.insertRecord(key, genid); 
 	
 	if ( trace!=null )
 	  {
@@ -468,7 +468,7 @@ public class BTreeFile extends IndexFile
 	}
       
       
-      newRootEntry= _insert(key, tid, headerPage.get_rootId());
+      newRootEntry= _insert(key, genid, headerPage.get_rootId());
       
       // TWO CASES:
       // - newRootEntry != null: a leaf split propagated up to the root
@@ -532,7 +532,7 @@ public class BTreeFile extends IndexFile
   
   
   
-  private KeyDataEntry  _insert(KeyClass key, TID tid,  
+  private KeyDataEntry  _insert(KeyClass key, GENID genid,  
 				PageID currentPageId) 
     throws  PinPageException,  
 	    IOException,
@@ -572,7 +572,7 @@ public class BTreeFile extends IndexFile
       // - pageType == INDEX:
       //   recurse and then split if necessary
       // - pageType == LEAF:
-      //   try to insert pair (key, tid), maybe split
+      //   try to insert pair (key, genid), maybe split
       
       if(currentPage.getType() == NodeType.INDEX) {
 	BTIndexPage  currentIndexPage=new BTIndexPage(page, 
@@ -585,7 +585,7 @@ public class BTreeFile extends IndexFile
 	// now unpin the page, recurse and then pin it again
 	unpinPage(currentIndexPageId);
 	
-	upEntry= _insert(key, tid, nextPageId);
+	upEntry= _insert(key, genid, nextPageId);
 	
 	// two cases:
 	// - upEntry == null: one level lower no split has occurred:
@@ -659,15 +659,15 @@ public class BTreeFile extends IndexFile
 	
 	KeyDataEntry      tmpEntry;
 	PageID       tmpPageId;
-	TID insertTid;
-	TID delTid=new TID();
+	GENID insertGenid;
+	GENID delGenid=new GENID();
 	
-	for ( tmpEntry= currentIndexPage.getFirst( delTid);
-	      tmpEntry!=null;tmpEntry= currentIndexPage.getFirst( delTid))  
+	for ( tmpEntry= currentIndexPage.getFirst( delGenid);
+	      tmpEntry!=null;tmpEntry= currentIndexPage.getFirst( delGenid))  
 	  {
 	    newIndexPage.insertKey( tmpEntry.key, 
 				    ((IndexData)tmpEntry.data).getData());
-	    currentIndexPage.deleteSortedRecord(delTid);
+	    currentIndexPage.deleteSortedRecord(delGenid);
 	  }
 	
 	// ASSERTIONS:
@@ -675,19 +675,19 @@ public class BTreeFile extends IndexFile
 	// - newIndexPage holds all former records from currentIndexPage
 	
 	// we will try to make an equal split
-	TID firstTid=new TID();
+	GENID firstGenid=new GENID();
 	KeyDataEntry undoEntry=null;
-	for (tmpEntry = newIndexPage.getFirst(firstTid);
+	for (tmpEntry = newIndexPage.getFirst(firstGenid);
 	     (currentIndexPage.available_space() >
 	      newIndexPage.available_space());
-	     tmpEntry=newIndexPage.getFirst(firstTid))
+	     tmpEntry=newIndexPage.getFirst(firstGenid))
 	  {
 	    // now insert the <key,pageId> pair on the new
 	    // index page
 	    undoEntry=tmpEntry;
 	    currentIndexPage.insertKey( tmpEntry.key, 
 					((IndexData)tmpEntry.data).getData());
-	    newIndexPage.deleteSortedRecord(firstTid);
+	    newIndexPage.deleteSortedRecord(firstGenid);
           }
 	
 	//undo the final record
@@ -698,7 +698,7 @@ public class BTreeFile extends IndexFile
 				  ((IndexData)undoEntry.data).getData());
 	  
 	  currentIndexPage.deleteSortedRecord 
-	    (new TID(currentIndexPage.getCurPage(),
+	    (new GENID(currentIndexPage.getCurPage(),
 		     (int)currentIndexPage.getSlotCnt()-1) );              
 	}
 	
@@ -708,7 +708,7 @@ public class BTreeFile extends IndexFile
 	// will be inserted
 	// on the newly allocated or on the old index page
 	
-	tmpEntry= newIndexPage.getFirst(firstTid);
+	tmpEntry= newIndexPage.getFirst(firstGenid);
 	
 	if (BT.keyCompare( upEntry.key, tmpEntry.key) >=0 )
 	  {
@@ -731,7 +731,7 @@ public class BTreeFile extends IndexFile
 				  ((IndexData)tmpEntry.data).getData());
 
 	  currentIndexPage.deleteSortedRecord
-	    (new TID(currentIndexPage.getCurPage(), i) );      
+	    (new GENID(currentIndexPage.getCurPage(), i) );      
 	  
 	}
 	
@@ -739,14 +739,14 @@ public class BTreeFile extends IndexFile
 	  unpinPage(currentIndexPageId, true /* dirty */);
         
 	  // fill upEntry
-	  upEntry= newIndexPage.getFirst(delTid);
+	  upEntry= newIndexPage.getFirst(delGenid);
 
 	  // now set prevPageId of the newIndexPage to the pageId
 	  // of the deleted entry:
 	  newIndexPage.setPrevPage( ((IndexData)upEntry.data).getData());
 
 	  // delete first record on new index page since it is given up
-	  newIndexPage.deleteSortedRecord(delTid);
+	  newIndexPage.deleteSortedRecord(delGenid);
 	  
 	  unpinPage(newIndexPageId, true /* dirty */);
 	  
@@ -784,7 +784,7 @@ public class BTreeFile extends IndexFile
 	    {
 	      // no split has occurred
 	      
-	      currentLeafPage.insertRecord(key, tid); 
+	      currentLeafPage.insertRecord(key, genid); 
 	      
 	      unpinPage(currentLeafPageId, true /* DIRTY */);
 	      
@@ -848,17 +848,17 @@ public class BTreeFile extends IndexFile
 	  
 	  
 	  KeyDataEntry     tmpEntry;
-	  TID       firstTid=new TID();
+	  GENID       firstGenid=new GENID();
 	  
 	  
-	  for (tmpEntry = currentLeafPage.getFirst(firstTid);
+	  for (tmpEntry = currentLeafPage.getFirst(firstGenid);
 	       tmpEntry != null;
-	       tmpEntry = currentLeafPage.getFirst(firstTid))
+	       tmpEntry = currentLeafPage.getFirst(firstGenid))
 	    {
 	      
 	      newLeafPage.insertRecord( tmpEntry.key,
 					((LeafData)(tmpEntry.data)).getData());
-	      currentLeafPage.deleteSortedRecord(firstTid);
+	      currentLeafPage.deleteSortedRecord(firstGenid);
 	      
 	    }
 	  
@@ -868,15 +868,15 @@ public class BTreeFile extends IndexFile
 	  // - newLeafPage holds all former records from currentLeafPage
 	  
 	  KeyDataEntry undoEntry=null; 
-	  for (tmpEntry = newLeafPage.getFirst(firstTid);
+	  for (tmpEntry = newLeafPage.getFirst(firstGenid);
 	       newLeafPage.available_space() < 
 		 currentLeafPage.available_space(); 
-               tmpEntry=newLeafPage.getFirst(firstTid)   )
+               tmpEntry=newLeafPage.getFirst(firstGenid)   )
 	    {	   
 	      undoEntry=tmpEntry;
 	      currentLeafPage.insertRecord( tmpEntry.key,
 					    ((LeafData)tmpEntry.data).getData());
-	      newLeafPage.deleteSortedRecord(firstTid);		
+	      newLeafPage.deleteSortedRecord(firstGenid);		
 	    }
 	  
 	  if (BT.keyCompare(key, undoEntry.key ) <  0) {
@@ -887,19 +887,19 @@ public class BTreeFile extends IndexFile
 					((LeafData)undoEntry.data).getData());
 	      
 	      currentLeafPage.deleteSortedRecord
-		(new TID(currentLeafPage.getCurPage(),
+		(new GENID(currentLeafPage.getCurPage(),
 			 (int)currentLeafPage.getSlotCnt()-1) );              
 	    }
 	  }	  
 	  
-	  // check whether <key, tid>
+	  // check whether <key, genid>
 	  // will be inserted
 	  // on the newly allocated or on the old leaf page
 	  
 	  if (BT.keyCompare(key,undoEntry.key ) >= 0)
 	    {                     
 	      // the new data entry belongs on the new Leaf page
-	      newLeafPage.insertRecord(key, tid);
+	      newLeafPage.insertRecord(key, genid);
 	      
 	      
 	      if ( trace!=null )
@@ -911,7 +911,7 @@ public class BTreeFile extends IndexFile
 	      
 	    }
 	  else {
-	    currentLeafPage.insertRecord(key,tid);
+	    currentLeafPage.insertRecord(key,genid);
 	  }
 	  
 	  unpinPage(currentLeafPageId, true /* dirty */);
@@ -924,7 +924,7 @@ public class BTreeFile extends IndexFile
 	  
 	  
 	  // fill upEntry
-	  tmpEntry=newLeafPage.getFirst(firstTid);
+	  tmpEntry=newLeafPage.getFirst(firstGenid);
 	  upEntry=new KeyDataEntry(tmpEntry.key, newLeafPageId );
 	  
 	  
@@ -944,10 +944,10 @@ public class BTreeFile extends IndexFile
   
   
   
-  /** delete leaf entry  given its <key, tid> pair.
-   *  `tid' is IN the data entry; it is not the id of the data entry)
-   *@param key the key in pair <key, tid>. Input Parameter.
-   *@param tid the tid in pair <key, tid>. Input Parameter.
+  /** delete leaf entry  given its <key, genid> pair.
+   *  `genid' is IN the data entry; it is not the id of the data entry)
+   *@param key the key in pair <key, genid>. Input Parameter.
+   *@param genid the genid in pair <key, genid>. Input Parameter.
    *@return true if deleted. false if no such record.
    *@exception DeleteFashionException neither full delete nor naive delete
    *@exception LeafRedistributeException redistribution error in leaf pages
@@ -968,7 +968,7 @@ public class BTreeFile extends IndexFile
    *@exception IOException error from the lower layer
    *
    */
-  public boolean Delete(KeyClass key, TID tid) 
+  public boolean Delete(KeyClass key, GENID genid) 
     throws  DeleteFashionException, 
 	    LeafRedistributeException,
 	    RedistributeException,
@@ -988,9 +988,9 @@ public class BTreeFile extends IndexFile
 	    IOException
     {
       if (headerPage.get_deleteFashion() ==DeleteFashion.FULL_DELETE) 
-        return FullDelete(key, tid); 
+        return FullDelete(key, genid); 
       else if (headerPage.get_deleteFashion() == DeleteFashion.NAIVE_DELETE)
-        return NaiveDelete(key, tid);
+        return NaiveDelete(key, genid);
       else
 	throw new DeleteFashionException(null,"");
     }
@@ -1001,24 +1001,24 @@ public class BTreeFile extends IndexFile
   /* 
    * findRunStart.
    * Status BTreeFile::findRunStart (const void   lo_key,
-   *                                TID          *pstarttid)
+   *                                GENID          *pstartgenid)
    *
    * find left-most occurrence of `lo_key', going all the way left if
    * lo_key is null.
    * 
-   * Starting record returned in *pstarttid, on page *pppage, which is pinned.
+   * Starting record returned in *pstartgenid, on page *pppage, which is pinned.
    *
    * Since we allow duplicates, this must "go left" as described in the text
    * (for the search algorithm).
    *@param lo_key  find left-most occurrence of `lo_key', going all 
    *               the way left if lo_key is null.
-   *@param starttid it will reurn the first tid =< lo_key
+   *@param startgenid it will reurn the first genid =< lo_key
    *@return return a BTLeafPage instance which is pinned. 
    *        null if no key was found.
    */
   
   BTLeafPage findRunStart (KeyClass lo_key, 
-			   TID starttid)
+			   GENID startgenid)
     throws IOException, 
 	   IteratorException,  
 	   KeyNotMatchException,
@@ -1034,14 +1034,14 @@ public class BTreeFile extends IndexFile
       PageID curpageno=null;                // iterator
       PageID prevpageno;
       PageID nextpageno;
-      TID curTid;
+      GENID curGenid;
       KeyDataEntry curEntry;
       
       pageno = headerPage.get_rootId();
       
       if (pageno.pid == INVALID_PAGE){        // no pages in the BTREE
         pageLeaf = null;                // should be handled by 
-        // starttid =INVALID_PAGEID ;             // the caller
+        // startgenid =INVALID_PAGEID ;             // the caller
         return pageLeaf;
       }
       
@@ -1062,12 +1062,12 @@ public class BTreeFile extends IndexFile
       while (sortPage.getType() == NodeType.INDEX) {
 	pageIndex=new BTIndexPage(page, headerPage.get_keyType()); 
 	prevpageno = pageIndex.getPrevPage();
-	curEntry= pageIndex.getFirst(starttid);
+	curEntry= pageIndex.getFirst(startgenid);
 	while ( curEntry!=null && lo_key != null 
 		&& BT.keyCompare(curEntry.key, lo_key) < 0) {
 	  
           prevpageno = ((IndexData)curEntry.data).getData();
-          curEntry=pageIndex.getNext(starttid);
+          curEntry=pageIndex.getNext(startgenid);
 	}
 	
 	unpinPage(pageno);
@@ -1088,7 +1088,7 @@ public class BTreeFile extends IndexFile
       
       pageLeaf = new BTLeafPage(page, headerPage.get_keyType() );
       
-      curEntry=pageLeaf.getFirst(starttid);
+      curEntry=pageLeaf.getFirst(startgenid);
       while (curEntry==null) {
 	// skip empty leaf pages off to left
 	nextpageno = pageLeaf.getNextPage();
@@ -1100,11 +1100,11 @@ public class BTreeFile extends IndexFile
 	
 	pageno = nextpageno; 
 	pageLeaf=  new BTLeafPage( pinPage(pageno), headerPage.get_keyType());    
-	curEntry=pageLeaf.getFirst(starttid);
+	curEntry=pageLeaf.getFirst(startgenid);
       }
       
       // ASSERTIONS:
-      // - curkey, curTid: contain the first record on the
+      // - curkey, curGenid: contain the first record on the
       //     current leaf page (curkey its key, cur
       // - pageLeaf, pageno valid and pinned
       
@@ -1116,7 +1116,7 @@ public class BTreeFile extends IndexFile
       }
       
       while (BT.keyCompare(curEntry.key, lo_key) < 0) {
-	curEntry= pageLeaf.getNext(starttid);
+	curEntry= pageLeaf.getNext(startgenid);
 	while (curEntry == null) { // have to go right
 	  nextpageno = pageLeaf.getNextPage();
 	  unpinPage(pageno);
@@ -1128,7 +1128,7 @@ public class BTreeFile extends IndexFile
 	  pageno = nextpageno;
 	  pageLeaf=new BTLeafPage(pinPage(pageno), headerPage.get_keyType());
 	  
-	  curEntry=pageLeaf.getFirst(starttid);
+	  curEntry=pageLeaf.getFirst(startgenid);
 	}
       }
       
@@ -1138,19 +1138,19 @@ public class BTreeFile extends IndexFile
   
   
   /*
-   *  Status BTreeFile::NaiveDelete (const void *key, const TID tid) 
+   *  Status BTreeFile::NaiveDelete (const void *key, const GENID genid) 
    * 
-   * Remove specified data entry (<key, tid>) from an index.
+   * Remove specified data entry (<key, genid>) from an index.
    *
    * We don't do merging or redistribution, but do allow duplicates.
    *
    * Page containing first occurrence of key `key' is found for us
    * by findRunStart.  We then iterate for (just a few) pages, if necesary,
-   * to find the one containing <key,tid>, which we then delete via
-   * BTLeafPage::delUserTid.
+   * to find the one containing <key,genid>, which we then delete via
+   * BTLeafPage::delUserGenid.
    */
   
-  private boolean NaiveDelete ( KeyClass key, TID tid)
+  private boolean NaiveDelete ( KeyClass key, GENID genid)
     throws LeafDeleteException,  
 	   KeyNotMatchException,  
 	   PinPageException,
@@ -1162,16 +1162,16 @@ public class BTreeFile extends IndexFile
 	   IteratorException
     {
       BTLeafPage leafPage;
-      TID curTid=new TID();  // iterator
+      GENID curGenid=new GENID();  // iterator
       KeyClass curkey;
-      TID dummyTid; 
+      GENID dummyGenid; 
       PageID nextpage;
       boolean deleted;
       KeyDataEntry entry;
       
       if ( trace!=null )
 	{
-          trace.writeBytes("DELETE " +tid.pageNo +" " + tid.slotNo + " " 
+          trace.writeBytes("DELETE " +genid.pageNo +" " + genid.slotNo + " " 
 			   + key +lineSep);
           trace.writeBytes( "DO"+lineSep);
           trace.writeBytes( "SEARCH" +lineSep);
@@ -1179,10 +1179,10 @@ public class BTreeFile extends IndexFile
 	}
       
       
-      leafPage=findRunStart(key, curTid);  // find first page,tid of key
+      leafPage=findRunStart(key, curGenid);  // find first page,genid of key
       if( leafPage == null) return false;
       
-      entry=leafPage.getCurrent(curTid);
+      entry=leafPage.getCurrent(curGenid);
       
       while ( true ) {
 	
@@ -1195,15 +1195,15 @@ public class BTreeFile extends IndexFile
 	  
 	  leafPage=new BTLeafPage(pinPage(nextpage), 
 				  headerPage.get_keyType() );
-	  entry=leafPage.getFirst(new TID());
+	  entry=leafPage.getFirst(new GENID());
 	}
 	
 	if ( BT.keyCompare(key, entry.key) > 0 )
 	  break;
 	
-	if( leafPage.delEntry(new KeyDataEntry(key, tid)) ==true) {
+	if( leafPage.delEntry(new KeyDataEntry(key, genid)) ==true) {
 	  
-          // successfully found <key, tid> on this page and deleted it.
+          // successfully found <key, genid> on this page and deleted it.
           // unpin dirty page and return OK.
           unpinPage(leafPage.getCurPage(), true /* = DIRTY */);
 	  
@@ -1224,13 +1224,13 @@ public class BTreeFile extends IndexFile
 	
 	leafPage=new BTLeafPage(pinPage(nextpage), headerPage.get_keyType());
 	
-	entry=leafPage.getFirst(curTid);
+	entry=leafPage.getFirst(curGenid);
       }
       
       /*
        * We reached a page with first key > `key', so return an error.
-       * We should have got true back from delUserTid above.  Apparently
-       * the specified <key,tid> data entry does not exist.
+       * We should have got true back from delUserGenid above.  Apparently
+       * the specified <key,genid> data entry does not exist.
        */
       
       unpinPage(leafPage.getCurPage());
@@ -1239,9 +1239,9 @@ public class BTreeFile extends IndexFile
 
   
   /*
-   * Status BTreeFile::FullDelete (const void *key, const TID tid) 
+   * Status BTreeFile::FullDelete (const void *key, const GENID genid) 
    * 
-   * Remove specified data entry (<key, tid>) from an index.
+   * Remove specified data entry (<key, genid>) from an index.
    *
    * Most work done recursively by _Delete
    *
@@ -1250,12 +1250,12 @@ public class BTreeFile extends IndexFile
    * Page containing first occurrence of key `key' is found for us
    * After the page containing first occurence of key 'key' is found,
    * we iterate for (just a few) pages, if necesary,
-   * to find the one containing <key,tid>, which we then delete via
-   * BTLeafPage::delUserTid.
+   * to find the one containing <key,genid>, which we then delete via
+   * BTLeafPage::delUserGenid.
    *@return false if no such record; true if succees 
    */
   
-  private boolean FullDelete (KeyClass key,  TID tid)
+  private boolean FullDelete (KeyClass key,  GENID genid)
     throws IndexInsertRecException,
 	   RedistributeException,
 	   IndexSearchException, 
@@ -1279,7 +1279,7 @@ public class BTreeFile extends IndexFile
 	
 	if ( trace !=null)
 	  {
-	    trace.writeBytes( "DELETE " + tid.pageNo + " " + tid.slotNo 
+	    trace.writeBytes( "DELETE " + genid.pageNo + " " + genid.slotNo 
 			      + " " +  key +lineSep);
 	    trace.writeBytes("DO"+lineSep);
 	    trace.writeBytes( "SEARCH"+lineSep);
@@ -1287,7 +1287,7 @@ public class BTreeFile extends IndexFile
 	  }
 	
 	
-	_Delete(key, tid, headerPage.get_rootId(), null);
+	_Delete(key, genid, headerPage.get_rootId(), null);
 	
 	
 	if ( trace !=null)
@@ -1306,7 +1306,7 @@ public class BTreeFile extends IndexFile
     }
   
   private KeyClass _Delete ( KeyClass key,
-			     TID     tid,
+			     GENID     genid,
 			     PageID        currentPageId,
 			     PageID        parentPageId)
     throws IndexInsertRecException,
@@ -1341,26 +1341,26 @@ public class BTreeFile extends IndexFile
       
       
       if (sortPage.getType()==NodeType.LEAF ) {
-        TID curTid=new TID();  // iterator
+        GENID curGenid=new GENID();  // iterator
         KeyDataEntry tmpEntry;
         KeyClass curkey;
-        TID dummyTid; 
+        GENID dummyGenid; 
         PageID nextpage;
         BTLeafPage leafPage;
         leafPage=new BTLeafPage(page, headerPage.get_keyType());        
 	
 	
 	KeyClass deletedKey=key;
-	tmpEntry=leafPage.getFirst(curTid);
+	tmpEntry=leafPage.getFirst(curGenid);
 	
-	TID delTid;    
-	// for all records with key equal to 'key', delete it if its tid = 'tid'
+	GENID delGenid;    
+	// for all records with key equal to 'key', delete it if its genid = 'genid'
 	while((tmpEntry!=null) && (BT.keyCompare(key,tmpEntry.key)>=0)) { 
           // WriteUpdateLog is done in the btleafpage level - to log the
-          // deletion of the tid.
+          // deletion of the genid.
 	  
-	  if ( leafPage.delEntry(new KeyDataEntry(key, tid)) ) {
-	    // successfully found <key, tid> on this page and deleted it.
+	  if ( leafPage.delEntry(new KeyDataEntry(key, genid)) ) {
+	    // successfully found <key, genid> on this page and deleted it.
 	    
 	    
 	    if ( trace!=null )
@@ -1450,10 +1450,10 @@ public class BTreeFile extends IndexFile
 		// get old child entry in the parent first
 		KeyDataEntry   oldChildEntry;
 		if (direction==-1)
-		  oldChildEntry = leafPage.getFirst(curTid);
+		  oldChildEntry = leafPage.getFirst(curGenid);
 		// get a copy
 		else {
-		  oldChildEntry=siblingPage.getFirst(curTid);
+		  oldChildEntry=siblingPage.getFirst(curGenid);
 		}
 		
 		// merge the two children
@@ -1468,12 +1468,12 @@ public class BTreeFile extends IndexFile
 		}
 		
 		// move all entries from rightChild to leftChild
-		TID firstTid=new TID(), insertTid;
-		for (tmpEntry= rightChild.getFirst(firstTid);
+		GENID firstGenid=new GENID(), insertGenid;
+		for (tmpEntry= rightChild.getFirst(firstGenid);
 		     tmpEntry != null;
-		     tmpEntry=rightChild.getFirst(firstTid)) {
+		     tmpEntry=rightChild.getFirst(firstGenid)) {
 		  leftChild.insertRecord(tmpEntry);
-		  rightChild.deleteSortedRecord(firstTid);
+		  rightChild.deleteSortedRecord(firstGenid);
 		}
 		
 		// adjust chain
@@ -1527,14 +1527,14 @@ public class BTreeFile extends IndexFile
             throw  new RecordNotFoundException(null,"");
 	  
 	  leafPage=new BTLeafPage(pinPage(nextpage), headerPage.get_keyType() );
-	  tmpEntry=leafPage.getFirst(curTid);
+	  tmpEntry=leafPage.getFirst(curGenid);
 	  
 	} //while loop
 	
 	/*
 	 * We reached a page with first key > `key', so return an error.
-	 * We should have got true back from delUserTid above.  Apparently
-	 * the specified <key,tid> data entry does not exist.
+	 * We should have got true back from delUserGenid above.  Apparently
+	 * the specified <key,genid> data entry does not exist.
 	 */
 	
 	unpinPage(leafPage.getCurPage());
@@ -1550,7 +1550,7 @@ public class BTreeFile extends IndexFile
 	// now unpin the page, recurse and then pin it again
 	unpinPage(currentPageId);
 	
-	KeyClass oldChildKey= _Delete(key, tid,  childPageId, currentPageId);
+	KeyClass oldChildKey= _Delete(key, genid,  childPageId, currentPageId);
 	
 	// two cases:
 	// - oldChildKey == null: one level lower no merge has occurred:
@@ -1569,7 +1569,7 @@ public class BTreeFile extends IndexFile
 	// save possible old child entry before deletion
 	PageID dummyPageId; 
 	KeyClass deletedKey = key;
-	TID curTid=indexPage.deleteKey(oldChildKey);
+	GENID curGenid=indexPage.deleteKey(oldChildKey);
 	
 	if (indexPage.getCurPage().pid == headerPage.get_rootId().pid) {
 	  // the index page is the root
@@ -1633,10 +1633,10 @@ public class BTreeFile extends IndexFile
 	  int pushKeySize=0;
 	  if (direction==1) {
 	    pushKeySize=BT.getKeyLength
-	      (parentPage.findKey(siblingPage.getFirst(new TID()).key));
+	      (parentPage.findKey(siblingPage.getFirst(new GENID()).key));
 	  } else if (direction==-1) {
 	    pushKeySize=BT.getKeyLength
-	      (parentPage.findKey(indexPage.getFirst(new TID()).key));
+	      (parentPage.findKey(indexPage.getFirst(new GENID()).key));
 	  }  
 	  
 	  if (siblingPage.redistribute(indexPage,parentPage, 
@@ -1672,10 +1672,10 @@ public class BTreeFile extends IndexFile
 	    // get old child entry in the parent first
 	    KeyClass oldChildEntry;
 	    if (direction==-1) {
-	      oldChildEntry=indexPage.getFirst(curTid).key;
+	      oldChildEntry=indexPage.getFirst(curGenid).key;
 	    }
 	    else {
-	      oldChildEntry= siblingPage.getFirst(curTid).key;                    
+	      oldChildEntry= siblingPage.getFirst(curGenid).key;                    
 	    }
 	    
 	    // merge the two children
@@ -1699,19 +1699,19 @@ public class BTreeFile extends IndexFile
 	    
 	    // pull down the entry in its parent node
 	    // and put it at the end of the left child
-	    TID firstTid=new TID(), insertTid;
+	    GENID firstGenid=new GENID(), insertGenid;
 	    PageID curPageId;
 	    
 	    leftChild.insertKey(  parentPage.findKey(oldChildEntry),
                                   rightChild.getLeftLink());
 	    
 	    // move all entries from rightChild to leftChild
-	    for (KeyDataEntry tmpEntry=rightChild.getFirst(firstTid);
+	    for (KeyDataEntry tmpEntry=rightChild.getFirst(firstGenid);
 		 tmpEntry != null;
-		 tmpEntry=rightChild.getFirst(firstTid) ) {
+		 tmpEntry=rightChild.getFirst(firstGenid) ) {
 	      leftChild.insertKey(tmpEntry.key, 
                                   ((IndexData)tmpEntry.data).getData());
-	      rightChild.deleteSortedRecord(firstTid); 
+	      rightChild.deleteSortedRecord(firstGenid); 
 	    }
 	    
 	    unpinPage(leftChild.getCurPage(), true);
@@ -1784,13 +1784,13 @@ public class BTreeFile extends IndexFile
       scan.endkey=hi_key;
       scan.didfirst=false;
       scan.deletedcurrent=false;
-      scan.curTid=new TID();     
+      scan.curGenid=new GENID();     
       scan.keyType=headerPage.get_keyType();
       scan.maxKeysize=headerPage.get_maxKeySize();
       scan.bfile=this;
       
       //this sets up scan at the starting position, ready for iteration
-      scan.leafPage=findRunStart( lo_key, scan.curTid);
+      scan.leafPage=findRunStart( lo_key, scan.curGenid);
       return scan;
     }
   
@@ -1805,7 +1805,7 @@ public class BTreeFile extends IndexFile
       if( trace!=null ) {
 	
 	BTSortedPage sortedPage;
-	TID metaTid=new TID();
+	GENID metaGenid=new GENID();
 	PageID childPageId;
 	KeyClass key;
 	KeyDataEntry entry;
@@ -1817,9 +1817,9 @@ public class BTreeFile extends IndexFile
 	  BTIndexPage indexPage=new BTIndexPage(sortedPage,headerPage.get_keyType()); 
 	  trace.writeBytes("INDEX CHILDREN " + id + " nodes" + lineSep);
 	  trace.writeBytes( " " + indexPage.getPrevPage());
-	  for ( entry = indexPage.getFirst( metaTid );
+	  for ( entry = indexPage.getFirst( metaGenid );
 		entry != null;
-		entry = indexPage.getNext( metaTid ) )
+		entry = indexPage.getNext( metaGenid ) )
 	    {
 	      trace.writeBytes( "   " + ((IndexData)entry.data).getData());
 	    }
@@ -1827,9 +1827,9 @@ public class BTreeFile extends IndexFile
 	else if( sortedPage.getType()==NodeType.LEAF) {
 	  BTLeafPage leafPage=new BTLeafPage(sortedPage,headerPage.get_keyType()); 
 	  trace.writeBytes("LEAF CHILDREN " + id + " nodes" + lineSep);
-	  for ( entry = leafPage.getFirst( metaTid );
+	  for ( entry = leafPage.getFirst( metaGenid );
 		entry != null;
-		entry = leafPage.getNext( metaTid ) )
+		entry = leafPage.getNext( metaGenid ) )
 	    {
 	      trace.writeBytes( "   " + entry.key + " " + entry.data);
 	    }
@@ -1842,5 +1842,6 @@ public class BTreeFile extends IndexFile
     }
   
 }
+
 
 
