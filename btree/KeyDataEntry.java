@@ -46,15 +46,15 @@ public class KeyDataEntry {
 
   /** Class constructor.
    */
-  public KeyDataEntry( Integer key, TID tid) {
+  public KeyDataEntry( Integer key, GENID genid) {
      this.key = new IntegerKey(key); 
-     this.data = new LeafData(tid);
+     this.data = new LeafData(genid);
   };
 
   /** Class constructor.
    */
-  public KeyDataEntry( KeyClass key, TID tid){
-     data = new LeafData(tid); 
+  public KeyDataEntry( KeyClass key, GENID genid){
+     data = new LeafData(genid); 
      if ( key instanceof IntegerKey ) 
         this.key= new IntegerKey(((IntegerKey)key).getKey());
      else if ( key instanceof StringKey ) 
@@ -64,9 +64,9 @@ public class KeyDataEntry {
 
   /** Class constructor.
    */
-  public KeyDataEntry( String key, TID tid) {
+  public KeyDataEntry( String key, GENID genid) {
      this.key = new StringKey(key); 
-     this.data = new LeafData(tid);
+     this.data = new LeafData(genid);
   }; 
 
   /** Class constructor.
@@ -101,11 +101,12 @@ public class KeyDataEntry {
          st2= ( (IndexData)data).getData().pid==
               ((IndexData)entry.data).getData().pid ;
       else
-         st2= ((TID)((LeafData)data).getData()).equals
-                (((TID)((LeafData)entry.data).getData()));
+         st2= ((GENID)((LeafData)data).getData()).equals
+                (((GENID)((LeafData)entry.data).getData()));
 
   
       return (st1&&st2);
   }     
 }
+
 
