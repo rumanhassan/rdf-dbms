@@ -76,12 +76,12 @@ class DataPageInfo implements GlobalConst{
        throws InvalidTripleSizeException, IOException
   {   
      // need check _atriple size == this.size ?otherwise, throw new exception
-    if (_atriple.getLength()!=12){
+   /* if (_atriple.getLength()!=12){
       throw new InvalidTripleSizeException(null, "TRIPLEHEAPFILE: TRIPLE SIZE ERROR");
     }
-
-    else{
-      data = _atriple.getTripleByteArray();
+*/
+   /* else{
+   */   data = _atriple.getTripleByteArray();
       offset = _atriple.getOffset();
       
       availspace = Convert.getIntValue(offset, data);
@@ -89,7 +89,7 @@ class DataPageInfo implements GlobalConst{
       pageId = new PageID();
       pageId.pid = Convert.getIntValue(offset+8, data);
       
-    }
+    /*}*/
   }
   
   
@@ -108,7 +108,7 @@ class DataPageInfo implements GlobalConst{
 
 
     // 2) creat a Triple object using this array
-    Triple atriple = new Triple(data, offset, size); 
+    Triple atriple = new Triple(data, offset); 
  
     // 3) return triple object
     return atriple;
