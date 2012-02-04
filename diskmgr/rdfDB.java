@@ -4,15 +4,23 @@ package diskmgr;
 
 import java.io.*;
 
+import labelheap.InvalidLabelSizeException;
+import labelheap.LHFBufMgrException;
+import labelheap.LHFDiskMgrException;
+import labelheap.LHFException;
+import labelheap.LabelHeapFile;
+
 import bufmgr.*;
 import global.*;
+import tripleheap.*;
 
 public class rdfDB implements GlobalConst {
 
   
   private static final int bits_per_page = MAX_SPACE * 8;
   private static final String RDFDBNAME = "RDFDBNAME";
-  
+  TripleHeapFile tripleHeapFile = null;
+  LabelHeapFile entityLabelHeapFile = null;
   
   /** Open the database with the given name.
    *
@@ -29,6 +37,7 @@ public class rdfDB implements GlobalConst {
 	   FileIOException,
 	   DiskMgrException {
     
+	  
     name = fname;
     
     // Create a random access file
@@ -51,24 +60,77 @@ public class rdfDB implements GlobalConst {
   }
   
   /** default constructor.
+ * @throws IOException 
+ * @throws THFDiskMgrException 
+ * @throws THFBufMgrException 
+ * @throws THFException 
+ * @throws LHFDiskMgrException 
+ * @throws LHFBufMgrException 
+ * @throws LHFException 
    */
-  public rdfDB(int type) { 
-	
-		try {
-			openDB(RDFDBNAME);
-		} catch (InvalidPageNumberException | FileIOException
-				| DiskMgrException | IOException e) {
-				e.printStackTrace();
-		} 
-		
-			
-		try {
-			closeDB();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+  public rdfDB(int type) throws THFException, THFBufMgrException, THFDiskMgrException, IOException, LHFException, LHFBufMgrException, LHFDiskMgrException { 
+	tripleHeapFile = new TripleHeapFile("TripleHeapFile.in");
+	entityLabelHeapFile = new LabelHeapFile("EntityLabelHeapFile.in");
+	LabelHeapFile predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
+ }  
+  
+ /* int getTripleCnt(){
+	  BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+		File file = new File("thfp");
+		if (file.exists()){
+			FileReader fr = new FileReader(file);
+			LineNumberReader ln = new LineNumberReader(fr);
+			while (ln.readLine() != null){
+				TripleCnt++;
+			}
+	  	}
+	  return TripleCnt;
+ }
+  int getEntityCnt() {
+		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
+		File file = new File(name);
+		if (file.exists()){
+			FileReader fr = new FileReader(file);
+			LineNumberReader ln = new LineNumberReader(fr);
+			while (ln.readLine() != null){
+				EntityCnt++;
+			}
+	  	}
+		return EntityCnt;
+  }
+  int getPredicateCnt(){
+	  return PredicateCnt;
+  }
+  int getSubjectCnt(){
+	  return SubjectCnt;
+  }
+  int Objectcnt(){
+	  return ObjectCnt;
+  }*/
+  TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException {
+	 return tripleHeapFile.insertRecord(recPtr);
+  }
+  /*boolean deleteEntity(String EntityLabel){
 	  
-  }  
+  }*/
+ LID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+ return entityLabelHeapFile.insertLabel(recPtr);
+ }
+ 
+ LID insertEntity(byte[] triplePtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+	 return entityLabelHeapFile.insertLabel(triplePtr);
+ }
+ 
+ /*boolean deleteTriple(byte[] triplePtr){
+ 
+ }
+ */
+ /*Stream openStream(int orderType,String subjectFilter, String predicateFilter, String objectFileter,double confidenceFilter){
+	 
+ }
+*/  
+  
+  
   /** DB Constructors.
    * Create a database with the specified number of pages where the page
    * size is the default page size.
@@ -99,7 +161,7 @@ public class rdfDB implements GlobalConst {
        
     // Make the file num_pages pages long, filled with zeroes.
     fp.seek((long)(num_pages*MINIBASE_PAGESIZE-1));
-   fp.writeByte(0);
+    fp.writeByte(0);
     
     // Initialize space map and directory pages.
     
@@ -849,8 +911,7 @@ public class rdfDB implements GlobalConst {
 
   } // end of unpinPage
   
-  
-}//end of DB class
+ }//end of DB class
 
 /**
  * interface of PageUsedBytes
@@ -1081,58 +1142,5 @@ private static final int ObjectCnt = 0;
     {
       data = page.getpage();
     }
-  int getTripleCnt(){
-	  BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-		File file = new File(name);
-		if (file.exists()){
-			FileReader fr = new FileReader(file);
-			LineNumberReader ln = new LineNumberReader(fr);
-			while (ln.readLine() != null){
-				TripleCnt++;
-			}
-	  	}
-	  return TripleCnt;
- }
-  int getEntityCnt() {
-		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-		File file = new File(name);
-		if (file.exists()){
-			FileReader fr = new FileReader(file);
-			LineNumberReader ln = new LineNumberReader(fr);
-			while (ln.readLine() != null){
-				EntityCnt++;
-			}
-	  	}
-		return EntityCnt;
-  }
-  int getPredicateCnt(){
-	  return PredicateCnt;
-  }
-  int getSubjectCnt(){
-	  return SubjectCnt;
-  }
-  int Objectcnt(){
-	  return ObjectCnt;
-  }
-  EID insertEntity(String Entitylabel) {
-	  
-  }
-  boolean deleteEntity(String EntityLabel){
-	  
-  }
- PID insertPredicate(String PredicateLabel){
  
- }
- boolean deletePredicate(string PredicateLabel){
- 
- }
- TID insertTriple(byte[] triplePtr){
-
- }
- boolean deleteTriple(byte[] triplePtr){
- }
- 
- Stream openStream(int orderType,String subjectFilter, String predicateFilter, String objectFileter,double confidenceFilter){
-	 
- }
 }
