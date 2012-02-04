@@ -4,7 +4,7 @@ import java.io.*;
 /*  File LID.java   */
 /** class LID
  */
-public class LID {
+public class LID extends GENID{
 /** public int slotNo
 	   */
 	 public int slotNo;
