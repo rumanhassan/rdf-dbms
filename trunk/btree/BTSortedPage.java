@@ -89,15 +89,15 @@ public class BTSortedPage  extends THFPage{
    *  the same positions on the  page.
    * 
    *@param entry the entry to be inserted. Input parameter.
-   *@return its tid where the entry was inserted; null if no space left.
+   *@return its genid where the entry was inserted; null if no space left.
    *@exception  InsertRecException error when insert
    */
-   protected TID insertRecord( KeyDataEntry entry)
+   protected GENID insertRecord( KeyDataEntry entry)
           throws InsertRecException 
    {
      int i;
      short  nType;
-     TID tid;
+     GENID genid;
      byte[] record;
      // ASSERTIONS:
      // - the slot directory is compressed; Inserts will occur at the end
@@ -111,8 +111,8 @@ public class BTSortedPage  extends THFPage{
      try {
        
        record=BT.getBytesFromEntry(entry);  
-       tid=super.insertRecord(record);
-         if (tid==null) return null;
+       genid=super.insertRecord(record);
+         if (genid==null) return null;
 	 
          if ( entry.data instanceof LeafData )
 	   nType= NodeType.LEAF;
@@ -152,8 +152,8 @@ public class BTSortedPage  extends THFPage{
 	 // (starting at slot 0)
 	 // - slot directory compacted
 	 
-	 tid.slotNo = i;
-	 return tid;
+	 genid.slotNo = i;
+	 return genid;
      }
      catch (Exception e ) { 
        throw new InsertRecException(e, "insert record failed"); 
@@ -165,16 +165,16 @@ public class BTSortedPage  extends THFPage{
 
   /**  Deletes a record from a sorted record page. It also calls
    *    HFPage.compact_slot_dir() to compact the slot directory.
-   *@param tid it specifies where a record will be deleted
-   *@return true if success; false if tid is invalid(no record in the tid).
+   *@param genid it specifies where a record will be deleted
+   *@return true if success; false if genid is invalid(no record in the genid).
    *@exception DeleteRecException error when delete
    */
-  public  boolean deleteSortedRecord(TID tid)
+  public  boolean deleteSortedRecord(GENID genid)
     throws DeleteRecException
     {
       try {
 	
-	deleteRecord(tid);
+	deleteRecord(genid);
 	compact_slot_dir();
 	return true;  
 	// ASSERTIONS:
@@ -198,6 +198,7 @@ public class BTSortedPage  extends THFPage{
       return getSlotCnt();
     }
 };
+
 
 
 
