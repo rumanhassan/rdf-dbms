@@ -156,11 +156,11 @@ public class BT  implements GlobalConst{
 	}
 	else if ( nodeType==NodeType.LEAF) {
 	  n=8;
-	  TID tid=new TID();
-	  tid.slotNo =   Convert.getIntValue(offset+length-8, from);
-	  tid.pageNo =new PageID();
-	  tid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
-	  data = new LeafData(tid);
+	  GENID genid=new GENID();
+	  genid.slotNo =   Convert.getIntValue(offset+length-8, from);
+	  genid.pageNo =new PageID();
+	  genid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
+	  data = new LeafData(genid);
 	}
 	else throw new NodeNotMatchException(null, "node types do not match"); 
 	
@@ -272,10 +272,10 @@ public class BT  implements GlobalConst{
         System.out.println("Current Page ID: "+ indexPage.getCurPage().pid);
         System.out.println("Left Link      : "+ indexPage.getLeftLink().pid);
 	
-        TID tid=new TID();
+        GENID genid=new GENID();
 	
-        for(KeyDataEntry entry=indexPage.getFirst(tid); entry!=null; 
-	    entry=indexPage.getNext(tid)){
+        for(KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
+	    entry=indexPage.getNext(genid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, pageId):   ("+ 
 			       (IntegerKey)entry.key + ",  "+(IndexData)entry.data+ " )");
@@ -297,10 +297,10 @@ public class BT  implements GlobalConst{
         System.out.println("Left Link      : "+ leafPage.getPrevPage().pid);
         System.out.println("Right Link     : "+ leafPage.getNextPage().pid);
 	
-        TID tid=new TID();
+        GENID genid=new GENID();
 	
-        for(KeyDataEntry entry=leafPage.getFirst(tid); entry!=null; 
-	    entry=leafPage.getNext(tid)){
+        for(KeyDataEntry entry=leafPage.getFirst(genid); entry!=null; 
+	    entry=leafPage.getNext(genid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, [pageNo, slotNo]):   ("+ 
 			       (IntegerKey)entry.key+ ",  "+(LeafData)entry.data+ " )");
@@ -381,9 +381,9 @@ public class BT  implements GlobalConst{
 	System.out.println(i+prefix+ indexPage.getPrevPage());
 	_printTree( indexPage.getPrevPage(), prefix, i, keyType);
 	
-	TID tid=new TID();
-	for( KeyDataEntry entry=indexPage.getFirst(tid); entry!=null; 
-	     entry=indexPage.getNext(tid)) {
+	GENID genid=new GENID();
+	for( KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
+	     entry=indexPage.getNext(genid)) {
 	  System.out.println(i+prefix+(IndexData)entry.data);
 	  _printTree( ((IndexData)entry.data).getData(), prefix, i, keyType);
 	}
@@ -449,9 +449,9 @@ public class BT  implements GlobalConst{
 	
 	_printAllLeafPages( indexPage.getPrevPage(),  keyType);
 	
-	TID tid=new TID();
-	for( KeyDataEntry entry=indexPage.getFirst(tid); entry!=null; 
-	     entry=indexPage.getNext(tid)) {
+	GENID genid=new GENID();
+	for( KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
+	     entry=indexPage.getNext(genid)) {
 	  _printAllLeafPages( ((IndexData)entry.data).getData(),  keyType);
 	}
       }
@@ -464,6 +464,7 @@ public class BT  implements GlobalConst{
       SystemDefs.JavabaseBM.unpinPage(currentPageId , true/*dirty*/);
     }
 } // end of BT
+
 
 
 
