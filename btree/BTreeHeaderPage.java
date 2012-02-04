@@ -12,7 +12,7 @@ import java.io.*;
 import diskmgr.*;
 import bufmgr.*;
 import global.*;
-import heap.*;
+import tripleheap.*;
 
   /**
    * Intefrace of a B+ tree index header page.  
@@ -22,15 +22,15 @@ import heap.*;
    * magic0, rootId, keyType, maxKeySize, deleteFashion,
    * and type(=NodeType.BTHEAD)
    */
-class BTreeHeaderPage extends HFPage {
+class BTreeHeaderPage extends THFPage {
   
-  void setPageId(PageId pageno) 
+  void setPageId(PageID pageno) 
     throws IOException 
     {
       setCurPage(pageno);
     }
   
-  PageId getPageId()
+  PageID getPageId()
     throws IOException
     {
       return getCurPage();
@@ -42,7 +42,7 @@ class BTreeHeaderPage extends HFPage {
   void set_magic0( int magic ) 
     throws IOException 
     {
-      setPrevPage(new PageId(magic)); 
+      setPrevPage(new PageID(magic)); 
     }
   
   
@@ -56,7 +56,7 @@ class BTreeHeaderPage extends HFPage {
   
   /** set the rootId
    */
-  void  set_rootId( PageId rootID )
+  void  set_rootId( PageID rootID )
     throws IOException 
     {
       setNextPage(rootID); 
@@ -64,7 +64,7 @@ class BTreeHeaderPage extends HFPage {
   
   /** get the rootId
    */
-  PageId get_rootId()
+  PageID get_rootId()
     throws IOException
     { 
       return getNextPage();
@@ -122,7 +122,7 @@ class BTreeHeaderPage extends HFPage {
   
   /** pin the page with pageno, and get the corresponding SortedPage
    */
-  public BTreeHeaderPage(PageId pageno) 
+  public BTreeHeaderPage(PageID pageno) 
     throws ConstructPageException
     { 
       super();
@@ -150,7 +150,7 @@ class BTreeHeaderPage extends HFPage {
       super();
       try{
 	Page apage=new Page();
-	PageId pageId=SystemDefs.JavabaseBM.newPage(apage,1);
+	PageID pageId=SystemDefs.JavabaseBM.newPage(apage,1);
 	if (pageId==null) 
 	  throw new ConstructPageException(null, "new page failed");
 	this.init(pageId, apage);

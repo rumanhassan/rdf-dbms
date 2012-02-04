@@ -11,7 +11,7 @@ import java.io.*;
 import java.lang.*;
 import global.*;
 import diskmgr.*;
-import heap.*;
+import tripleheap.*;
 
 /**
  * A BTIndexPage is an index page on a B+ tree.  It holds abstract 
@@ -32,7 +32,7 @@ public class BTIndexPage extends BTSortedPage{
    *@exception IOException error from the lower layer
    *@exception ConstructPageException error when BTIndexpage constructor
    */
-  public BTIndexPage(PageId pageno, int keyType) 
+  public BTIndexPage(PageID pageno, int keyType) 
     throws IOException, 
 	   ConstructPageException
     {
@@ -76,19 +76,19 @@ public class BTIndexPage extends BTSortedPage{
   /** It inserts a <key, pageNo> value into the index page,
    *@key  the key value in <key, pageNO>. Input parameter. 
    *@pageNo the pageNo  in <key, pageNO>. Input parameter.
-   *@return It returns the rid where the record is inserted;
+   *@return It returns the genid where the record is inserted;
    null if no space left.
    *@exception IndexInsertRecException error when insert
    */
-   public RID insertKey(KeyClass key, PageId pageNo) 
+   public GENID insertKey(KeyClass key, PageID pageNo) 
       throws  IndexInsertRecException
     {
-      RID rid;
+      GENID genid;
       KeyDataEntry entry;
       try {
         entry = new KeyDataEntry( key, pageNo); 
-        rid=super.insertRecord( entry );
-        return rid;
+        genid=super.insertRecord( entry );
+        return genid;
       }
       catch ( Exception e) {       
         throw new IndexInsertRecException(e, "Insert failed");
@@ -98,23 +98,23 @@ public class BTIndexPage extends BTSortedPage{
   
   /*  OPTIONAL: fullDeletekey 
    * This is optional, and is only needed if you want to do full deletion.
-   * Return its RID.  delete key may != key.  But delete key <= key,
+   * Return its GENID.  delete key may != key.  But delete key <= key,
    * and the delete key is the first biggest key such that delete key <= key 
    *@param key the key used to search. Input parameter.
    *@exception IndexFullDeleteException if no record deleted or failed by
    * any reason
-   *@return  RID of the record deleted. Can not return null.
+   *@return  GENID of the record deleted. Can not return null.
    */
-  RID deleteKey(KeyClass key) 
+  GENID deleteKey(KeyClass key) 
     throws IndexFullDeleteException 
     {
       KeyDataEntry  entry;
-      RID rid=new RID(); 
+      GENID genid=new GENID(); 
       
       
       try {
 	
-	entry = getFirst(rid);
+	entry = getFirst(genid);
 	
 	if (entry == null) 
 	  //it is supposed there is at least a record
@@ -127,17 +127,17 @@ public class BTIndexPage extends BTSortedPage{
 	
 	
 	while (BT.keyCompare(key, entry.key) > 0) {
-	  entry = getNext(rid );
+	  entry = getNext(genid );
 	  if (entry == null)
             break;
 	}
 	
-	if (entry == null) rid.slotNo--;
+	if (entry == null) genid.slotNo--;
 	else if (BT.keyCompare(key, entry.key) != 0)
-	  rid.slotNo--; // we want to delete the previous key
+	  genid.slotNo--; // we want to delete the previous key
 	
-	deleteSortedRecord(rid);
-	return rid;
+	deleteSortedRecord(genid);
+	return genid;
       }
       catch (Exception e) {
         throw new IndexFullDeleteException(e, "Full delelte failed"); 
@@ -153,7 +153,7 @@ public class BTIndexPage extends BTSortedPage{
    *@return It returns the page_no of the child to be searched next.
    *@exception IndexSearchException Index search failed;
    */
-  PageId getPageNoByKey(KeyClass key) 
+  PageID getPageNoByKey(KeyClass key) 
     throws IndexSearchException         
     {
       KeyDataEntry entry;
@@ -184,21 +184,21 @@ public class BTIndexPage extends BTSortedPage{
   /**  Iterators. 
    * One of the two functions: getFirst and getNext
    * which  provide an iterator interface to the records on a BTIndexPage.
-   *@param rid It will be modified and the first rid in the index page
+   *@param genid It will be modified and the first genid in the index page
    * will be passed out by itself. Input and Output parameter. 
    *@return return the first KeyDataEntry in the index page.
    *null if NO MORE RECORD
    *@exception IteratorException  iterator error
    */
-  public KeyDataEntry getFirst(RID rid) 
+  public KeyDataEntry getFirst(GENID genid) 
     throws IteratorException
     {
       
       KeyDataEntry  entry; 
       
       try { 
-	rid.pageNo = getCurPage();
-	rid.slotNo = 0; // begin with first slot
+	genid.pageNo = getCurPage();
+	genid.slotNo = 0; // begin with first slot
 	
 	if ( getSlotCnt() == 0) {
 	  return null;
@@ -220,22 +220,22 @@ public class BTIndexPage extends BTSortedPage{
   /**Iterators.  
    * One of the two functions: get_first and get_next which  provide an
    * iterator interface to the records on a BTIndexPage.
-   *@param rid It will be modified and next rid will be passed out by itself.
+   *@param genid It will be modified and next genid will be passed out by itself.
    *         Input and Output parameter.
    *@return return the next KeyDataEntry in the index page. 
    *null if no more record
    *@exception IteratorException iterator error
    */
-  public KeyDataEntry getNext (RID rid)
+  public KeyDataEntry getNext (GENID genid)
     throws  IteratorException 
     {
       KeyDataEntry  entry; 
       int i;
       try{
-	rid.slotNo++; //must before any return;
-	i=rid.slotNo;
+	genid.slotNo++; //must before any return;
+	i=genid.slotNo;
 	
-	if ( rid.slotNo >= getSlotCnt())
+	if ( genid.slotNo >= getSlotCnt())
 	  {
 	    return null;
 	  }
@@ -260,7 +260,7 @@ public class BTIndexPage extends BTSortedPage{
    *@return It returns the left most link. 
    *@exception IOException error from the lower layer
    */
-  protected PageId getLeftLink() 
+  protected PageID getLeftLink() 
     throws IOException
     {
       return getPrevPage(); 
@@ -274,7 +274,7 @@ public class BTIndexPage extends BTSortedPage{
    *@param left the PageId of the left link you wish to set. Input parameter.
    *@exception IOException I/O errors
    */ 
-  protected void setLeftLink(PageId left) 
+  protected void setLeftLink(PageID left) 
     throws IOException
     { 
       setPrevPage(left); 
@@ -289,7 +289,7 @@ public class BTIndexPage extends BTSortedPage{
    *@exception IndexFullDeleteException delete failed
    */  
   
-  int  getSibling(KeyClass key, PageId pageNo)
+  int  getSibling(KeyClass key, PageID pageNo)
     throws IndexFullDeleteException
     {
       
@@ -345,11 +345,11 @@ public class BTIndexPage extends BTSortedPage{
 	entry =  findKeyData( oldKey );
 	if (entry == null) return false;
 	
-	RID rid=deleteKey( entry.key );
-	if (rid==null) throw new IndexFullDeleteException(null, "Rid is null");
+	GENID genid=deleteKey( entry.key );
+	if (genid==null) throw new IndexFullDeleteException(null, "Genid is null");
 	
-	rid=insertKey( newKey, ((IndexData)entry.data).getData());        
-	if (rid==null) throw new IndexFullDeleteException(null, "Rid is null");
+	genid=insertKey( newKey, ((IndexData)entry.data).getData());        
+	if (genid==null) throw new IndexFullDeleteException(null, "Genid is null");
 	
 	return true;
       }
@@ -429,16 +429,16 @@ public class BTIndexPage extends BTSortedPage{
 	  }
 	  else {
             // get its sibling's first record's key 
-            RID dummyRid=new RID();
+            GENID dummyGenid=new GENID();
             KeyDataEntry firstEntry, lastEntry;
-            firstEntry=indexPage.getFirst(dummyRid);
+            firstEntry=indexPage.getFirst(dummyGenid);
             
             // get the entry pointing to the right sibling
 	    
             KeyClass splitKey = parentIndexPage.findKey(firstEntry.key);
 	    
             // get the leftmost child pointer of the right sibling
-            PageId leftMostPageId = indexPage.getLeftLink();
+            PageID leftMostPageId = indexPage.getLeftLink();
             
             // insert  <splitKey,leftMostPageId>  to its sibling
             indexPage.insertKey( splitKey, leftMostPageId);
@@ -451,11 +451,11 @@ public class BTIndexPage extends BTSortedPage{
             indexPage.setLeftLink(((IndexData)(lastEntry.data)).getData() );
 	    
             // delete the last record from the old page
-            RID delRid=new RID();
-            delRid.pageNo = getCurPage();
-            delRid.slotNo = getSlotCnt()-1;
+            GENID delGenid=new GENID();
+            delGenid.pageNo = getCurPage();
+            delGenid.slotNo = getSlotCnt()-1;
 
-            if ( deleteSortedRecord(delRid) ==false )
+            if ( deleteSortedRecord(delGenid) ==false )
                    throw new RedistributeException(null, "Delete record failed");
 
             // adjust the entry pointing to sibling in its parent
@@ -482,7 +482,7 @@ public class BTIndexPage extends BTSortedPage{
 					     getSlotLength(0), keyType, NodeType.INDEX);
 	    
             // get its leftmost child pointer
-            PageId leftMostPageId = getLeftLink();
+            PageID leftMostPageId = getLeftLink();
 	    
             // get the entry in its parent pointing to itself
             KeyClass splitKey;
@@ -497,10 +497,10 @@ public class BTIndexPage extends BTSortedPage{
             setLeftLink(((IndexData)(firstEntry.data)).getData());
             
             // delete the first record 
-            RID delRid=new RID();
-            delRid.pageNo = getCurPage();
-            delRid.slotNo = 0;
-            if (deleteSortedRecord(delRid) == false )
+            GENID delGenid=new GENID();
+            delGenid.pageNo = getCurPage();
+            delGenid.slotNo = 0;
+            if (deleteSortedRecord(delGenid) == false )
 	      throw new RedistributeException(null, "delete record failed");
 	    
             // adjust the entry pointing to itself in its parent
@@ -515,3 +515,4 @@ public class BTIndexPage extends BTSortedPage{
       } 
     } // end of redistribute  
 };
+
