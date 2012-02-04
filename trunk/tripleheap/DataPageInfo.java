@@ -68,21 +68,21 @@ class DataPageInfo implements GlobalConst{
    }
       
       
-  /** constructor: translate a tuple to a DataPageInfo object
-   *  it will make a copy of the data in the tuple
-   * @param atuple: the input tuple
+  /** constructor: translate a triple to a DataPageInfo object
+   *  it will make a copy of the data in the triple
+   * @param atriple: the input triple
    */
-  public DataPageInfo(Triple _atuple)
+  public DataPageInfo(Triple _atriple)
        throws InvalidTripleSizeException, IOException
   {   
-     // need check _atuple size == this.size ?otherwise, throw new exception
-    if (_atuple.size()!=12){
-      throw new InvalidTripleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR");
+     // need check _atriple size == this.size ?otherwise, throw new exception
+    if (_atriple.getLength()!=12){
+      throw new InvalidTripleSizeException(null, "TRIPLEHEAPFILE: TRIPLE SIZE ERROR");
     }
 
     else{
-      data = _atuple.getTripleByteArray();
-      offset = _atuple.getOffset();
+      data = _atriple.getTripleByteArray();
+      offset = _atriple.getOffset();
       
       availspace = Convert.getIntValue(offset, data);
       recct = Convert.getIntValue(offset+4, data);
@@ -93,7 +93,7 @@ class DataPageInfo implements GlobalConst{
   }
   
   
-  /** convert this class objcet to a tuple(like cast a DataPageInfo to Tuple)
+  /** convert this class objcet to a triple(like cast a DataPageInfo to Triple)
    *  
    *
    */
@@ -108,10 +108,10 @@ class DataPageInfo implements GlobalConst{
 
 
     // 2) creat a Triple object using this array
-    Triple atuple = new Triple(data, offset); 
+    Triple atriple = new Triple(data, offset, size); 
  
     // 3) return triple object
-    return atuple;
+    return atriple;
 
   }
   
@@ -120,7 +120,7 @@ class DataPageInfo implements GlobalConst{
    *  to the data[](may be in buffer pool)
    *  
    */
-  public void flushToTuple() throws IOException
+  public void flushToTriple() throws IOException
   {
      // write availspace, recct, pageId into "data[]"
     Convert.setIntValue(availspace, offset, data);
