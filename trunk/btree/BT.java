@@ -11,7 +11,7 @@ import java.lang.*;
 import global.*;
 import diskmgr.*;
 import bufmgr.*;
-import heap.*;
+import tripleheap.*;
 
 /**  
  * This file contains, among some debug utilities, the interface to our
@@ -107,7 +107,7 @@ public class BT  implements GlobalConst{
   /** It gets the length of the (key,data) pair in leaf or index page. 
    *@param  key    an object of KeyClass.  Input parameter.
    *@param  pageType  NodeType.LEAF or  NodeType.INDEX. Input parameter.
-   *@return return the lenrth of the (key,data) pair.
+   *@return return the length of the (key,data) pair.
    *@exception  KeyNotMatchException key is neither StringKey nor  IntegerKey 
    *@exception NodeNotMatchException pageType is neither NodeType.LEAF 
    *  nor NodeType.INDEX.
@@ -156,11 +156,11 @@ public class BT  implements GlobalConst{
 	}
 	else if ( nodeType==NodeType.LEAF) {
 	  n=8;
-	  RID rid=new RID();
-	  rid.slotNo =   Convert.getIntValue(offset+length-8, from);
-	  rid.pageNo =new PageId();
-	  rid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
-	  data = new LeafData(rid);
+	  GENID genid=new GENID();
+	  genid.slotNo =   Convert.getIntValue(offset+length-8, from);
+	  genid.pageNo =new PageID();
+	  genid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
+	  data = new LeafData(genid);
 	}
 	else throw new NodeNotMatchException(null, "node types do not match"); 
 	
@@ -253,7 +253,7 @@ public class BT  implements GlobalConst{
    *@exception InvalidFrameNumberException error from the lower layer
    */
   
-  public static void printPage(PageId pageno, int keyType)
+  public static void printPage(PageID pageno, int keyType)
     throws  IOException, 
 	    IteratorException, 
 	    ConstructPageException,
@@ -272,10 +272,10 @@ public class BT  implements GlobalConst{
         System.out.println("Current Page ID: "+ indexPage.getCurPage().pid);
         System.out.println("Left Link      : "+ indexPage.getLeftLink().pid);
 	
-        RID rid=new RID();
+        GENID genid=new GENID();
 	
-        for(KeyDataEntry entry=indexPage.getFirst(rid); entry!=null; 
-	    entry=indexPage.getNext(rid)){
+        for(KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
+	    entry=indexPage.getNext(genid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, pageId):   ("+ 
 			       (IntegerKey)entry.key + ",  "+(IndexData)entry.data+ " )");
@@ -297,10 +297,10 @@ public class BT  implements GlobalConst{
         System.out.println("Left Link      : "+ leafPage.getPrevPage().pid);
         System.out.println("Right Link     : "+ leafPage.getNextPage().pid);
 	
-        RID rid=new RID();
+        GENID genid=new GENID();
 	
-        for(KeyDataEntry entry=leafPage.getFirst(rid); entry!=null; 
-	    entry=leafPage.getNext(rid)){
+        for(KeyDataEntry entry=leafPage.getFirst(genid); entry!=null; 
+	    entry=leafPage.getNext(genid)){
 	  if( keyType==AttrType.attrInteger) 
 	    System.out.println(i+" (key, [pageNo, slotNo]):   ("+ 
 			       (IntegerKey)entry.key+ ",  "+(LeafData)entry.data+ " )");
@@ -361,7 +361,7 @@ public class BT  implements GlobalConst{
       System.out.println("");
     }
   
-  private static void _printTree(PageId currentPageId, String prefix, int i, 
+  private static void _printTree(PageID currentPageId, String prefix, int i, 
 				 int keyType) 
     throws IOException, 
 	   ConstructPageException, 
@@ -381,9 +381,9 @@ public class BT  implements GlobalConst{
 	System.out.println(i+prefix+ indexPage.getPrevPage());
 	_printTree( indexPage.getPrevPage(), prefix, i, keyType);
 	
-	RID rid=new RID();
-	for( KeyDataEntry entry=indexPage.getFirst(rid); entry!=null; 
-	     entry=indexPage.getNext(rid)) {
+	GENID genid=new GENID();
+	for( KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
+	     entry=indexPage.getNext(genid)) {
 	  System.out.println(i+prefix+(IndexData)entry.data);
 	  _printTree( ((IndexData)entry.data).getData(), prefix, i, keyType);
 	}
@@ -432,7 +432,7 @@ public class BT  implements GlobalConst{
       System.out.println("");
     }
   
-  private static void _printAllLeafPages(PageId currentPageId,  int keyType) 
+  private static void _printAllLeafPages(PageID currentPageId,  int keyType) 
     throws IOException, 
 	   ConstructPageException, 
 	   IteratorException,
@@ -449,9 +449,9 @@ public class BT  implements GlobalConst{
 	
 	_printAllLeafPages( indexPage.getPrevPage(),  keyType);
 	
-	RID rid=new RID();
-	for( KeyDataEntry entry=indexPage.getFirst(rid); entry!=null; 
-	     entry=indexPage.getNext(rid)) {
+	GENID genid=new GENID();
+	for( KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
+	     entry=indexPage.getNext(genid)) {
 	  _printAllLeafPages( ((IndexData)entry.data).getData(),  keyType);
 	}
       }
@@ -464,6 +464,7 @@ public class BT  implements GlobalConst{
       SystemDefs.JavabaseBM.unpinPage(currentPageId , true/*dirty*/);
     }
 } // end of BT
+
 
 
 

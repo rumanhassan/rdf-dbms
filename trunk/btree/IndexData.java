@@ -5,7 +5,7 @@ import global.*;
  *   It defines the data "pageNo" for index node in B++ tree.
  */
 public class IndexData extends DataClass {
-  private PageId pageId;
+  private PageID pageId;
 
   public String toString() {
      return (new Integer(pageId.pid)).toString();
@@ -14,20 +14,20 @@ public class IndexData extends DataClass {
   /** Class constructor
    *  @param     pageNo  the page number
    */
-  IndexData(PageId  pageNo) { pageId = new PageId(pageNo.pid);};  
+  IndexData(PageID  pageNo) { pageId = new PageID(pageNo.pid);};  
 
   /** Class constructor
    *  @param     pageNo  the page number
    */
-  IndexData(int  pageNo) { pageId = new PageId(pageNo);};  
+  IndexData(int  pageNo) { pageId = new PageID(pageNo);};  
 
 
   /** get a copy of the pageNo
   *  @return the reference of the copy 
   */
-  protected PageId getData() {return new PageId(pageId.pid); };
+  protected PageID getData() {return new PageID(pageId.pid); };
 
   /** set the pageNo 
    */ 
-  protected void setData(PageId pageNo) {pageId= new PageId(pageNo.pid);};
+  protected void setData(PageID pageNo) {pageId= new PageID(pageNo.pid);};
 }   

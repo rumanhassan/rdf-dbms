@@ -2,29 +2,30 @@ package btree;
 import global.*;
 
 /**  IndexData: It extends the DataClass.
- *   It defines the data "rid" for leaf node in B++ tree.
+ *   It defines the data "genid" for leaf node in B++ tree.
  */
 public class LeafData extends DataClass {
-  private RID myRid;
+  private GENID myGenid;
 
   public String toString() {
      String s;
-     s="[ "+ (new Integer(myRid.pageNo.pid)).toString() +" "
-              + (new Integer(myRid.slotNo)).toString() + " ]";
+     s="[ "+ (new Integer(myGenid.pageNo.pid)).toString() +" "
+              + (new Integer(myGenid.slotNo)).toString() + " ]";
      return s;
   }
 
   /** Class constructor
-   *  @param    rid  the data rid
+   *  @param    genid  the data genid
    */
-  LeafData(RID rid) {myRid= new RID(rid.pageNo, rid.slotNo);};  
+  LeafData(GENID genid) {myGenid= new GENID(genid.pageNo, genid.slotNo);};  
 
-  /** get a copy of the rid
+  /** get a copy of the genid
   *  @return the reference of the copy 
   */
-  public RID getData() {return new RID(myRid.pageNo, myRid.slotNo);};
+  public GENID getData() {return new GENID(myGenid.pageNo, myGenid.slotNo);};
 
-  /** set the rid
+  /** set the genid
    */ 
-  public void setData(RID rid) { myRid= new RID(rid.pageNo, rid.slotNo);};
+  public void setData(GENID genid) { myGenid= new GENID(genid.pageNo, genid.slotNo);};
 }   
+
