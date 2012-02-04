@@ -6,7 +6,7 @@ package global;
 /** class TID
  */
 
-public class PID extends java.lang.Object{
+public class PID extends LID{
   
   /** public PageId pageNo
    */
