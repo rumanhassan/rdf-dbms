@@ -49,6 +49,9 @@ public class Triple implements GlobalConst {
 	 * @param length
 	 *            is the length of the triple
 	 */
+	public int getOffset() {
+		return triple_offset ;
+	}
 
 	public Triple(byte[] atriple, int offset) {
 		subjectId = new EID();
