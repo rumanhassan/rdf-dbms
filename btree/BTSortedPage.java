@@ -111,7 +111,7 @@ public class BTSortedPage  extends THFPage{
      try {
        
        record=BT.getBytesFromEntry(entry);  
-       genid=super.insertRecord(record);
+       genid=super.insertTriple(record);
          if (genid==null) return null;
 	 
          if ( entry.data instanceof LeafData )
@@ -174,7 +174,7 @@ public class BTSortedPage  extends THFPage{
     {
       try {
 	
-	deleteRecord(genid);
+	deleteSortedRecord(genid);
 	compact_slot_dir();
 	return true;  
 	// ASSERTIONS:
