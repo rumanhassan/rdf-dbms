@@ -18,7 +18,7 @@ public class rdfDB implements GlobalConst {
 
   
   private static final int bits_per_page = MAX_SPACE * 8;
-  private static final String RDFDBNAME = "RDFDBNAME";
+  public  static final String dbNamelist[]= {""};
   TripleHeapFile tripleHeapFile = null;
   LabelHeapFile entityLabelHeapFile = null;
   
