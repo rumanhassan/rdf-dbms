@@ -36,17 +36,16 @@ public class BatchInsert {
 			String object = null;
 			String confidence = null;
 			for (int charNo = 0; charNo < lineLength; charNo++) {
-				char[] subjectArray=new char[100];
-				char[] predicateArray=new char[100];
-				char[] objectArray=new char[100];
-				char[] confidenceArray=new char[100];
+				char[] subjectArray = new char[100];
+				char[] predicateArray = new char[100];
+				char[] objectArray = new char[100];
+				char[] confidenceArray = new char[100];
 				int count = 0;
 				// reading subject
-				while(lineString[charNo] == ':')
-				{
+				while (lineString[charNo] == ':') {
 					charNo++;
 				}
-				while (lineString[charNo] !=':') {
+				while (lineString[charNo] != ':') {
 					subjectArray[count] = lineString[charNo];
 					count++;
 					charNo++;
@@ -66,13 +65,13 @@ public class BatchInsert {
 					count++;
 					charNo++;
 				}
-				while(lineString[charNo]==(' ') || lineString[charNo]=='\t')
-				{
+				while (lineString[charNo] == (' ')
+						|| lineString[charNo] == '\t') {
 					charNo++;
 				}
-				// reading confidence 
+				// reading confidence
 				count = 0;
-				while (lineLength-1!=charNo) {
+				while (lineLength - 1 != charNo) {
 					confidenceArray[count] = lineString[charNo];
 					count++;
 					charNo++;
@@ -83,11 +82,12 @@ public class BatchInsert {
 				object = new String(objectArray).trim();
 				confidence = new String(confidenceArray).trim();
 			}
-			System.out.println("subject"+subject);
-			System.out.println("predicate"+predicate);
-			System.out.println("object"+object);
-			System.out.println("confidence"+confidence);
-			//System.out.println(fileArray[i]);
+			
+			System.out.println("subject" + subject);
+			System.out.println("predicate" + predicate);
+			System.out.println("object" + object);
+			System.out.println("confidence" + confidence);
+			// System.out.println(fileArray[i]);
 		}
 
 	}
