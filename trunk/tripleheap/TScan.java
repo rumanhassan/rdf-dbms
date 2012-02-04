@@ -15,7 +15,7 @@ import diskmgr.*;
 /**	
  * A Scan object is created ONLY through the function openScan
  * of a TripleHeapFile. It supports the getNext interface which will
- * simply retrieve the next record in the TripleHeapFile.
+ * simply retrieve the next Triple in the TripleHeapFile.
  *
  * An object of type scan will always have pinned one directory page
  * of the TripleHeapFile.
@@ -23,7 +23,7 @@ import diskmgr.*;
 public class TScan implements GlobalConst{
  
     /**
-     * Note that one record in our way-cool TripleHeapFile implementation is
+     * Note that one Triple in our way-cool TripleHeapFile implementation is
      * specified by six (6) parameters, some of which can be determined
      * from others:
      */
@@ -37,18 +37,18 @@ public class TScan implements GlobalConst{
     /** pointer to in-core data of dirpageId (page is pinned) */
     private THFPage dirpage = new THFPage();
 
-    /** record ID of the DataPageInfo struct (in the directory page) which
-     * describes the data page where our current record lives.
+    /** Triple ID of the DataPageInfo struct (in the directory page) which
+     * describes the data page where our current Triple lives.
      */
     private TID datapageTid = new TID();
 
-    /** the actual PageId of the data page with the current record */
+    /** the actual PageId of the data page with the current Triple */
     private PageID datapageId = new PageID();
 
     /** in-core copy (pinned) of the same */
     private THFPage datapage = new THFPage();
 
-    /** record ID of the current record (from the current data page) */
+    /** Triple ID of the current Triple (from the current data page) */
     private TID usertid = new TID();
 
     /** Status of next user status */
@@ -73,13 +73,13 @@ public class TScan implements GlobalConst{
 
 
   
-  /** Retrieve the next record in a sequential scan
+  /** Retrieve the next Triple in a sequential scan
    *
    * @exception InvalidTripleSizeException Invalid triple size
    * @exception IOException I/O errors
    *
-   * @param tid Record ID of the record
-   * @return the Triple of the retrieved record.
+   * @param tid Triple ID of the Triple
+   * @return the Triple of the retrieved Triple.
    */
   public Triple getNext(TID tid) 
     throws InvalidTripleSizeException,
@@ -106,7 +106,7 @@ public class TScan implements GlobalConst{
       e.printStackTrace();
     }   
     
-    usertid = datapage.nextRecord(tid);
+    usertid = datapage.nextTriple(tid);
     if(usertid == null) nextUserStatus = false;
     else nextUserStatus = true;
      
@@ -114,11 +114,11 @@ public class TScan implements GlobalConst{
   }
 
 
-    /** Position the scan cursor to the record with the given tid.
+    /** Position the scan cursor to the Triple with the given tid.
      * 
      * @exception InvalidTripleSizeException Invalid triple size
      * @exception IOException I/O errors
-     * @param tid Record ID of the given record
+     * @param tid Triple ID of the given Triple
      * @return 	true if successful, 
      *			false otherwise.
      */
@@ -158,7 +158,7 @@ public class TScan implements GlobalConst{
     // Now we are on the correct page.
     
     try{
-    	usertid = datapage.firstRecord();
+    	usertid = datapage.firstTriple();
 	}
     catch (Exception e) {
       e.printStackTrace();
@@ -269,10 +269,10 @@ public class TScan implements GlobalConst{
 	}
     
     /** now try to get a pointer to the first datapage */
-	 datapageTid = dirpage.firstRecord();
+	 datapageTid = dirpage.firstTriple();
 	 
     	if (datapageTid != null) {
-    /** there is a datapage record on the first directory page: */
+    /** there is a datapage Triple on the first directory page: */
 	
 	try {
           triple = dirpage.getTriple(datapageTid);
@@ -290,7 +290,7 @@ public class TScan implements GlobalConst{
 
     /** the first directory page is the only one which can possibly remain
      * empty: therefore try to get the next directory page and
-     * check it. The next one has to contain a datapage record, unless
+     * check it. The next one has to contain a datapage Triple, unless
      * the TripleHeapFile is empty:
      */
       PageID nextDirPageId = new PageID();
@@ -321,10 +321,10 @@ public class TScan implements GlobalConst{
 	  e.printStackTrace();
 	}
 	
-	/** now try again to read a data record: */
+	/** now try again to read a data Triple: */
 	
 	try {
-	  datapageTid = dirpage.firstRecord();
+	  datapageTid = dirpage.firstTriple();
 	}
         
 	catch (Exception e) {
@@ -341,7 +341,7 @@ public class TScan implements GlobalConst{
 	  }
 	  
 	  catch (Exception e) {
-	//    System.err.println("SCAN: Error getRecord 4: " + e);
+	//    System.err.println("SCAN: Error getTriple 4: " + e);
 	    e.printStackTrace();
 	  }
 	  
@@ -409,7 +409,7 @@ public class TScan implements GlobalConst{
   // - this->dirpage is valid and pinned
   // (1) if TripleHeapFile empty:
   //    - this->datapage==NULL; this->datapageId == INVALID_PAGE
-  // (2) if overall first record in TripleHeapFile:
+  // (2) if overall first Triple in TripleHeapFile:
   //    - this->datapage==NULL, but this->datapageId valid
   //    - this->datapageTid valid
   //    - current data page unpinned !!!
@@ -447,7 +447,7 @@ public class TScan implements GlobalConst{
 	}
 	
 	try {
-	  usertid = datapage.firstRecord();
+	  usertid = datapage.firstTriple();
 	}
 	catch (Exception e) {
 	  e.printStackTrace();
@@ -470,18 +470,18 @@ public class TScan implements GlobalConst{
       
     }
           
-    // read next datapagerecord from current directory page
+    // read next datapageTriple from current directory page
     // dirpage is set to NULL at the end of scan. Hence
     
     if (dirpage == null) {
       return false;
     }
     
-    datapageTid = dirpage.nextRecord(datapageTid);
+    datapageTid = dirpage.nextTriple(datapageTid);
     
     if (datapageTid == null) {
       nextDataPageStatus = false;
-      // we have read all datapage records on the current directory page
+      // we have read all datapage Triples on the current directory page
       
       // get next directory page
       nextDirPageId = dirpage.getNextPage();
@@ -519,7 +519,7 @@ public class TScan implements GlobalConst{
 	  return false;
 	
     	try {
-	  datapageTid = dirpage.firstRecord();
+	  datapageTid = dirpage.firstTriple();
 	  nextDataPageStatus = true;
 	}
 	catch (Exception e){
@@ -536,7 +536,7 @@ public class TScan implements GlobalConst{
     // - this->datapageTid has the Lid of the next datapage to be read
     // - this->datapage, this->datapageId invalid
   
-    // data page is not yet loaded: read its record from the directory page
+    // data page is not yet loaded: read its Triple from the directory page
    	try {
 	  triple = dirpage.getTriple(datapageTid);
 	}
@@ -566,7 +566,7 @@ public class TScan implements GlobalConst{
      // - this->dirpageId, this->dirpage correct
      // - this->datapageId, this->datapage, this->datapageTid correct
 
-     usertid = datapage.firstRecord();
+     usertid = datapage.firstTriple();
      
      if(usertid == null)
      {
@@ -587,8 +587,8 @@ public class TScan implements GlobalConst{
   }
 
 
-  /** Move to the next record in a sequential scan.
-   * Also returns the TID of the (new) current record.
+  /** Move to the next Triple in a sequential scan.
+   * Also returns the TID of the (new) current Triple.
    */
   private boolean mvNext(TID tid) 
     throws InvalidTripleSizeException,
@@ -600,7 +600,7 @@ public class TScan implements GlobalConst{
     if (datapage == null)
         return false;
 
-    	nextrid = datapage.nextRecord(tid);
+    	nextrid = datapage.nextTriple(tid);
 	
 	if( nextrid != null ){
 	  usertid.pageNo.pid = nextrid.pageNo.pid;
