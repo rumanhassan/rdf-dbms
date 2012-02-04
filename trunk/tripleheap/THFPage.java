@@ -488,11 +488,11 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 	/**
 	 * @return TID of next triple on the page, null if no more triples exist on
 	 *         the page
-	 * @param curRid
+	 * @param curTid
 	 *            current triple ID
 	 * @exception IOException
-	 *                I/O errors in C++ Status nextTriple (LID curRid, LID&
-	 *                nextRid)
+	 *                I/O errors in C++ Status nextTriple (LID curTid, LID&
+	 *                nextTid)
 	 */
 	public TID nextTriple(TID curTid) throws IOException {
 		TID tid = new TID();
