@@ -21,6 +21,7 @@ public class rdfDB implements GlobalConst {
   public  static final String dbNamelist[]= {""};
   TripleHeapFile tripleHeapFile = null;
   LabelHeapFile entityLabelHeapFile = null;
+  LabelHeapFile predicateLabelHeapFile = null;
   
   /** Open the database with the given name.
    *
@@ -71,37 +72,19 @@ public class rdfDB implements GlobalConst {
   public rdfDB(int type) throws THFException, THFBufMgrException, THFDiskMgrException, IOException, LHFException, LHFBufMgrException, LHFDiskMgrException { 
 	tripleHeapFile = new TripleHeapFile("TripleHeapFile.in");
 	entityLabelHeapFile = new LabelHeapFile("EntityLabelHeapFile.in");
-	LabelHeapFile predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
+	predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
  }  
   
- /* int getTripleCnt(){
-	  BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-		File file = new File("thfp");
-		if (file.exists()){
-			FileReader fr = new FileReader(file);
-			LineNumberReader ln = new LineNumberReader(fr);
-			while (ln.readLine() != null){
-				TripleCnt++;
-			}
-	  	}
-	  return TripleCnt;
+ int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException{
+	 return tripleHeapFile.getRecCnt();
  }
-  int getEntityCnt() {
-		BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
-		File file = new File(name);
-		if (file.exists()){
-			FileReader fr = new FileReader(file);
-			LineNumberReader ln = new LineNumberReader(fr);
-			while (ln.readLine() != null){
-				EntityCnt++;
-			}
-	  	}
-		return EntityCnt;
+  int getEntityCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException {
+		return entityLabelHeapFile.getLabelCnt();
   }
-  int getPredicateCnt(){
-	  return PredicateCnt;
+  int getPredicateCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException{
+	  return predicateLabelHeapFile.getLabelCnt();
   }
-  int getSubjectCnt(){
+  /*int getSubjectCnt(){
 	  return SubjectCnt;
   }
   int Objectcnt(){
@@ -110,10 +93,7 @@ public class rdfDB implements GlobalConst {
   TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException {
 	 return tripleHeapFile.insertRecord(recPtr);
   }
-  /*boolean deleteEntity(String EntityLabel){
-	  
-  }*/
- LID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+  LID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
  return entityLabelHeapFile.insertLabel(recPtr);
  }
  
