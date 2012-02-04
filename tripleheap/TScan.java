@@ -545,7 +545,7 @@ public class TScan implements GlobalConst{
 	  System.err.println("TripleHeapFile: Error in Scan" + e);
 	}
 	
-	if (triple.getLength() != DataPageInfo.size)
+	if (triple.size()!= DataPageInfo.size)
 	  return false;
                         
 	dpinfo = new DataPageInfo(triple);
