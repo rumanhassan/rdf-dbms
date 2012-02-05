@@ -29,7 +29,8 @@ import tripleheap.Triple;
  */
 public class BatchInsert {
 
-	  public  static  String [] dbNamelist= null;
+	public static String[] dbNamelist = null;
+
 	/**
 	 * String[0]-file path String[1]-DB name String[2]-sort option
 	 * 
@@ -41,52 +42,9 @@ public class BatchInsert {
 		String DBName = args[1];
 		String indexOption = args[2];
 		boolean dbExists = false;
-		if(dbNamelist!=null)
-		{
-		for (int i = 0; i < dbNamelist.length; i++) {
-			if (DBName == dbNamelist[i])
-				dbExists = true;
-		}
-		}
+
 		if (dbExists == false) {
-			rdfDB rd=null;
-			try {
-				rd = new rdfDB(Integer.parseInt(indexOption));
-				SystemDefs sysdef = new SystemDefs( DBName, 8193,  100, "Clock" );
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (THFException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (THFBufMgrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (THFDiskMgrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (LHFException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (LHFBufMgrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (LHFDiskMgrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			/*try {
-				rd.openDB(DBName);
-			} catch (InvalidPageNumberException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (FileIOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (DiskMgrException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}*/
+			SystemDefs sysdef = new SystemDefs(DBName, 8193, 100, "Clock");
 			String[] fileArray;
 			System.out.println("inserting file at " + args[0] + " in "
 					+ args[1] + "...");
@@ -99,10 +57,10 @@ public class BatchInsert {
 				String predicate = null;
 				String object = null;
 				String confidence = null;
-				EID subjectID=new EID();
-				EID objectID=new EID();
-				PID predicateID=new PID();
-				TID tripleID=new TID();
+				EID subjectID = new EID();
+				EID objectID = new EID();
+				PID predicateID = new PID();
+				TID tripleID = new TID();
 				for (int charNo = 0; charNo < lineLength; charNo++) {
 					char[] subjectArray = new char[100];
 					char[] predicateArray = new char[100];
@@ -151,116 +109,36 @@ public class BatchInsert {
 					object = new String(objectArray).trim();
 					confidence = new String(confidenceArray).trim();
 				}
-				byte [] subjectBArray={};
+				byte[] subjectBArray = {};
 				Convert.setStrValue(subject, 0, subjectBArray);
-				try {
-					subjectID=rd.insertEntity(subjectBArray);
-				} catch (InvalidSlotNumberException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvalidLabelSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SpaceNotAvailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFBufMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFDiskMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				byte [] objectBArray={};
+
+				byte[] objectBArray = {};
 				Convert.setStrValue(object, 0, objectBArray);
-				try {
-					objectID=rd.insertEntity(subjectBArray);
-				} catch (InvalidSlotNumberException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (InvalidLabelSizeException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (SpaceNotAvailableException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (LHFException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (LHFBufMgrException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (LHFDiskMgrException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				byte [] predicateBArray={};
+
+				byte[] predicateBArray = {};
 				Convert.setStrValue(predicate, 0, predicateBArray);
-				try {
-					predicateID=rd.insertPredicate(predicateBArray);
-				} catch (InvalidSlotNumberException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvalidLabelSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (SpaceNotAvailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFBufMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFDiskMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				Triple tripleObj=new Triple();
-				EID eid=new EID(subjectID.pageNo,subjectID.slotNo);
+
+				Triple tripleObj = new Triple();
+				EID eid = new EID(subjectID.pageNo, subjectID.slotNo);
 				tripleObj.setSubjectId(eid);
-				eid=new EID(objectID.pageNo,objectID.slotNo);
+				eid = new EID(objectID.pageNo, objectID.slotNo);
 				tripleObj.setObjectId(eid);
-				PID pid=new PID(predicateID.pageNo,predicateID.slotNo);
+				PID pid = new PID(predicateID.pageNo, predicateID.slotNo);
 				tripleObj.setPredicateId(pid);
 				tripleObj.setConfidence(Float.parseFloat(confidence));
-				try {
-					tripleID=rd.insertTriple(tripleObj.getTripleByteArray());
-				} catch (tripleheap.InvalidSlotNumberException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvalidTupleSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (tripleheap.SpaceNotAvailableException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (THFException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (THFBufMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (THFDiskMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvalidTripleSizeException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+
 				System.out.println("subject" + subject);
-				System.out.println("inserted..LID is"+subjectID);
+				System.out.println("inserted..LID is" + subjectID);
 				System.out.println("predicate" + predicate);
-				System.out.println("inserted..LID is"+predicateID);
+				System.out.println("inserted..LID is" + predicateID);
 				System.out.println("object" + object);
-				System.out.println("inserted..LID is"+objectID);
+				System.out.println("inserted..LID is" + objectID);
 				System.out.println("confidence" + confidence);
 				System.out.println("inserting..");
-				System.out.println("inserted..TID is"+tripleID);
+				System.out.println("inserted..TID is" + tripleID);
+				
+				
+
 			}
 		}
 
