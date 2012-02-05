@@ -1,6 +1,6 @@
 package iterator;
 
-import heap.*;
+import tripleheap.*;
 import global.*;
 import java.io.*;
 /**
@@ -25,9 +25,9 @@ public class Projection
    *@exception FieldNumberOutOfBoundException field number exceeds limit
    *@exception IOException some I/O fault 
    */
-  public static void Join( Tuple  t1, AttrType type1[],
-                           Tuple  t2, AttrType type2[],
-        	           Tuple Jtuple, FldSpec  perm_mat[], 
+  public static void Join( Triple  t1, AttrType type1[],
+		  Triple  t2, AttrType type2[],
+		  Triple Jtuple, FldSpec  perm_mat[], 
                            int nOutFlds
 			   )
     throws UnknowAttrType,
@@ -43,7 +43,7 @@ public class Projection
 	    case RelSpec.outer:        // Field of outer (t1)
 	      switch (type1[perm_mat[i].offset-1].attrType)
 		{
-		case AttrType.attrInteger:
+		/*case AttrType.attrInteger:
 		  Jtuple.setIntFld(i+1, t1.getIntFld(perm_mat[i].offset));
 		  break;
 		case AttrType.attrReal:
@@ -51,18 +51,18 @@ public class Projection
 		  break;
 		case AttrType.attrString:
 		  Jtuple.setStrFld(i+1, t1.getStrFld(perm_mat[i].offset));
-		  break;
+		  break;*/
 		default:
 		  
 		  throw new UnknowAttrType("Don't know how to handle attrSymbol, attrNull");
 		  
 		}
-	      break;
+//	      break;
 	      
 	    case RelSpec.innerRel:        // Field of inner (t2)
 	      switch (type2[perm_mat[i].offset-1].attrType)
 		{
-		case AttrType.attrInteger:
+		/*case AttrType.attrInteger:
 		  Jtuple.setIntFld(i+1, t2.getIntFld(perm_mat[i].offset));
 		  break;
 		case AttrType.attrReal:
@@ -70,13 +70,13 @@ public class Projection
 		  break;
 		case AttrType.attrString:
 		  Jtuple.setStrFld(i+1, t2.getStrFld(perm_mat[i].offset));
-		  break;
+		  break;*/
 		default:
 		  
 		  throw new UnknowAttrType("Don't know how to handle attrSymbol, attrNull");  
 		  
 		}
-	      break;
+//	      break;
 	    }
 	}
       return;
@@ -100,8 +100,8 @@ public class Projection
    *@exception IOException some I/O fault 
    */
   
-  public static void Project(Tuple  t1, AttrType type1[], 
-                             Tuple Jtuple, FldSpec  perm_mat[], 
+  public static void Project(Triple  t1, AttrType type1[], 
+                             Triple Jtuple, FldSpec  perm_mat[], 
                              int nOutFlds
 			     )
     throws UnknowAttrType,
@@ -118,7 +118,7 @@ public class Projection
 	    case RelSpec.outer:      // Field of outer (t1)
 	      switch (type1[perm_mat[i].offset-1].attrType)
 		{
-		case AttrType.attrInteger:
+		/*case AttrType.attrInteger:
 		  Jtuple.setIntFld(i+1, t1.getIntFld(perm_mat[i].offset));
 		  break;
 		case AttrType.attrReal:
@@ -126,13 +126,13 @@ public class Projection
 		  break;
 		case AttrType.attrString:
 		  Jtuple.setStrFld(i+1, t1.getStrFld(perm_mat[i].offset));
-		  break;
+		  break;*/
 		default:
 		  
 		  throw new UnknowAttrType("Don't know how to handle attrSymbol, attrNull"); 
 	
 		}
-	      break;
+	 //     break;
 	      
 	    default:
 	      

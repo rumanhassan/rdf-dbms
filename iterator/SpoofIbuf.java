@@ -1,6 +1,6 @@
 package iterator;
 
-import heap.*;          
+import tripleheap.*;          
 import global.*;
 import diskmgr.*;
 import bufmgr.*;
@@ -24,14 +24,14 @@ public class SpoofIbuf implements GlobalConst  {
    *object, and call init to finish intantiation
    *@param bufs[][] the I/O buffer
    *@param n_pages the numbers of page of this buffer
-   *@param tSize the tuple size
+   *@param tSize the triple size
    *@param fd the reference to an Heapfile
-   *@param Ntuples the tuple numbers of the page
+   *@param Ntriples the triple numbers of the page
    *@exception IOException some I/O fault
    *@exception Exception other exceptions
    */
-  public  void init(Heapfile fd, byte bufs[][], int n_pages,
-		    int tSize, int Ntuples)
+  public  void init(TripleHeapFile fd, byte bufs[][], int n_pages,
+		    int tSize, int Ntriples)
     throws IOException,
 	   Exception
     {
@@ -44,7 +44,7 @@ public class SpoofIbuf implements GlobalConst  {
       done      = false;    t_per_pg     = MINIBASE_PAGESIZE / t_size;
      
       
-      n_tuples = Ntuples;
+      n_triples = Ntriples;
      
       // open a scan
       if (hf_scan != null)  hf_scan = null;
@@ -60,16 +60,16 @@ public class SpoofIbuf implements GlobalConst  {
     }
   
    /** 
-   *get a tuple from current buffer,pass reference buf to this method
-   *usage:temp_tuple = tuple.Get(buf); 
+   *get a triple from current buffer,pass reference buf to this method
+   *usage:temp_triple = triple.Get(buf); 
    *@param buf write the result to buf
-   *@return the result tuple
+   *@return the result triple
    *@exception IOException some I/O fault
    *@exception Exception other exceptions
    */
-  public  Tuple Get(Tuple  buf)throws IOException, Exception
+  public  Triple Get(Triple  buf)throws IOException, Exception
     {
-      if (tot_t_proc == n_tuples) done = true;
+      if (tot_t_proc == n_triples) done = true;
       
       if (done == true){buf = null; return null;}
       if (t_proc == t_in_buf)
@@ -83,12 +83,12 @@ public class SpoofIbuf implements GlobalConst  {
 	  curr_page = 0; t_rd_from_pg = 0; t_proc = 0;
 	}
       
-      if (t_in_buf == 0)                        // No tuples read in?
+      if (t_in_buf == 0)                        // No triples read in?
 	{
 	  done = true; buf = null;return null;
 	}
  
-      buf.tupleSet(_bufs[curr_page],t_rd_from_pg*t_size,t_size); 
+      buf.tripleSet(_bufs[curr_page],t_rd_from_pg*t_size); 
       tot_t_proc++;
       
       // Setup for next read
@@ -106,20 +106,20 @@ public class SpoofIbuf implements GlobalConst  {
    */
   public  boolean empty()
     {
-      if (tot_t_proc == n_tuples) done = true;
+      if (tot_t_proc == n_triples) done = true;
       return done;
     }
   
   /**
    *
-   *@return the numbers of tuples in the buffer
+   *@return the numbers of triples in the buffer
    *@exception IOException some I/O fault
-   *@exception InvalidTupleSizeException Heapfile error
+   *@exception InvalidTripleSizeException Heapfile error
    */
-  private int readin()throws IOException,InvalidTupleSizeException
+  private int readin()throws IOException,InvalidTripleSizeException
     {
       int   t_read = 0, tot_read = 0;
-      Tuple t      = new Tuple ();
+      Triple t      = new Triple ();
       byte[] t_copy;
       
       curr_page = 0;
@@ -127,10 +127,10 @@ public class SpoofIbuf implements GlobalConst  {
 	{
 	  while (t_read < t_per_pg)
 	    {
-	      RID rid =new RID();
+	      TID rid =new TID();
 	      try {
 		if ( (t = hf_scan.getNext(rid)) == null) return tot_read;
-		t_copy = t.getTupleByteArray();
+		t_copy = t.getTripleByteArray();
 		System.arraycopy(t_copy,0,_bufs[curr_page],t_read*t_size,t_size); 
 	      }
 	      catch (Exception e) {
@@ -149,8 +149,8 @@ public class SpoofIbuf implements GlobalConst  {
   
   private  int   TEST_fd;
   
-  private  Heapfile _fd;
-  private  Scan hf_scan;
+  private  TripleHeapFile _fd;
+  private  TScan hf_scan;
   private  int    _n_pages;
   private  int    t_size;
   
@@ -159,7 +159,7 @@ public class SpoofIbuf implements GlobalConst  {
   private  int    t_rd_from_pg, curr_page;
   private  int    t_per_pg;
   private  boolean   done;
-  private  int    n_tuples;
+  private  int    n_triples;
 }
 
 

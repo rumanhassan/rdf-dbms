@@ -1,6 +1,6 @@
 package iterator;
 
-import heap.*;
+import tripleheap.*;
 import global.*;
 import bufmgr.*;
 import diskmgr.*;
@@ -12,26 +12,26 @@ import java.io.*;
 /**
  *Eleminate the duplicate tuples from the input relation
  */
-public class DuplElim extends Iterator
+public class DuplElim extends TripleIterator
 {
   private AttrType[] _in;     // memory for array allocated by constructor
   private short       in_len;
   private short[]    str_lens;
   
-  private Iterator _am;
+  private TripleIterator _am;
   private boolean      done;
   
   private AttrType  sortFldType;
   private int       sortFldLen;
-  private Tuple    Jtuple;
+  private Triple    Jtriple;
   
-  private Tuple TempTuple1, TempTuple2;
+  private Triple TempTriple1, TempTriple2;
   
   /**
    *Constructor to set up some information.
    *@param in[]  Array containing field types of R.
    *@param len_in # of columns in R.
-   *@param s_sizes[] store the length of string appeared in tuple
+   *@param s_sizes[] store the length of string appeared in triple
    *@param am input relation iterator, access method for left input to join,
    *@param amt_of_mem the page numbers required IN PAGES
    *@exception IOException some I/O fault
@@ -41,7 +41,7 @@ public class DuplElim extends Iterator
 		  AttrType in[],         
 		  short      len_in,     
 		  short    s_sizes[],
-		  Iterator am,          
+		  TripleIterator am,          
 		  int       amt_of_mem,  
 		  boolean     inp_sorted
 		  )throws IOException ,DuplElimException
@@ -50,13 +50,13 @@ public class DuplElim extends Iterator
       System.arraycopy(in,0,_in,0,in.length);
       in_len = len_in;
      
-      Jtuple =  new Tuple();
-      try {
-	Jtuple.setHdr(len_in, _in, s_sizes);
+      Jtriple =  new Triple();
+    /*  try {
+	Jtriple.setHdr(len_in, _in, s_sizes);
       }catch (Exception e){
-	throw new DuplElimException(e, "setHdr() failed");
+	throw new DuplelimException(e, "setHdr() failed");
       }
-     
+    */ 
       sortFldType = in[0];
       switch (sortFldType.attrType)
 	{
@@ -75,7 +75,7 @@ public class DuplElim extends Iterator
 	}
       
       _am = am;
-      TupleOrder order = new TupleOrder(TupleOrder.Ascending);
+      TripleOrder order = new TripleOrder(TripleOrder.Ascending);
       if (!inp_sorted)
 	{
 	  try {
@@ -88,27 +88,27 @@ public class DuplElim extends Iterator
 	}
 
       // Allocate memory for the temporary tuples
-      TempTuple1 =  new Tuple();
-      TempTuple2 = new Tuple();
-      try{
-	TempTuple1.setHdr(in_len, _in, s_sizes);
-	TempTuple2.setHdr(in_len, _in, s_sizes);
+      TempTriple1 =  new Triple();
+      TempTriple2 = new Triple();
+    /*  try{
+	TempTriple1.setHdr(in_len, _in, s_sizes);
+	TempTriple2.setHdr(in_len, _in, s_sizes);
       }catch (Exception e){
 	throw new DuplElimException(e, "setHdr() failed");
       }
-      done = false;
+    */  done = false;
     }
 
   /**
-   * The tuple is returned.
-   *@return call this function to get the tuple
+   * The triple is returned.
+   *@return call this function to get the triple
    *@exception JoinsException some join exception
    *@exception IndexException exception from super class    
    *@exception IOException I/O errors
-   *@exception InvalidTupleSizeException invalid tuple size
-   *@exception InvalidTypeException tuple type not valid
+   *@exception InvalidTripleSizeException invalid triple size
+   *@exception InvalidTypeException triple type not valid
    *@exception PageNotReadException exception from lower layer
-   *@exception TupleUtilsException exception from using tuple utilities
+   *@exception TripleUtilsException exception from using triple utilities
    *@exception PredEvalException exception from PredEval class
    *@exception SortException sort exception
    *@exception LowMemException memory error
@@ -116,14 +116,14 @@ public class DuplElim extends Iterator
    *@exception UnknownKeyTypeException key type unknown
    *@exception Exception other exceptions
    */
-  public Tuple get_next() 
+  public Triple get_next() 
     throws IOException,
 	   JoinsException ,
 	   IndexException,
-	   InvalidTupleSizeException,
+	   InvalidTripleSizeException,
 	   InvalidTypeException, 
 	   PageNotReadException,
-	   TupleUtilsException, 
+	   TripleUtilsException, 
 	   PredEvalException,
 	   SortException,
 	   LowMemException,
@@ -131,24 +131,24 @@ public class DuplElim extends Iterator
 	   UnknownKeyTypeException,
 	   Exception
     {
-      Tuple t;
+      Triple t;
       
       if (done)
         return null;
-      Jtuple.tupleCopy(TempTuple1);
+      Jtriple.tripleCopy(TempTriple1);
      
       do {
 	if ((t = _am.get_next()) == null) {
 	  done = true;                    // next call returns DONE;
 	  return null;
 	} 
-	TempTuple2.tupleCopy(t);
-      } while (TupleUtils.Equal(TempTuple1, TempTuple2, _in, in_len));
+	TempTriple2.tripleCopy(t);
+      } while (TripleUtils.Equal(TempTriple1, TempTriple2, _in, in_len));
       
-      // Now copy the the TempTuple2 (new o/p tuple) into TempTuple1.
-      TempTuple1.tupleCopy(TempTuple2);
-      Jtuple.tupleCopy(TempTuple2);
-      return Jtuple ;
+      // Now copy the the TempTriple2 (new o/p triple) into TempTriple1.
+      TempTriple1.tripleCopy(TempTriple2);
+      Jtriple.tripleCopy(TempTriple2);
+      return Jtriple ;
     }
  
   /**
@@ -163,7 +163,7 @@ public class DuplElim extends Iterator
 	try {
 	  _am.close();
 	}catch (Exception e) {
-	  throw new JoinsException(e, "DuplElim.java: error in closing iterator.");
+	  throw new JoinsException(e, "Driplelim.java: error in closing iterator.");
 	}
 	closeFlag = true;
       }

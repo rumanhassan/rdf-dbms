@@ -1,7 +1,7 @@
 package iterator;
    
 
-import heap.*;
+import tripleheap.*;
 import global.*;
 import bufmgr.*;
 import diskmgr.*;
@@ -12,17 +12,17 @@ import java.io.*;
 
 /**
  *open a heapfile and according to the condition expression to get
- *output file, call get_next to get all tuples
+ *output file, call get_next to get all triples
  */
-public class FileScan extends  Iterator
+public class FileScan extends  TripleIterator
 {
   private AttrType[] _in1;
   private short in1_len;
   private short[] s_sizes; 
-  private Heapfile f;
-  private Scan scan;
-  private Tuple     tuple1;
-  private Tuple    Jtuple;
+  private TripleHeapFile f;
+  private TScan scan;
+  private Triple     triple1;
+  private Triple    Jtriple;
   private int        t1_size;
   private int nOutFlds;
   private CondExpr[]  OutputFilter;
@@ -32,16 +32,16 @@ public class FileScan extends  Iterator
 
   /**
    *constructor
-   *@param file_name heapfile to be opened
+   *@param file_name tripleheapfile to be opened
    *@param in1[]  array showing what the attributes of the input fields are. 
    *@param s1_sizes[]  shows the length of the string fields.
-   *@param len_in1  number of attributes in the input tuple
-   *@param n_out_flds  number of fields in the out tuple
-   *@param proj_list  shows what input fields go where in the output tuple
+   *@param len_in1  number of attributes in the input triple
+   *@param n_out_flds  number of fields in the out triple
+   *@param proj_list  shows what input fields go where in the output triple
    *@param outFilter  select expressions
    *@exception IOException some I/O fault
    *@exception FileScanException exception from this class
-   *@exception TupleUtilsException exception from this class
+   *@exception TripleUtilsException exception from this class
    *@exception InvalidRelation invalid relation 
    */
   public  FileScan (String  file_name,
@@ -54,32 +54,32 @@ public class FileScan extends  Iterator
 		    )
     throws IOException,
 	   FileScanException,
-	   TupleUtilsException, 
+	   TripleUtilsException, 
 	   InvalidRelation
     {
       _in1 = in1; 
       in1_len = len_in1;
       s_sizes = s1_sizes;
       
-      Jtuple =  new Tuple();
+      Jtriple =  new Triple();
       AttrType[] Jtypes = new AttrType[n_out_flds];
       short[]    ts_size;
-      ts_size = TupleUtils.setup_op_tuple(Jtuple, Jtypes, in1, len_in1, s1_sizes, proj_list, n_out_flds);
+      ts_size = TripleUtils.setup_op_triple(Jtriple, Jtypes, in1, len_in1, s1_sizes, proj_list, n_out_flds);
       
       OutputFilter = outFilter;
       perm_mat = proj_list;
       nOutFlds = n_out_flds; 
-      tuple1 =  new Tuple();
+      triple1 =  new Triple();
 
-      try {
-	tuple1.setHdr(in1_len, _in1, s1_sizes);
+    /*  try {
+	triple1.setHdr(in1_len, _in1, s1_sizes);
       }catch (Exception e){
 	throw new FileScanException(e, "setHdr() failed");
       }
-      t1_size = tuple1.size();
+    */  t1_size = triple1.size();
       
       try {
-	f = new Heapfile(file_name);
+	f = new TripleHeapFile(file_name);
 	
       }
       catch(Exception e) {
@@ -95,7 +95,7 @@ public class FileScan extends  Iterator
     }
   
   /**
-   *@return shows what input fields go where in the output tuple
+   *@return shows what input fields go where in the output triple
    */
   public FldSpec[] show()
     {
@@ -103,21 +103,21 @@ public class FileScan extends  Iterator
     }
   
   /**
-   *@return the result tuple
+   *@return the result triple
    *@exception JoinsException some join exception
    *@exception IOException I/O errors
-   *@exception InvalidTupleSizeException invalid tuple size
-   *@exception InvalidTypeException tuple type not valid
+   *@exception InvalidTripleSizeException invalid triple size
+   *@exception InvalidTypeException triple type not valid
    *@exception PageNotReadException exception from lower layer
    *@exception PredEvalException exception from PredEval class
    *@exception UnknowAttrType attribute type unknown
    *@exception FieldNumberOutOfBoundException array out of bounds
    *@exception WrongPermat exception for wrong FldSpec argument
    */
-  public Tuple get_next()
+  public Triple get_next()
     throws JoinsException,
 	   IOException,
-	   InvalidTupleSizeException,
+	   InvalidTripleSizeException,
 	   InvalidTypeException,
 	   PageNotReadException, 
 	   PredEvalException,
@@ -125,17 +125,18 @@ public class FileScan extends  Iterator
 	   FieldNumberOutOfBoundException,
 	   WrongPermat
     {     
-      RID rid = new RID();;
+      TID tid = new TID();;
       
       while(true) {
-	if((tuple1 =  scan.getNext(rid)) == null) {
+	if((triple1 =  scan.getNext(tid)) == null) {
 	  return null;
 	}
 	
-	tuple1.setHdr(in1_len, _in1, s_sizes);
-	if (PredEval.Eval(OutputFilter, tuple1, null, _in1, null) == true){
-	  Projection.Project(tuple1, _in1,  Jtuple, perm_mat, nOutFlds); 
-	  return  Jtuple;
+	/*triple1.setHdr(in1_len, _in1, s_sizes);
+	*/
+	if (PredEval.Eval(OutputFilter, triple1, null, _in1, null) == true){
+	  Projection.Project(triple1, _in1,  Jtriple, perm_mat, nOutFlds); 
+	  return  Jtriple;
 	}        
       }
     }
