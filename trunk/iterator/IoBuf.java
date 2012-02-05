@@ -145,14 +145,14 @@ public class IoBuf implements GlobalConst{
 	{
 	  for (count = 0; count <= curr_page; count++)
 	    {
-	      TID rid;
+	      TID tid;
 
 	      // Will have to go thru entire buffer writing tuples to disk
 	      for (int i = 0; i < t_wr_to_pg; i++)
 		{
 		  System.arraycopy(_bufs[count],t_size*i,tempbuf,0,t_size);
 		  try {
-		    rid =  _temp_fd.insertRecord(tempbuf);
+		    tid =  _temp_fd.insertTriple(tempbuf);
 		  }
 		  catch (Exception e){
 		    throw e;
