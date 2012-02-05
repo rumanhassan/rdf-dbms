@@ -147,9 +147,9 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	      // - currentDataPage, currentDataPageTid, dpinfo valid
 	      // - currentDataPage pinned
 	      
-	      if(dpinfo.pageId.pid==currentDataPageTid.pageNo.pid)
+	      if(dpinfo.pageId.pid==tid.pageNo.pid) /*imp*/
 		{
-		  atriple = currentDataPage.returnTriple(currentDataPageTid);
+		  atriple = currentDataPage.returnTriple(tid);
 		  // found user's record on the current datapage which itself
 		  // is indexed on the current dirpage.  Return both of these.
 		  
@@ -847,7 +847,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       if(status != true) return null; // record not found 
       
       Triple atriple = new Triple();
-      atriple = dataPage.getTriple(currentDataPageTid);
+      atriple = dataPage.getTriple(tid);
       
       /*
        * getTriple has copied the contents of tid into recPtr and fixed up
