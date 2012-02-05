@@ -37,6 +37,14 @@ import tripleheap.*;
  * or the whole B+ tree structure or all leaf pages.
  *
  */
+/**
+ * @author Ritesh
+ *
+ */
+/**
+ * @author Ritesh
+ *
+ */
 public class BT  implements GlobalConst{
 
   /** It compares two keys.
@@ -361,7 +369,20 @@ public class BT  implements GlobalConst{
       System.out.println("");
     }
   
-  private static void _printTree(PageID currentPageId, String prefix, int i, 
+  /**  Prints tree
+ * @param currentPageId
+ * @param prefix
+ * @param i
+ * @param keyType
+ * @throws IOException
+ * @throws ConstructPageException
+ * @throws IteratorException
+ * @throws HashEntryNotFoundException
+ * @throws InvalidFrameNumberException
+ * @throws PageUnpinnedException
+ * @throws ReplacerException
+ */
+private static void _printTree(PageID currentPageId, String prefix, int i, 
 				 int keyType) 
     throws IOException, 
 	   ConstructPageException, 
@@ -432,7 +453,18 @@ public class BT  implements GlobalConst{
       System.out.println("");
     }
   
-  private static void _printAllLeafPages(PageID currentPageId,  int keyType) 
+  /** Prints all leaf pages
+ * @param currentPageId
+ * @param keyType
+ * @throws IOException
+ * @throws ConstructPageException
+ * @throws IteratorException
+ * @throws InvalidFrameNumberException
+ * @throws HashEntryNotFoundException
+ * @throws PageUnpinnedException
+ * @throws ReplacerException
+ */
+private static void _printAllLeafPages(PageID currentPageId,  int keyType) 
     throws IOException, 
 	   ConstructPageException, 
 	   IteratorException,
