@@ -6,6 +6,7 @@ import java.io.*;
 import java.lang.*;
 
 import global.*;
+import heap.Tuple;
 import diskmgr.*;
 
 /**
@@ -545,17 +546,15 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 		// length of label being returned
 		labLen = getSlotLength(slotNo);
 		slotCnt = Convert.getShortValue(SLOT_CNT, data);
-		if ((slotNo >= 0) && (slotNo < slotCnt) && (labLen > 0)
-				&& (pageNo.pid == curPage.pid)) {
-			offset = getSlotOffset(slotNo);
-			label = new byte[labLen];
-			System.arraycopy(data, offset, label, 0, labLen);
-			String labelString;
-			labelString = Convert.getStrValue(0, label, labLen);
-			Label lableObj = new Label();
-			lableObj.setLabel(labelString);
-			return lableObj;
-		}
+		 if (( slotNo >=0) && (slotNo < slotCnt) && (labLen >0) 
+				  && (pageNo.pid == curPage.pid))
+				{
+				  offset = getSlotOffset (slotNo);
+				  label = new byte[labLen];
+				  System.arraycopy(data, offset, label, 0, labLen);
+				  Label tuple = new Label(label, 0, labLen);
+				  return tuple;
+				}
 
 		else {
 			throw new InvalidSlotNumberException(null,
@@ -590,17 +589,14 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 		// length of label being returned
 		labLen = getSlotLength(slotNo);
 		slotCnt = Convert.getShortValue(SLOT_CNT, data);
-		if ((slotNo >= 0) && (slotNo < slotCnt) && (labLen > 0)
-				&& (pageNo.pid == curPage.pid)) {
-			offset = getSlotOffset(slotNo);
-			label = new byte[labLen];
-			System.arraycopy(data, offset, label, 0, labLen);
-			String labelString;
-			labelString = Convert.getStrValue(0, label, labLen);
-			Label lableObj = new Label();
-			lableObj.setLabel(labelString);
-			return lableObj;
-		}
+		  if (( slotNo >=0) && (slotNo < slotCnt) && (labLen >0)
+				  && (pageNo.pid == curPage.pid))
+				{
+				  
+				  offset = getSlotOffset (slotNo);
+				  Label tuple = new Label(data, offset, labLen);
+				  return tuple;
+				}
 
 		else {
 			throw new InvalidSlotNumberException(null,
