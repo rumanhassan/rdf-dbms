@@ -35,8 +35,32 @@ public class BatchInsert {
 	 * String[0]-file path String[1]-DB name String[2]-sort option
 	 * 
 	 * @param args
+	 * @throws LHFDiskMgrException
+	 * @throws LHFBufMgrException
+	 * @throws LHFException
+	 * @throws THFDiskMgrException
+	 * @throws THFBufMgrException
+	 * @throws THFException
+	 * @throws NumberFormatException
+	 * @throws DiskMgrException
+	 * @throws FileIOException
+	 * @throws InvalidPageNumberException
+	 * @throws SpaceNotAvailableException
+	 * @throws InvalidLabelSizeException
+	 * @throws InvalidSlotNumberException
+	 * @throws tripleheap.InvalidSlotNumberException
+	 * @throws tripleheap.SpaceNotAvailableException
+	 * @throws InvalidTripleSizeException
+	 * @throws InvalidTupleSizeException
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException,
+			NumberFormatException, THFException, THFBufMgrException,
+			THFDiskMgrException, LHFException, LHFBufMgrException,
+			LHFDiskMgrException, InvalidPageNumberException, FileIOException,
+			DiskMgrException, InvalidSlotNumberException,
+			InvalidLabelSizeException, SpaceNotAvailableException,
+			tripleheap.InvalidSlotNumberException, InvalidTupleSizeException,
+			tripleheap.SpaceNotAvailableException, InvalidTripleSizeException {
 		// TODO Auto-generated method stub
 		String filePath = args[0];
 		String DBName = args[1];
@@ -44,7 +68,10 @@ public class BatchInsert {
 		boolean dbExists = false;
 
 		if (dbExists == false) {
-			SystemDefs sysdef = new SystemDefs(DBName, 8193, 100, "Clock");
+			// SystemDefs sysdef = new SystemDefs(DBName, 8193, 100, "Clock");
+			rdfDB newDatabase = new rdfDB(Integer.parseInt(indexOption));
+			newDatabase.openDB(DBName);
+
 			String[] fileArray;
 			System.out.println("inserting file at " + args[0] + " in "
 					+ args[1] + "...");
@@ -136,16 +163,55 @@ public class BatchInsert {
 				System.out.println("confidence" + confidence);
 				System.out.println("inserting..");
 				System.out.println("inserted..TID is" + tripleID);
-				
-				
-
+				LID subID;
+				LID objID;
+				LID predicID;
+				byte[] triplebyte;
+				Triple tripObj = new Triple();
+				TID tripID = new TID();
+				subID = newDatabase.entityLabelHeapFile
+						.insertLabel(subjectBArray);
+				objID = newDatabase.entityLabelHeapFile
+						.insertLabel(objectBArray);
+				predicID = newDatabase.predicateLabelHeapFile
+						.insertLabel(predicateBArray);
+				EID senID = new EID();
+				EID oenID = new EID();
+				PID penID = new PID();
+				senID.pageNo = subID.pageNo;
+				senID.slotNo = subID.slotNo;
+				oenID.pageNo = objID.pageNo;
+				oenID.slotNo = objID.slotNo;
+				penID.pageNo = predicID.pageNo;
+				penID.slotNo = predicID.slotNo;
+				tripObj.setSubjectId(senID);
+				tripObj.setPredicateId(penID);
+				tripObj.setObjectId(oenID);
+				triplebyte = tripObj.getTripleByteArray();
+				tripID = newDatabase.insertTriple(triplebyte);
+				System.out.println("inserted..SID is " + subID.pageNo + " "
+						+ subID.slotNo);
+				System.out.println("inserted..PID is " + objID.pageNo + " "
+						+ objID.slotNo);
+				System.out.println("inserted..OID is " + predicID.pageNo + " "
+						+ predicID.slotNo);
+				System.out.println("inserting..");
+				System.out.println("inserted..TID is" + tripleID);
 			}
+			newDatabase.closeDB();
 		}
 
 	}
 
 	public static void run(String path, String dbName, String sortOption)
-			throws IOException {
+			throws IOException, NumberFormatException, THFException,
+			THFBufMgrException, THFDiskMgrException, LHFException,
+			LHFBufMgrException, LHFDiskMgrException,
+			InvalidPageNumberException, FileIOException, DiskMgrException,
+			InvalidSlotNumberException, InvalidLabelSizeException,
+			SpaceNotAvailableException, tripleheap.InvalidSlotNumberException,
+			InvalidTupleSizeException, tripleheap.SpaceNotAvailableException,
+			InvalidTripleSizeException {
 
 		String[] inputToMain = { path, dbName, sortOption };
 		inputToMain[0] = path;
