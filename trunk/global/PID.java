@@ -64,5 +64,12 @@ public class PID extends LID{
       Convert.setIntValue ( slotNo, offset, ary);
       Convert.setIntValue ( pageNo.pid, offset+4, ary);
     }
+  public LID returnLID()
+  {
+	  LID lid = new LID();
+	  lid.pageNo = pageNo;
+	  lid.slotNo = slotNo;
+	  return lid;
+  }
   
 }
