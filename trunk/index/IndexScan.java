@@ -77,12 +77,12 @@ public class IndexScan extends Iterator {
     perm_mat = outFlds;
     _noOutFlds = noOutFlds;
     triple1 = new Triple();    
-    try {
+  /*  try {
       triple1.setHdr((short) noInFlds, types, str_sizes);
     }
     catch (Exception e) {
       throw new IndexException(e, "IndexScan.java: Heapfile error");
-    }
+    }*/
     
     t1_size = triple1.size();
     index_only = indexOnly;  // added by bingjie miao
@@ -158,7 +158,7 @@ public class IndexScan extends Iterator {
 	
 	if (_types[_fldNum -1].attrType == AttrType.attrInteger) {
 	  attrType[0] = new AttrType(AttrType.attrInteger);
-	  try {
+	 /* try {
 	    Jtriple.setHdr((short) 1, attrType, s_sizes);
 	  }
 	  catch (Exception e) {
@@ -170,7 +170,7 @@ public class IndexScan extends Iterator {
 	  }
 	  catch (Exception e) {
 	    throw new IndexException(e, "IndexScan.java: Heapfile error");
-	  }	  
+	  }	 */ 
 	}
 	else if (_types[_fldNum -1].attrType == AttrType.attrString) {
 	  
@@ -183,7 +183,7 @@ public class IndexScan extends Iterator {
 	  } 
 	  s_sizes[0] = _s_sizes[count-1];
 	  
-	  try {
+	  /*try {
 	    Jtriple.setHdr((short) 1, attrType, s_sizes);
 	  }
 	  catch (Exception e) {
@@ -195,7 +195,7 @@ public class IndexScan extends Iterator {
 	  }
 	  catch (Exception e) {
 	    throw new IndexException(e, "IndexScan.java: Heapfile error");
-	  }	  
+	  }	*/  
 	}
 	else {
 	  // attrReal not supported for now
@@ -213,13 +213,13 @@ public class IndexScan extends Iterator {
 	throw new IndexException(e, "IndexScan.java: getRecord failed");
       }
       
-      try {
+    /*  try {
 	triple1.setHdr((short) _noInFlds, _types, _s_sizes);
       }
       catch (Exception e) {
 	throw new IndexException(e, "IndexScan.java: Heapfile error");
       }
-    
+    */
       boolean eval;
       try {
 	eval = PredEval.Eval(_selects, triple1, null, _types, null);
