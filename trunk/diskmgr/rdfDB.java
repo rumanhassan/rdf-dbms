@@ -1089,11 +1089,11 @@ class DBFirstPage extends DBHeaderPage {
 /**
  * DBDirectoryPage class which is a subclass of DBHeaderPage class
  */
-class DBDirectoryPage extends DBHeaderPage  { private static final int TripleCnt = 0;
-private static final int EntityCnt = 0;
-private static final int PredicateCnt = 0;
-private static final int SubjectCnt = 0;
-private static final int ObjectCnt = 0;
+public class DBDirectoryPage extends DBHeaderPage  { public static final int TripleCnt = 0;
+public static final int EntityCnt = 0;
+public static final int PredicateCnt = 0;
+public static final int SubjectCnt = 0;
+public static final int ObjectCnt = 0;
 
 //implements PageUsedBytes
 
