@@ -64,9 +64,9 @@ public class IndexScan extends Iterator {
     Jtriple = new Triple();
     
     try {
-      ts_sizes = TripleUtils.setup_op_tuple(Jtriple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
+      ts_sizes = TripleUtils.setup_op_triple(Jtriple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
     }
-    catch (TupleUtilsException e) {
+    catch (TripleUtilsException e) {
       throw new IndexException(e, "IndexScan.java: TupleUtilsException caught from TupleUtils.setup_op_tuple()");
     }
     catch (InvalidRelation e) {
@@ -138,7 +138,7 @@ public class IndexScan extends Iterator {
 	   UnknownKeyTypeException,
 	   IOException
   {
-    TID tid;
+    TID tid = null;
     GENID genid;
     int unused;
     KeyDataEntry nextentry = null;
