@@ -8,10 +8,8 @@ import labelheap.InvalidLabelSizeException;
 import labelheap.LHFBufMgrException;
 import labelheap.LHFDiskMgrException;
 import labelheap.LHFException;
-import labelheap.LScan;
 import labelheap.LabelHeapFile;
 
-import btree.BTreeFile;
 import bufmgr.*;
 import global.*;
 import tripleheap.*;
@@ -24,8 +22,6 @@ public class rdfDB implements GlobalConst {
   TripleHeapFile tripleHeapFile = null;
   LabelHeapFile entityLabelHeapFile = null;
   LabelHeapFile predicateLabelHeapFile = null;
-  BTreeFile bTreeIndexFile = null;
-  LScan labelHeapScan = null;
   
   /** Open the database with the given name.
    *
@@ -97,12 +93,12 @@ public int getPredicateCnt() throws labelheap.InvalidSlotNumberException, Invali
 public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException, InvalidTripleSizeException {
 	 return tripleHeapFile.insertRecord(recPtr);
   }
-public PID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
- return (PID) entityLabelHeapFile.insertLabel(recPtr);
+public LID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+ return  entityLabelHeapFile.insertLabel(recPtr);
  }
  
-public EID insertEntity(byte[] triplePtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
-	 return (EID) entityLabelHeapFile.insertLabel(triplePtr);
+public LID insertEntity(byte[] triplePtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
+	 return  entityLabelHeapFile.insertLabel(triplePtr);
  }
  
 public boolean deleteEntity(LID lid) throws Exception{
@@ -892,6 +888,12 @@ public boolean deleteTriple(TID tid) throws Exception {
     }
 
   } // end of unpinPage
+
+public Stream openStream(int sortIndex, String subjectFilter,
+		String predicateFilter, String objectFilter, float parseFloat) {
+	// TODO Auto-generated method stub
+	return null;
+}
   
  }//end of DB class
 
@@ -1093,7 +1095,7 @@ class DBFirstPage extends DBHeaderPage {
 /**
  * DBDirectoryPage class which is a subclass of DBHeaderPage class
  */
-public class DBDirectoryPage extends DBHeaderPage  { public static final int TripleCnt = 0;
+class DBDirectoryPage extends DBHeaderPage  { public static final int TripleCnt = 0;
 public static final int EntityCnt = 0;
 public static final int PredicateCnt = 0;
 public static final int SubjectCnt = 0;
