@@ -101,7 +101,7 @@ public int getPredicateCnt() throws labelheap.InvalidSlotNumberException, Invali
 	  return ObjectCnt;
   }*/
 public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException, InvalidTripleSizeException {
-	 return tripleHeapFile.insertRecord(recPtr);
+	 return tripleHeapFile.insertTriple(recPtr);
   }
 public PID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
  return (PID) entityLabelHeapFile.insertLabel(recPtr);
