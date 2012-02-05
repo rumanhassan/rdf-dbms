@@ -4,6 +4,7 @@ package diskmgr;
 
 import java.io.*;
 import global.*;
+import btree.*;
 import bufmgr.*;
 import tripleheap.*;
 
@@ -34,6 +35,7 @@ public class Stream implements GlobalConst{
 	private float confidenceFilter;
 	private short[] filtersIncluded = {UNINITIALIZED, UNINITIALIZED, 
 			UNINITIALIZED, UNINITIALIZED};
+	private BTFileScan btScan = null; // for scanning the index of the rdfDB
      
     /** The constructor initializes the Stream's private data members from the
      * given parameters.
@@ -50,7 +52,12 @@ public class Stream implements GlobalConst{
 	public Stream(rdfDB rdfDataBase, int orderType, String subjectFilter, 
 		 String predicateFilter, String objectFilter, float confidenceFilter)
     throws InvalidTripleSizeException,
-	   	   IOException
+	   	   IOException, 
+	   	   UnpinPageException,
+	   	   PinPageException,
+	   	   ConstructPageException,
+	   	   IteratorException,
+	   	   KeyNotMatchException
   {
 	  this.rdfdatabase = rdfDataBase;
 	  this.orderType = orderType;
@@ -59,30 +66,62 @@ public class Stream implements GlobalConst{
 	  this.objectFilter = objectFilter;
 	  this.confidenceFilter = confidenceFilter;
 	  processFilters(subjectFilter, predicateFilter,objectFilter, confidenceFilter);
+	//initiate a scan of the whole index file
+	  btScan = rdfDataBase.bTreeIndexFile.new_scan(null, null); 
   }
   
   /** Retrieve the next triple in the stream
    *
-   * @exception InvalidTripleSizeException Invalid triple size
-   * @exception IOException I/O errors
-   *
    * @param tid Triple ID of the triple
    * @return the Triple object with the specified TID. If no such triple 
    * 		exists, return null.
+ * @throws Exception 
+ * @throws THFBufMgrException 
+ * @throws THFDiskMgrException 
+ * @throws THFException 
+ * @throws InvalidTupleSizeException 
+ * @throws InvalidSlotNumberException 
    */
-  public Triple getNext(TID tid) 
-    throws InvalidTripleSizeException,
-	   IOException
+  public Triple getNext() 
+    throws InvalidSlotNumberException, InvalidTupleSizeException, THFException, THFDiskMgrException, THFBufMgrException, Exception
   {
     Triple recptrtriple = null;
-    
-    // TODO Write the code to perform the following actions:
+  
     // 1. Use rdfDataBase's b-tree structure to get the next Triple from the
-    //    triple heap file.    
-    // 2. Check that the triple's data matches the filter
-    // 3. Return the triple with matching TID
-     
-    return recptrtriple;
+    //    triple heap file.   
+    LeafData idxRecordData = (LeafData) btScan.get_next().data; //must cast DataClass to LeafData
+    if(idxRecordData == null) // we have reached the end of the scan
+    	return null; 
+    else {    
+	    GENID genericID = idxRecordData.getData();
+	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
+	    recptrtriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
+	    
+	 // 2. Check that the triple's data matches the filter
+	    boolean weHaveAMatch = false;
+	    //---------------------------------------------
+	    EID subjEntity = recptrtriple.getSubjectId();	    
+	    // maybe later we can just call subjEntity.returnLID();
+	    LID subjLabel = new LID(subjEntity.pageNo, subjEntity.slotNo);	    
+	    String subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
+	    //---------------------------------------------
+	    PID currPred = recptrtriple.getPredicateId();	  
+	    // maybe later we can just call currPred.returnLID();
+	    LID predLabel = new LID(currPred.pageNo, subjEntity.slotNo);	    
+	    String predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
+	    //---------------------------------------------
+	    EID objEntity = recptrtriple.getObjectId();	    
+	    // maybe later we can just call objEntity.returnLID();
+	    LID objLabel = new LID(objEntity.pageNo, objEntity.slotNo);	    
+	    String objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
+	    
+	    weHaveAMatch = tripleDataMatchesFilter(subjStr, objStr, predStr, confidenceFilter);
+	 // 3. Return the triple with matching TID
+	    if(weHaveAMatch)
+	    	return recptrtriple;
+	    else // no matches, keep moving down the line
+	    	return getNext();	    
+    }
   }
 
     /** Closes the Stream object */
