@@ -64,7 +64,7 @@ public class IndexScan extends Iterator {
     Jtriple = new Triple();
     
     try {
-      ts_sizes = TupleUtils.setup_op_tuple(Jtriple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
+      ts_sizes = TripleUtils.setup_op_tuple(Jtriple, Jtypes, types, noInFlds, str_sizes, outFlds, noOutFlds);
     }
     catch (TupleUtilsException e) {
       throw new IndexException(e, "IndexScan.java: TupleUtilsException caught from TupleUtils.setup_op_tuple()");
@@ -139,6 +139,7 @@ public class IndexScan extends Iterator {
 	   IOException
   {
     TID tid;
+    GENID genid;
     int unused;
     KeyDataEntry nextentry = null;
 
@@ -204,8 +205,10 @@ public class IndexScan extends Iterator {
 	return Jtriple;
       }
       
-      // not index_only, need to return the whole tuple
-      tid = ((LeafData)nextentry.data).getData();
+      // not index_only, need to return the whole triple
+      genid = ((LeafData)nextentry.data).getData();
+      tid.pageNo = genid.pageNo;
+      tid.slotNo = genid.slotNo;   // If lid we have to use this
       try {
 	triple1 = f.getTriple(tid);
       }
