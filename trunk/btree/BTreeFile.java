@@ -70,7 +70,12 @@ public class BTreeFile extends IndexFile
     return headerPage;
   }
   
-  private PageID get_file_entry(String filename)         
+  /**
+ * @param filename
+ * @return
+ * @throws GetFileEntryException
+ */
+private PageID get_file_entry(String filename)         
     throws GetFileEntryException
     {
       try {
@@ -84,7 +89,12 @@ public class BTreeFile extends IndexFile
   
   
   
-  private Page pinPage(PageID pageno) 
+  /**
+ * @param pageno
+ * @return
+ * @throws PinPageException
+ */
+private Page pinPage(PageID pageno) 
     throws PinPageException
     {
       try {
@@ -98,7 +108,12 @@ public class BTreeFile extends IndexFile
       }
     }
   
-  private void add_file_entry(String fileName, PageID pageno) 
+  /**
+ * @param fileName
+ * @param pageno
+ * @throws AddFileEntryException
+ */
+private void add_file_entry(String fileName, PageID pageno) 
     throws AddFileEntryException
     {
       try {
@@ -110,7 +125,11 @@ public class BTreeFile extends IndexFile
       }      
     }
   
-  private void unpinPage(PageID pageno) 
+  /**
+ * @param pageno
+ * @throws UnpinPageException
+ */
+private void unpinPage(PageID pageno) 
     throws UnpinPageException
     { 
       try{
@@ -122,7 +141,11 @@ public class BTreeFile extends IndexFile
       } 
     }
   
-  private void freePage(PageID pageno) 
+  /**
+ * @param pageno
+ * @throws FreePageException
+ */
+private void freePage(PageID pageno) 
     throws FreePageException
     {
       try{
@@ -134,7 +157,11 @@ public class BTreeFile extends IndexFile
       } 
       
     }
-  private void delete_file_entry(String filename)
+  /**
+ * @param filename
+ * @throws DeleteFileEntryException
+ */
+private void delete_file_entry(String filename)
     throws DeleteFileEntryException
     {
       try {
@@ -146,7 +173,12 @@ public class BTreeFile extends IndexFile
       } 
     }
   
-  private void unpinPage(PageID pageno, boolean dirty) 
+  /**
+ * @param pageno
+ * @param dirty
+ * @throws UnpinPageException
+ */
+private void unpinPage(PageID pageno, boolean dirty) 
     throws UnpinPageException
     {
       try{
@@ -279,7 +311,16 @@ public class BTreeFile extends IndexFile
     }  
   
   
-  private void  _destroyFile(PageID pageno) 
+  /**
+ * @param pageno
+ * @throws IOException
+ * @throws IteratorException
+ * @throws PinPageException
+ * @throws ConstructPageException
+ * @throws UnpinPageException
+ * @throws FreePageException
+ */
+private void  _destroyFile(PageID pageno) 
     throws IOException, 
 	   IteratorException, 
 	   PinPageException,
@@ -311,7 +352,13 @@ public class BTreeFile extends IndexFile
       
     }
   
-  private void  updateHeader(PageID newRoot)
+  /**
+ * @param newRoot
+ * @throws IOException
+ * @throws PinPageException
+ * @throws UnpinPageException
+ */
+private void  updateHeader(PageID newRoot)
     throws   IOException, 
 	     PinPageException,
 	     UnpinPageException
@@ -532,7 +579,28 @@ public class BTreeFile extends IndexFile
   
   
   
-  private KeyDataEntry  _insert(KeyClass key, GENID genid,  
+  /**
+ * @param key
+ * @param genid
+ * @param currentPageId
+ * @return
+ * @throws PinPageException
+ * @throws IOException
+ * @throws ConstructPageException
+ * @throws LeafDeleteException
+ * @throws ConstructPageException
+ * @throws DeleteRecException
+ * @throws IndexSearchException
+ * @throws UnpinPageException
+ * @throws LeafInsertRecException
+ * @throws ConvertException
+ * @throws IteratorException
+ * @throws IndexInsertRecException
+ * @throws KeyNotMatchException
+ * @throws NodeNotMatchException
+ * @throws InsertException
+ */
+private KeyDataEntry  _insert(KeyClass key, GENID genid,  
 				PageID currentPageId) 
     throws  PinPageException,  
 	    IOException,
@@ -1305,7 +1373,30 @@ public class BTreeFile extends IndexFile
       
     }
   
-  private KeyClass _Delete ( KeyClass key,
+  /**
+ * @param key
+ * @param genid
+ * @param currentPageId
+ * @param parentPageId
+ * @return
+ * @throws IndexInsertRecException
+ * @throws RedistributeException
+ * @throws IndexSearchException
+ * @throws RecordNotFoundException
+ * @throws DeleteRecException
+ * @throws InsertRecException
+ * @throws LeafRedistributeException
+ * @throws IndexFullDeleteException
+ * @throws FreePageException
+ * @throws LeafDeleteException
+ * @throws KeyNotMatchException
+ * @throws ConstructPageException
+ * @throws UnpinPageException
+ * @throws IteratorException
+ * @throws PinPageException
+ * @throws IOException
+ */
+private KeyClass _Delete ( KeyClass key,
 			     GENID     genid,
 			     PageID        currentPageId,
 			     PageID        parentPageId)
