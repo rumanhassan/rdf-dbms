@@ -367,7 +367,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    * @return the tid of the record
  * @throws InvalidTripleSizeException 
    */
-  public TID insertRecord(byte[] recPtr) 
+  public TID insertTriple(byte[] recPtr) 
     throws InvalidSlotNumberException,  
 	   InvalidTupleSizeException,
 	   SpaceNotAvailableException,
