@@ -6,9 +6,12 @@ import java.util.regex.*;
 
 import javax.print.DocFlavor.STRING;
 
+import labelheap.InvalidLabelSizeException;
+import labelheap.InvalidSlotNumberException;
 import labelheap.LHFBufMgrException;
 import labelheap.LHFDiskMgrException;
 import labelheap.LHFException;
+import labelheap.Label;
 import labelheap.LabelHeapFile;
 import tripleheap.InvalidTripleSizeException;
 import tripleheap.THFBufMgrException;
@@ -31,7 +34,7 @@ public class testProject {
 	 */
 	static Pattern p = Pattern.compile("^[A-Za-z0-9]+$");
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
 		// TODO Auto-generated method stub
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				System.in));
@@ -182,7 +185,7 @@ public class testProject {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
+				
 				Stream outStream;
 				try {
 					outStream = new Stream(queryDB,
@@ -206,18 +209,22 @@ public class testProject {
 					EID sLid = new EID();
 					PID pLid = new PID();
 					EID oLid = new EID();
-					double confidence;
 					Triple triple = new Triple();
 					try {
 						while(triple != null){
-							triple = outStream.getNext(tid);
+							triple = outStream.getNext();
 							sLid= triple.getSubjectId();
 							pLid= triple.getPredicateId();
 							oLid= triple.getObjectId();
-							confidence = triple.getConfidence();
-							LabelHeapFile
+							double confidence = triple.getConfidence();
 							
-						
+							String subjectLabel=queryDB.entityLabelHeapFile.getLabel(sLid);
+							String predicateLabel=queryDB.entityLabelHeapFile.getLabel(pLid);
+							String objectLabel=queryDB.entityLabelHeapFile.getLabel(oLid);
+							System.out.println("S:"+subjectLabel);
+							System.out.println("P:"+predicateLabel);
+							System.out.println("O:"+objectLabel);
+							System.out.println("C:"+confidence);
 						}
 					} catch (InvalidTripleSizeException e) {
 						// TODO Auto-generated catch block
