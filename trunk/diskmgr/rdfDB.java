@@ -8,8 +8,10 @@ import labelheap.InvalidLabelSizeException;
 import labelheap.LHFBufMgrException;
 import labelheap.LHFDiskMgrException;
 import labelheap.LHFException;
+import labelheap.LScan;
 import labelheap.LabelHeapFile;
 
+import btree.BTreeFile;
 import bufmgr.*;
 import global.*;
 import tripleheap.*;
@@ -22,6 +24,8 @@ public class rdfDB implements GlobalConst {
   TripleHeapFile tripleHeapFile = null;
   LabelHeapFile entityLabelHeapFile = null;
   LabelHeapFile predicateLabelHeapFile = null;
+  BTreeFile bTreeIndexFile = null;
+  LScan labelHeapScan = null;
   
   /** Open the database with the given name.
    *
