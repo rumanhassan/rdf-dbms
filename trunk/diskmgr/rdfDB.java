@@ -9,6 +9,7 @@ import labelheap.LHFBufMgrException;
 import labelheap.LHFDiskMgrException;
 import labelheap.LHFException;
 import labelheap.LScan;
+import labelheap.Label;
 import labelheap.LabelHeapFile;
 
 import btree.BTreeFile;
@@ -22,10 +23,10 @@ public class rdfDB implements GlobalConst {
   private static final int bits_per_page = MAX_SPACE * 8;
   public  static final String dbNamelist[]= {""};
   TripleHeapFile tripleHeapFile = null;
-  LabelHeapFile entityLabelHeapFile = null;
-  LabelHeapFile predicateLabelHeapFile = null;
-  BTreeFile bTreeIndexFile = null;
-  LScan labelHeapScan = null;
+  public LabelHeapFile entityLabelHeapFile = null;
+  public LabelHeapFile predicateLabelHeapFile = null;
+  public BTreeFile bTreeIndexFile = null;
+  public LScan labelHeapScan = null;
   
   /** Open the database with the given name.
    *
@@ -36,6 +37,11 @@ public class rdfDB implements GlobalConst {
    * @exception InvalidPageNumberException invalid page number
    * @exception DiskMgrException error caused by other layers
    */
+  public Stream openStream(int sortIndex, String subjectFilter,
+		  String predicateFilter, String objectFilter, float parseFloat) {
+		  // TODO Auto-generated method stub
+		  return null;
+		  }
   public void openDB( String fname)
     throws IOException, 
 	   InvalidPageNumberException, 
@@ -1093,7 +1099,7 @@ class DBFirstPage extends DBHeaderPage {
 /**
  * DBDirectoryPage class which is a subclass of DBHeaderPage class
  */
-public class DBDirectoryPage extends DBHeaderPage  { public static final int TripleCnt = 0;
+class DBDirectoryPage extends DBHeaderPage  { public static final int TripleCnt = 0;
 public static final int EntityCnt = 0;
 public static final int PredicateCnt = 0;
 public static final int SubjectCnt = 0;
