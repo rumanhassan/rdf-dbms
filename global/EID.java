@@ -66,5 +66,13 @@ public class EID extends LID{
     else
       return false;
   }
+  public LID returnLID()
+  {
+	  LID lid = new LID();
+	  lid.pageNo = pageNo;
+	  lid.slotNo = slotNo;
+	  return lid;
+  }
+  
   
 }
