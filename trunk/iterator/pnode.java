@@ -3,38 +3,38 @@ package iterator;
 import global.*;
 import bufmgr.*;
 import diskmgr.*;
-import heap.*;
+import tripleheap.*;
 
 /**
- * A structure describing a tuple.
- * include a run number and the tuple
+ * A structure describing a triple.
+ * include a run number and the triple
  */
 public class pnode {
-  /** which run does this tuple belong */
+  /** which run does this triple belong */
   public int     run_num;
 
-  /** the tuple reference */
-  public Tuple   tuple;
+  /** the triple reference */
+  public Triple   triple;
 
   /**
-   * class constructor, sets <code>run_num</code> to 0 and <code>tuple</code>
+   * class constructor, sets <code>run_num</code> to 0 and <code>triple</code>
    * to null.
    */
   public pnode() 
   {
     run_num = 0;  // this may need to be changed
-    tuple = null; 
+    triple = null; 
   }
   
   /**
-   * class constructor, sets <code>run_num</code> and <code>tuple</code>.
+   * class constructor, sets <code>run_num</code> and <code>triple</code>.
    * @param runNum the run number
-   * @param t      the tuple
+   * @param t      the triple
    */
-  public pnode(int runNum, Tuple t) 
+  public pnode(int runNum, Triple t) 
   {
     run_num = runNum;
-    tuple = t;
+    triple = t;
   }
   
 }

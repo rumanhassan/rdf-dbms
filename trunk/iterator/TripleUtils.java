@@ -427,4 +427,10 @@ public class TripleUtils {
 		}*/
 		return res_str_sizes;
 	}
+
+	public static boolean Equal(Triple tempTriple1, Triple tempTriple2,
+			AttrType[] _in, short in_len) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
