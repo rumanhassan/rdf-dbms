@@ -75,7 +75,7 @@ public class rdfDB implements GlobalConst {
 	predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
  }  
   
-public int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException{
+public int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException, InvalidTripleSizeException{
 	 return tripleHeapFile.getRecCnt();
  }
 public int getEntityCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException {
@@ -90,7 +90,7 @@ public int getPredicateCnt() throws labelheap.InvalidSlotNumberException, Invali
   int Objectcnt(){
 	  return ObjectCnt;
   }*/
-public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException {
+public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException, InvalidTripleSizeException {
 	 return tripleHeapFile.insertRecord(recPtr);
   }
 public PID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException{
