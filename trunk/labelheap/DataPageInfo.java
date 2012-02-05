@@ -5,6 +5,8 @@ package labelheap;
 
 
 import global.*;
+import heap.Tuple;
+
 import java.io.*;
 
 /** DataPageInfo class : the type of records stored on a directory page.
@@ -71,9 +73,10 @@ class DataPageInfo implements GlobalConst{
   /** constructor: translate a tuple to a DataPageInfo object
    *  it will make a copy of the data in the tuple
    * @param atuple: the input tuple
+ * @throws InvalidTupleSizeException 
    */
   public DataPageInfo(Label _aLabel)
-       throws InvalidLabelSizeException, IOException
+       throws InvalidLabelSizeException, IOException, InvalidTupleSizeException
   {   
      // need check _atuple size == this.size ?otherwise, throw new exception
     if (_aLabel.getLength()!=12){
@@ -109,9 +112,7 @@ class DataPageInfo implements GlobalConst{
 
     // 2) create a Label object using this array
     //Label atuple = new Label(data, offset, size); 
-    String str = Convert.getStrValue(offset, data, size); // get the string from byte array
-    Label aLabel = new Label();
-    aLabel.setLabel(str);    
+    Label aLabel = new Label(data, offset, size);    
  
     // 3) return Label object
     return aLabel;
