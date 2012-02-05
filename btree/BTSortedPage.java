@@ -97,7 +97,8 @@ public class BTSortedPage  extends THFPage{
    {
      int i;
      short  nType;
-     GENID genid;
+     GENID genid = null;
+     TID tid;
      byte[] record;
      // ASSERTIONS:
      // - the slot directory is compressed; Inserts will occur at the end
@@ -111,8 +112,10 @@ public class BTSortedPage  extends THFPage{
      try {
        
        record=BT.getBytesFromEntry(entry);  
-       genid=super.insertRecord(record);
-         if (genid==null) return null;
+       tid=super.insertTriple(record);
+       genid.pageNo = tid.pageNo;
+       genid.slotNo = tid.slotNo;
+       if (genid==null) return null;
 	 
          if ( entry.data instanceof LeafData )
 	   nType= NodeType.LEAF;
@@ -171,10 +174,11 @@ public class BTSortedPage  extends THFPage{
    */
   public  boolean deleteSortedRecord(GENID genid)
     throws DeleteRecException
-    {
+    {TID tid = null;
       try {
-	
-	deleteRecord(genid);
+	tid.pageNo = genid.pageNo;
+	tid.slotNo = genid.slotNo;
+	deleteTriple(tid);
 	compact_slot_dir();
 	return true;  
 	// ASSERTIONS:
