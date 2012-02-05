@@ -75,7 +75,6 @@ public class BatchInsert {
 	 * @throws tripleheap.SpaceNotAvailableException
 	 * @throws InvalidTripleSizeException
 	 */
-	public static int keyType;
 	public static void main(String[] args) throws IOException,
 			NumberFormatException, THFException, THFBufMgrException,
 			THFDiskMgrException, LHFException, LHFBufMgrException,
@@ -83,20 +82,20 @@ public class BatchInsert {
 			DiskMgrException, InvalidSlotNumberException,
 			InvalidLabelSizeException, SpaceNotAvailableException,
 			tripleheap.InvalidSlotNumberException, InvalidTupleSizeException,
-			tripleheap.SpaceNotAvailableException, InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException {
+			tripleheap.SpaceNotAvailableException, InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException, labelheap.InvalidTupleSizeException {
 		// TODO Auto-generated method stub
 		String filePath = args[0];
 		String DBName = args[1];
 		String indexOption = args[2];
 		boolean dbExists = false;
 		if (dbExists == false) {
-			SystemDefs sysdef = new SystemDefs(DBName, 8193, 100, "Clock");
+			SystemDefs sysdef = new SystemDefs(DBName, 81930, 1000, "Clock");
 			//rdfDB newDatabase = new rdfDB(Integer.parseInt(indexOption));
 			//newDatabase.openDB(DBName);
 			TripleHeapFile tripleFileObj= new TripleHeapFile("file_1");
 			LabelHeapFile entlabelfileObj= new LabelHeapFile("file_2");
 			LabelHeapFile prelabelFileObj= new LabelHeapFile("file_3");
-			
+			LabelHeapFile dummyLabelFileObj= new LabelHeapFile("file_4");
 			String[] fileArray;
 			System.out.println("inserting file at " + args[0] + " in "
 					+ args[1] + "...");
@@ -161,23 +160,23 @@ public class BatchInsert {
 					object = new String(objectArray).trim();
 					confidence = new String(confidenceArray).trim();
 				}
-				byte [] subjectBArray = new byte[50];
+				byte [] subjectBArray = new byte[150];
 				Convert.setStrValue(subject, 0, subjectBArray);
 
-				byte[] objectBArray = new byte[50];
+				byte[] objectBArray = new byte[150];
 				Convert.setStrValue(object, 0, objectBArray);
 
-				byte[] predicateBArray = new byte[50];
+				byte[] predicateBArray = new byte[150];
 				Convert.setStrValue(predicate, 0, predicateBArray);
 
-				Triple tripleObj = new Triple();
+				/*Triple tripleObj = new Triple();
 				EID eid = new EID(subjectID.pageNo, subjectID.slotNo);
 				tripleObj.setSubjectId(eid);
 				eid = new EID(objectID.pageNo, objectID.slotNo);
 				tripleObj.setObjectId(eid);
 				PID pid = new PID(predicateID.pageNo, predicateID.slotNo);
 				tripleObj.setPredicateId(pid);
-				tripleObj.setConfidence(Float.parseFloat(confidence));
+				tripleObj.setConfidence(Float.parseFloat(confidence));*/
 
 				/*System.out.println("subject" + subject);
 				System.out.println("inserted..LID is" + subjectID);
@@ -191,6 +190,7 @@ public class BatchInsert {
 				LID subID;
 				LID objID;
 				LID predicID;
+				Triple tripleObj = new Triple();
 				byte[] triplebyte;
 				Triple tripObj = new Triple();
 				TID tripID = new TID();
@@ -214,8 +214,9 @@ public class BatchInsert {
 				tripObj.setObjectId(oenID);
 				tripleObj.setConfidence(Float.parseFloat(confidence));
 				triplebyte = tripObj.getTripleByteArray();
-				
-				tripID = tripleFileObj.insertTriple(triplebyte);
+				LID dummyTriple=new LID();
+				//tripID = dummyLabelFileObj.insertLabel(triplebyte);
+				dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
 				System.out.println("inserted..SID is " + subID.pageNo + " "
 						+ subID.slotNo);
 				System.out.println("inserted..PID is " + objID.pageNo + " "
@@ -223,8 +224,8 @@ public class BatchInsert {
 				System.out.println("inserted..OID is " + predicID.pageNo + " "
 						+ predicID.slotNo);
 				System.out.println("inserting..");
-				System.out.println("inserted..TID is" + tripleID);
-				createBtree("file_1");
+				System.out.println("inserted..TID is " + dummyTriple.pageNo+"  "+dummyTriple.slotNo);
+				//createBtree("file_2");
 			}
 			//newDatabase.closeDB();
 		}
@@ -239,16 +240,12 @@ public class BatchInsert {
 			InvalidSlotNumberException, InvalidLabelSizeException,
 			SpaceNotAvailableException, tripleheap.InvalidSlotNumberException,
 			InvalidTupleSizeException, tripleheap.SpaceNotAvailableException,
-			InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException {
+			InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException, labelheap.InvalidTupleSizeException {
 
 		String[] inputToMain = { path, dbName, sortOption };
 		inputToMain[0] = path;
 		main(inputToMain);
 	}
-	public static void createBtree(String filename) throws GetFileEntryException, ConstructPageException, AddFileEntryException, IOException
-	{
-		keyType=AttrType.attrReal;
-		BTreeFile btreeForTriple=new BTreeFile(filename, keyType, 4, 0);
-	}
+
 	
 }

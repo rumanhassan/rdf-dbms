@@ -22,7 +22,7 @@ import tripleheap.Triple;
 import diskmgr.Stream;
 import diskmgr.rdfDB;
 import global.*;
-
+import btree.*;
 /**
  * @author shodhan
  * 
@@ -33,7 +33,7 @@ public class testProject {
 	 * @param args
 	 */
 	static Pattern p = Pattern.compile("^[A-Za-z0-9]+$");
-
+	public static int keyType;
 	public static void main(String[] args) throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
 		// TODO Auto-generated method stub
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -43,6 +43,7 @@ public class testProject {
 			System.out.println("[1] Batch Insert");
 			System.out.println("[2] Query your Database ");
 			System.out.println("[3] Quit");
+			System.out.println("[4] print btree");
 			System.out.println("Select your option: ");
 			String selectedOption = null;
 			try {
@@ -92,9 +93,13 @@ public class testProject {
 				}
 				if (filePath != null && DBName != null && indexOption != null) {
 					BatchInsert.run(filePath, DBName, indexOption);
+					keyType=AttrType.attrString;
+					BTreeFile btreeFile=new BTreeFile("file_2", keyType, 4, 0);
+					BT.printAllLeafPages(btreeFile.getHeaderPage());
 				} else {
 					System.out.println("please enter valid details to insert");
 				}
+				
 				break;
 			case 2:
 				String dBName = null;
@@ -108,7 +113,7 @@ public class testProject {
 				System.out.println("You entered : " + selectedOption);
 				System.out.println("enter RDFDBNAME");
 				try {
-					DBName = reader.readLine();
+					dBName = reader.readLine();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -159,36 +164,12 @@ public class testProject {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				rdfDB queryDB = null;
-
-				try {
-					queryDB = new rdfDB(Integer.parseInt(sortOption));
-				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (THFException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (THFBufMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (THFDiskMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFBufMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (LHFDiskMgrException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				SystemDefs sysdef = new SystemDefs(dBName, 81930, 1000, "Clock");
+					//SystemDefs.JavabaseDB = new rdfDB(Integer.parseInt(sortOption));
 				
 				Stream outStream;
 				try {
-					outStream = new Stream(queryDB,
+					outStream = new Stream(SystemDefs.JavabaseDB,
 							Integer.parseInt(sortOption), subjectFilter,
 							predicateFilter, objectFilter,
 							Float.parseFloat(confidenceFilter));
@@ -201,7 +182,7 @@ public class testProject {
 				}
 
 				{
-					outStream = queryDB.openStream(
+					outStream = SystemDefs.JavabaseDB.openStream(
 							Integer.parseInt(sortOption), subjectFilter,
 							predicateFilter, objectFilter,
 							Float.parseFloat(confidenceFilter));
@@ -217,19 +198,20 @@ public class testProject {
 							pLid= triple.getPredicateId();
 							oLid= triple.getObjectId();
 							double confidence = triple.getConfidence();
-							
-							String subjectLabel=queryDB.entityLabelHeapFile.getLabel(sLid);
-							String predicateLabel=queryDB.entityLabelHeapFile.getLabel(pLid);
-							String objectLabel=queryDB.entityLabelHeapFile.getLabel(oLid);
+							String subjectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(sLid);
+							String predicateLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(pLid);
+							String objectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(oLid);
 							System.out.println("S:"+subjectLabel);
 							System.out.println("P:"+predicateLabel);
 							System.out.println("O:"+objectLabel);
 							System.out.println("C:"+confidence);
+							
 						}
 					} catch (InvalidTripleSizeException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+					
 				}
 
 			case 3:
@@ -239,6 +221,8 @@ public class testProject {
 				System.out
 						.println("You entered an invalid option:please enter again");
 				break;
+			case 4:
+				System.out.println("printing BTREE....");
 			}
 		}
 	}
