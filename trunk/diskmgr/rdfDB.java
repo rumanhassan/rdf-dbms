@@ -80,9 +80,9 @@ public class rdfDB implements GlobalConst {
  * @throws LHFException 
    */
   public rdfDB(int type) throws THFException, THFBufMgrException, THFDiskMgrException, IOException, LHFException, LHFBufMgrException, LHFDiskMgrException { 
-	tripleHeapFile = new TripleHeapFile("TripleHeapFile.in");
-	entityLabelHeapFile = new LabelHeapFile("EntityLabelHeapFile.in");
-	predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
+	//tripleHeapFile = new TripleHeapFile("file1");
+	//entityLabelHeapFile = new LabelHeapFile("EntityLabelHeapFile.in");
+	//predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
  }  
   
 public int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException, InvalidTripleSizeException{
