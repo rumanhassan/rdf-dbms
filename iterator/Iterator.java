@@ -6,6 +6,11 @@ import bufmgr.*;
 import index.*;
 import java.io.*;
 
+import labelheap.InvalidTypeException;
+
+import tripleheap.InvalidTripleSizeException;
+import tripleheap.Triple;
+
 /**
  *All the relational operators and access methods are iterators.
  */
@@ -37,11 +42,11 @@ public abstract class Iterator implements Flags {
    *@exception UnknownKeyTypeException key type unknown
    *@exception Exception other exceptions
    */
-  public abstract Tuple get_next() 
+  public abstract Triple get_next() 
     throws IOException,
 	   JoinsException ,
 	   IndexException,
-	   InvalidTupleSizeException,
+	   InvalidTripleSizeException,
 	   InvalidTypeException, 
 	   PageNotReadException,
 	   TupleUtilsException, 
