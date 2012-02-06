@@ -33,7 +33,7 @@ public class testProject {
 	 * @param args
 	 */
 	static Pattern p = Pattern.compile("^[A-Za-z0-9]+$");
-	public static int keyType;
+	
 	public static void main(String[] args) throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
 		// TODO Auto-generated method stub
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -93,9 +93,7 @@ public class testProject {
 				}
 				if (filePath != null && DBName != null && indexOption != null) {
 					BatchInsert.run(filePath, DBName, indexOption);
-					keyType=AttrType.attrString;
-					BTreeFile btreeFile=new BTreeFile("file_2", keyType, 4, 0);
-					BT.printAllLeafPages(btreeFile.getHeaderPage());
+					
 				} else {
 					System.out.println("please enter valid details to insert");
 				}
