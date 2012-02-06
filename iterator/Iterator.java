@@ -1,6 +1,6 @@
 package iterator;
 import global.*;
-import heap.*;
+import tripleheap.*;
 import diskmgr.*;
 import bufmgr.*;
 import index.*;
