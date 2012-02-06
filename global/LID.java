@@ -26,13 +26,19 @@ public class LID extends GENID{
 	      pageNo = pageno;
 	      slotNo = slotno;
 	    }
-	  public EID returnEID ()
+	  /**
+	 * @return  returns eid
+	 */
+	public EID returnEID ()
 	    {
 	      EID eid = new EID(pageNo, slotNo);
 	      
 	      return eid ;
 	    }
-	  public PID returnPID ()
+	  /**
+	 * @return returns pid
+	 */
+	public PID returnPID ()
 	    { 
 		  PID pid = new PID( pageNo ,slotNo);
 	      
@@ -40,7 +46,7 @@ public class LID extends GENID{
 	    }
 	  
 	  /**
-	   * make a copy of the given rid
+	   * make a copy of the given lid
 	   */
 	  public void copyLid (LID lid)
 	    {
