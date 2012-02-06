@@ -3,6 +3,9 @@ package tests;
 import java.io.*;
 import diskmgr.*;
 public class Report {
+/**
+ * Prints the statistics of RDF Database
+ */
 public void printreport()
 {
 	rdfDB r = new rdfDB();
