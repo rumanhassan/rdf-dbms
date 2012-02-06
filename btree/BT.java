@@ -97,7 +97,7 @@ public class BT  implements GlobalConst{
   
   /** It gets the length of the data 
    *@param  pageType  NodeType.LEAF or  NodeType.INDEX. Input parameter.
-   *@return return 8 if it is of NodeType.LEA; 
+   *@return return 8 if it is of NodeType.LEAF; 
    *  return 4 if it is of NodeType.INDEX.
    *@exception  NodeNotMatchException pageType is neither NodeType.LEAF 
    *  nor NodeType.INDEX.
@@ -136,7 +136,7 @@ public class BT  implements GlobalConst{
    *@param keyType It specifies the type of key. It can be 
    *               AttrType.attrString or AttrType.attrInteger.
    *               Input parameter. 
-   *@param nodeType It specifes NodeType.LEAF or NodeType.INDEX. 
+   *@param nodeType It specifies NodeType.LEAF or NodeType.INDEX. 
    *                Input parameter.
    *@param length  The length of (key, data) in byte array "from".
    *               Input parameter.
