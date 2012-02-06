@@ -29,6 +29,7 @@ public class Report {
 public void printreport() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, InvalidTripleSizeException, IOException, labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException
 {
 	rdfDB r = new rdfDB();
+System.out.println(" Various statistics of RDF Database " );
 System.out.println(" Total number of Triples is " + r.getTripleCnt());
 System.out.println(" Total number of Entities is " + r.getEntityCnt());
 System.out.println(" Total number of Predicates is " + r.getPredicateCnt());
