@@ -111,7 +111,7 @@ public class BatchInsert {
 		String indexOption = args[2];
 		boolean dbExists = false;
 		if (dbExists == false) {
-			SystemDefs sysdef = new SystemDefs(DBName, 81930, 1000, "Clock");
+			SystemDefs sysdef = new SystemDefs(DBName, 819300, 10000, "Clock");
 			//rdfDB newDatabase = new rdfDB(Integer.parseInt(indexOption));
 			//newDatabase.openDB(DBName);
 			TripleHeapFile tripleFileObj= new TripleHeapFile("file_1");
@@ -240,7 +240,7 @@ public class BatchInsert {
 				triplebyte = tripObj.getTripleByteArray();
 				LID dummyTriple=new LID();
 				//tripID = dummyLabelFileObj.insertLabel(triplebyte);
-				dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
+				//dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
 				System.out.println("inserted..SID is " + subID.pageNo + " "
 						+ subID.slotNo);
 				System.out.println("inserted..PID is " + objID.pageNo + " "
@@ -251,10 +251,10 @@ public class BatchInsert {
 				System.out.println("inserted..TID is " + dummyTriple.pageNo+"  "+dummyTriple.slotNo);
 				//createBtree("file_2");
 				TID tid=new TID();
-				tid.pageNo.pid=dummyTriple.pageNo.pid;
+				/*tid.pageNo.pid=dummyTriple.pageNo.pid;
 				tid.slotNo=dummyTriple.slotNo;
-				Float floatkey=Float.parseFloat(confidence);
-				String confidenceForKey=confidence.substring(0,4);
+				Float floatkey=Float.parseFloat(confidence);*/
+				String confidenceForKey=confidence.substring(0,8);
 				System.out.println(confidenceForKey+"    "+confidenceForKey.length());
 				KeyClass realKey;
 				realKey=new StringKey(confidenceForKey);

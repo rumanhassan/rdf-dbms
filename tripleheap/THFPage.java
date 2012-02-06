@@ -385,7 +385,7 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 			// insert data onto the data page
 			System.arraycopy(triple, 0, data, usedPtr, tripLen);
 			curPage.pid = Convert.getIntValue(CUR_PAGE, data);
-			tid.pageNo.pid = curPage.pid;
+			tid.pageNo.pid=curPage.pid;
 			tid.slotNo = i;
 			return tid;
 		}
@@ -551,7 +551,7 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 			offset = getSlotOffset(slotNo);
 			tripleArray = new byte[tripLen];
 			System.arraycopy(data, offset, tripleArray, 0, tripLen);
-			Triple triple = new Triple(tripleArray, 0);
+			Triple triple = new Triple(tripleArray, 0); /*imp*/
 			return triple;
 		}
 
@@ -592,7 +592,7 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 				&& (pageNo.pid == curPage.pid)) {
 			offset = getSlotOffset(slotNo);
 			tripleArray = new byte[tripLen];
-			System.arraycopy(data, offset, tripleArray, 0, tripLen);
+			System.arraycopy(data, offset, tripleArray, 0, tripLen); /*imp*/
 			Triple triple = new Triple(tripleArray, 0);
 			return triple;
 		}
