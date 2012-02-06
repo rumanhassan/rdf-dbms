@@ -24,7 +24,7 @@ public class Stream implements GlobalConst{
 	final int SUBJIDX = 0;
 	final int PREDIDX = 1;
 	final int OBJIDX = 2;
-	final int CONFIDX = 3;
+//	final int CONFIDX = 3;  --- allow to query where confidence >= 0
 	
 	// attributes of the Stream
 	private rdfDB rdfdatabase;
@@ -34,7 +34,7 @@ public class Stream implements GlobalConst{
 	private String objectFilter;
 	private float confidenceFilter;
 	private short[] filtersIncluded = {UNINITIALIZED, UNINITIALIZED, 
-			UNINITIALIZED, UNINITIALIZED};
+									   UNINITIALIZED};
 	private BTFileScan btScan = null; // for scanning the index of the rdfDB
      
     /** The constructor initializes the Stream's private data members from the
@@ -66,7 +66,7 @@ public class Stream implements GlobalConst{
 	  this.objectFilter = objectFilter;
 	  this.confidenceFilter = confidenceFilter;
 	  processFilters(subjectFilter, predicateFilter,objectFilter, confidenceFilter);
-	//initiate a scan of the whole index file
+	//initiate a scan of the whole index file, assume that the btree is in sorted order
 	  btScan = rdfDataBase.bTreeIndexFile.new_scan(null, null); 
   }
   
@@ -89,11 +89,15 @@ public class Stream implements GlobalConst{
   
     // 1. Use rdfDataBase's b-tree structure to get the next Triple from the
     //    triple heap file.   
-    LeafData idxRecordData = (LeafData) btScan.get_next().data; //must cast DataClass to LeafData
-    if(idxRecordData == null) // we have reached the end of the scan
+    LeafData dummyLeaf = null;
+    DataClass indexData = dummyLeaf; // upcast, hopefully some Java magic will happen soon...
+    indexData = btScan.get_next().data;  // when scanning the btree, type DataClass is returned
+    LeafData newLeaf = (LeafData)indexData; // MAGIC, downcasting is allowed since indexData references a LeafData object
+    //LeafData idxRecordData = (LeafData) btScan.get_next().data; //must cast DataClass to LeafData
+    if(newLeaf == null) // we have reached the end of the scan
     	return null; 
     else {    
-	    GENID genericID = idxRecordData.getData();
+	    GENID genericID = newLeaf.getData();
 	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
 	    recptrtriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
 	    
@@ -150,12 +154,12 @@ public class Stream implements GlobalConst{
     	if( (obj == null) || obj.equalsIgnoreCase("0"))
     		filtersIncluded[OBJIDX] = NOT_INCLUDED;
     	else filtersIncluded[OBJIDX] = INCLUDED;
-    	
-    	float zero = 0;
-        int i1 = Float.compare(zero,conf);
-    	if( i1 == 0) // confidence filter equals 0
-    		filtersIncluded[CONFIDX] = NOT_INCLUDED;
-    	else filtersIncluded[CONFIDX] = INCLUDED;    	
+// ---------------- We do want to be able to query for confidence >= 0.    	
+//    	float zero = 0;
+//        int i1 = Float.compare(zero,conf);
+//    	if( i1 == 0) // confidence filter equals 0
+//    		filtersIncluded[CONFIDX] = NOT_INCLUDED;
+//    	else filtersIncluded[CONFIDX] = INCLUDED;    	
     }
     
     /** Checks if a triple's data matches the filter criteria
@@ -189,6 +193,56 @@ public class Stream implements GlobalConst{
     	
     	return matches;    	
     }
+    
+    public Triple getNextIterative() 
+    throws InvalidSlotNumberException, InvalidTupleSizeException, THFException,
+    	   THFDiskMgrException, THFBufMgrException, Exception
+  {
+    Triple aTriple = null;
+
+    LeafData idxRecordData = (LeafData) btScan.get_next().data; //must cast DataClass to LeafData
+    while(idxRecordData != null) // while we have not yet reached the end of the BTFileScan
+    {
+    	idxRecordData = (LeafData) btScan.get_next().data;
+    	GENID genericID = idxRecordData.getData();
+	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
+	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
+    }
+    return aTriple;
+//    if(idxRecordData == null) // we have reached the end of the scan
+//    	return null; 
+//    else {    
+//	    GENID genericID = idxRecordData.getData();
+//	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
+//	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
+//	    
+//	 // 2. Check that the triple's data matches the filter
+//	    boolean weHaveAMatch = false;
+//	    //---------------------------------------------
+//	    EID subjEntity = aTriple.getSubjectId();	    
+//	    // maybe later we can just call subjEntity.returnLID();
+//	    LID subjLabel = new LID(subjEntity.pageNo, subjEntity.slotNo);	    
+//	    String subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
+//	    //---------------------------------------------
+//	    PID currPred = aTriple.getPredicateId();	  
+//	    // maybe later we can just call currPred.returnLID();
+//	    LID predLabel = new LID(currPred.pageNo, subjEntity.slotNo);	    
+//	    String predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
+//	    //---------------------------------------------
+//	    EID objEntity = aTriple.getObjectId();	    
+//	    // maybe later we can just call objEntity.returnLID();
+//	    LID objLabel = new LID(objEntity.pageNo, objEntity.slotNo);	    
+//	    String objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
+//	    
+//	    weHaveAMatch = tripleDataMatchesFilter(subjStr, objStr, predStr, confidenceFilter);
+//	 // 3. Return the triple with matching TID
+//	    if(weHaveAMatch)
+//	    	return aTriple;
+//	    else // no matches, keep moving down the line
+//	    	return getNext();	    
+//    	}
+    
+  }
     
   
 } // end of class Stream
