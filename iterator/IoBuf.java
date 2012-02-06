@@ -152,7 +152,7 @@ public class IoBuf implements GlobalConst{
 		{
 		  System.arraycopy(_bufs[count],t_size*i,tempbuf,0,t_size);
 		  try {
-		    tid =  _temp_fd.insertTriple(tempbuf);
+		    tid =  _temp_fd.insertRecord(tempbuf);
 		  }
 		  catch (Exception e){
 		    throw e;
