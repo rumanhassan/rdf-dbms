@@ -4,9 +4,11 @@ import java.io.*;
 import diskmgr.*;
 public class Report {
 public void printreport()
-{System.out.println(" Total number of Triples is " + (new DBDirectoryPage()).TripleCnt);
-System.out.println(" Total number of Entities is " + (new DBDirectoryPage()).EntityCnt);
-System.out.println(" Total number of Predicates is " + (new DBDirectoryPage()).PredicateCnt);
+{
+	rdfDB r = new rdfDB();
+System.out.println(" Total number of Triples is " + r.getTripleCnt());
+System.out.println(" Total number of Entities is " + r.getEntityCnt());
+System.out.println(" Total number of Predicates is " + r.getPredicateCnt());
 System.out.println(" Total number of Subjects is " + (new DBDirectoryPage()).SubjectCnt);
 System.out.println(" Total number of Objects is " + (new DBDirectoryPage()).ObjectCnt);
 System.out.println(" Total number of Disk Pages that were read is " + (new PCounter()).rcounter);
