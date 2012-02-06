@@ -96,6 +96,8 @@ public class BatchInsert {
 	 * @throws tripleheap.SpaceNotAvailableException
 	 * @throws InvalidTripleSizeException
 	 */
+	public static boolean excase=false;
+	public  BTreeFile btreeFile;
 	public static int keyType;
 	public static void main(String[] args) throws IOException,
 			NumberFormatException, THFException, THFBufMgrException,
@@ -125,6 +127,7 @@ public class BatchInsert {
 			fileArray = readFile.openFile();
 			keyType=AttrType.attrString;
 			BTreeFile btreeFile=new BTreeFile("file_2", keyType, 1000, 1);
+			
 			for (int i = 0; i < fileArray.length; i++) {
 				char[] lineString = fileArray[i].toCharArray();
 				int lineLength = lineString.length;
@@ -178,7 +181,7 @@ public class BatchInsert {
 						count++;
 						charNo++;
 					}
-					System.out.println("seperated");
+					//System.out.println("seperated");
 					subject = new String(subjectArray).trim();
 					predicate = new String(predicateArray).trim();
 					object = new String(objectArray).trim();
@@ -240,7 +243,7 @@ public class BatchInsert {
 				triplebyte = tripObj.getTripleByteArray();
 				LID dummyTriple=new LID();
 				//tripID = dummyLabelFileObj.insertLabel(triplebyte);
-				//dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
+				dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
 				System.out.println("inserted..SID is " + subID.pageNo + " "
 						+ subID.slotNo);
 				System.out.println("inserted..PID is " + objID.pageNo + " "
@@ -251,22 +254,27 @@ public class BatchInsert {
 				System.out.println("inserted..TID is " + dummyTriple.pageNo+"  "+dummyTriple.slotNo);
 				//createBtree("file_2");
 				TID tid=new TID();
-				/*tid.pageNo.pid=dummyTriple.pageNo.pid;
+				tid.pageNo.pid=dummyTriple.pageNo.pid;
 				tid.slotNo=dummyTriple.slotNo;
-				Float floatkey=Float.parseFloat(confidence);*/
+				Float floatkey=Float.parseFloat(confidence);
 				String confidenceForKey=confidence.substring(0,8);
 				System.out.println(confidenceForKey+"    "+confidenceForKey.length());
 				KeyClass realKey;
 				realKey=new StringKey(confidenceForKey);
 				btreeFile.insert(realKey, tid);
 			}
-			BT.printAllLeafPages(btreeFile.getHeaderPage());
+			if(excase==false)
+			{
+				System.out.println("Printing B+ Tree : Indexed on <confidence>");
+				BT.printAllLeafPages(btreeFile.getHeaderPage());
+				
+			}
 			//newDatabase.closeDB();
 		}
 
 	}
 
-	public static void run(String path, String dbName, String sortOption)
+	public static void run(String path, String dbName, String sortOption ,boolean excase1 )
 			throws IOException, NumberFormatException, THFException,
 			THFBufMgrException, THFDiskMgrException, LHFException,
 			LHFBufMgrException, LHFDiskMgrException,
@@ -278,6 +286,7 @@ public class BatchInsert {
 
 		String[] inputToMain = { path, dbName, sortOption };
 		inputToMain[0] = path;
+		excase=excase1;
 		main(inputToMain);
 	}
 
