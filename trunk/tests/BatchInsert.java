@@ -11,9 +11,29 @@ import java.lang.*;
 import java.util.*;
 
 import btree.AddFileEntryException;
+import btree.BT;
 import btree.BTreeFile;
 import btree.ConstructPageException;
+import btree.ConvertException;
+import btree.DeleteRecException;
 import btree.GetFileEntryException;
+import btree.IndexInsertRecException;
+import btree.IndexSearchException;
+import btree.InsertException;
+import btree.IteratorException;
+import btree.KeyClass;
+import btree.KeyNotMatchException;
+import btree.KeyTooLongException;
+import btree.LeafDeleteException;
+import btree.LeafInsertRecException;
+import btree.NodeNotMatchException;
+import btree.PinPageException;
+import btree.StringKey;
+import btree.UnpinPageException;
+import bufmgr.HashEntryNotFoundException;
+import bufmgr.InvalidFrameNumberException;
+import bufmgr.PageUnpinnedException;
+import bufmgr.ReplacerException;
 
 import labelheap.InvalidLabelSizeException;
 import labelheap.InvalidSlotNumberException;
@@ -23,6 +43,7 @@ import labelheap.LHFException;
 import labelheap.LabelHeapFile;
 import labelheap.SpaceNotAvailableException;
 import tripleheap.*;
+
 
 /**
  * @author shodhan
@@ -75,6 +96,7 @@ public class BatchInsert {
 	 * @throws tripleheap.SpaceNotAvailableException
 	 * @throws InvalidTripleSizeException
 	 */
+	public static int keyType;
 	public static void main(String[] args) throws IOException,
 			NumberFormatException, THFException, THFBufMgrException,
 			THFDiskMgrException, LHFException, LHFBufMgrException,
@@ -82,7 +104,7 @@ public class BatchInsert {
 			DiskMgrException, InvalidSlotNumberException,
 			InvalidLabelSizeException, SpaceNotAvailableException,
 			tripleheap.InvalidSlotNumberException, InvalidTupleSizeException,
-			tripleheap.SpaceNotAvailableException, InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException, labelheap.InvalidTupleSizeException {
+			tripleheap.SpaceNotAvailableException, InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException, labelheap.InvalidTupleSizeException, IteratorException, HashEntryNotFoundException, InvalidFrameNumberException, PageUnpinnedException, ReplacerException, KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException, DeleteRecException, IndexSearchException, LeafDeleteException, InsertException {
 		// TODO Auto-generated method stub
 		String filePath = args[0];
 		String DBName = args[1];
@@ -101,6 +123,8 @@ public class BatchInsert {
 					+ args[1] + "...");
 			ReadFile readFile = new ReadFile(filePath);
 			fileArray = readFile.openFile();
+			keyType=AttrType.attrString;
+			BTreeFile btreeFile=new BTreeFile("file_2", keyType, 1000, 1);
 			for (int i = 0; i < fileArray.length; i++) {
 				char[] lineString = fileArray[i].toCharArray();
 				int lineLength = lineString.length;
@@ -226,7 +250,17 @@ public class BatchInsert {
 				System.out.println("inserting..");
 				System.out.println("inserted..TID is " + dummyTriple.pageNo+"  "+dummyTriple.slotNo);
 				//createBtree("file_2");
+				TID tid=new TID();
+				tid.pageNo.pid=dummyTriple.pageNo.pid;
+				tid.slotNo=dummyTriple.slotNo;
+				Float floatkey=Float.parseFloat(confidence);
+				String confidenceForKey=confidence.substring(0,4);
+				System.out.println(confidenceForKey+"    "+confidenceForKey.length());
+				KeyClass realKey;
+				realKey=new StringKey(confidenceForKey);
+				btreeFile.insert(realKey, tid);
 			}
+			BT.printAllLeafPages(btreeFile.getHeaderPage());
 			//newDatabase.closeDB();
 		}
 
@@ -240,7 +274,7 @@ public class BatchInsert {
 			InvalidSlotNumberException, InvalidLabelSizeException,
 			SpaceNotAvailableException, tripleheap.InvalidSlotNumberException,
 			InvalidTupleSizeException, tripleheap.SpaceNotAvailableException,
-			InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException, labelheap.InvalidTupleSizeException {
+			InvalidTripleSizeException, GetFileEntryException, ConstructPageException, AddFileEntryException, labelheap.InvalidTupleSizeException, IteratorException, HashEntryNotFoundException, InvalidFrameNumberException, PageUnpinnedException, ReplacerException, KeyTooLongException, KeyNotMatchException, LeafInsertRecException, IndexInsertRecException, UnpinPageException, PinPageException, NodeNotMatchException, ConvertException, DeleteRecException, IndexSearchException, LeafDeleteException, InsertException {
 
 		String[] inputToMain = { path, dbName, sortOption };
 		inputToMain[0] = path;
