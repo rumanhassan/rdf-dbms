@@ -1885,7 +1885,15 @@ private KeyClass _Delete ( KeyClass key,
       return scan;
     }
   
-  void trace_children(PageID id)
+  /**
+ * @param id
+ * @throws IOException
+ * @throws IteratorException
+ * @throws ConstructPageException
+ * @throws PinPageException
+ * @throws UnpinPageException
+ */
+void trace_children(PageID id)
     throws  IOException, 
 	    IteratorException, 
 	    ConstructPageException,
