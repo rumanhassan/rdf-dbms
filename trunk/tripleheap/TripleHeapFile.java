@@ -553,7 +553,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 	      // - dpinfo valid
 	      
 	      // System.out.println("find the dirpagerecord on current page");
-	      
+	
 	      pinPage(dpinfo.pageId, currentDataPage, false);
 	      //currentDataPage.openHFpage(pageinbuffer);
 	      
@@ -569,8 +569,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       if ((dpinfo.pageId).pid == INVALID_PAGE) // check error!
 	throw new THFException(null, "invalid PageId");
       
-      if (!(currentDataPage.available_space() >= recLen))
-	throw new SpaceNotAvailableException(null, "no available space");
+      //if (!(currentDataPage.available_space() >= recLen))
+	//throw new SpaceNotAvailableException(null, "no available space");
       
       if (currentDataPage == null)
 	throw new THFException(null, "can't find Data page");
@@ -779,14 +779,14 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       PageID currentDataPageId = new PageID();
       TID currentDataPageTid = new TID();
       
-      status = _findDataPage(currentDataPageTid,
+      status = _findDataPage(tid,
 			     currentDirPageId, dirPage, 
 			     currentDataPageId, dataPage,
 			     currentDataPageTid);
       
       if(status != true) return status;	// record not found
       Triple atriple = new Triple();
-      atriple = dataPage.returnTriple(currentDataPageTid);
+      atriple = dataPage.returnTriple(tid);
       
       // Assume update a record with a record whose length is equal to
       // the original record
