@@ -48,27 +48,27 @@ public class TripleUtils {
 			return 0;
 		}
 */
-		switch (fldType.attrType) {
-		case AttrType.attrSid:
+		switch (t1fieldNo) {
+		case 1:
 
 			if ((PageID) (t1.getSubjectId().pageNo) == (PageID) ((t2
 					.getSubjectId()).pageNo)
 					&& t1.getSubjectId().slotNo == (t2.getSubjectId()).slotNo) {
 				return 0;
 			}
-		case AttrType.attrOid:
+		case 2:
 			if ((PageID) (t1.getObjectId().pageNo) == (PageID) ((t2
 					.getObjectId()).pageNo)
 					&& t1.getObjectId().slotNo == (t2.getObjectId()).slotNo) {
 				return 0;
 			}
-		case AttrType.attrPid:
+		case 3:
 			if ((PageID) (t1.getPredicateId().pageNo) == (PageID) ((t2
 					.getPredicateId()).pageNo)
 					&& t1.getObjectId().slotNo == (t2.getObjectId()).slotNo) {
 				return 0;
 			}
-		case AttrType.attrValue:
+		case 4:
 			if(t1.getConfidence()==t2.getConfidence())
 			{
 				return 0;
@@ -141,17 +141,17 @@ public class TripleUtils {
 			throws IOException, UnknowAttrType, TripleUtilsException {
 
 		switch (t1_fldtype.attrType) {
-		case AttrType.attrSid:
+		case 1:
 			switch (t2_fldtype.attrType) {
 
-			case AttrType.attrOid:
+			case 3:
 
 				if ((PageID) (t1.getSubjectId().pageNo) == (PageID) ((t2
 						.getObjectId()).pageNo)
 						&& t1.getSubjectId().slotNo == (t2.getObjectId()).slotNo) {
 					return 0;
 				}
-			case AttrType.attrSid:
+			case 1:
 
 				if ((PageID) (t1.getSubjectId().pageNo) == (PageID) ((t2
 						.getSubjectId()).pageNo)
@@ -159,20 +159,20 @@ public class TripleUtils {
 					return 0;
 
 				}
-			case AttrType.attrPid:
+			case 2:
 				return 1;
 			}
-		case AttrType.attrOid:
+		case 3:
 			switch (t2_fldtype.attrType) {
 
-			case AttrType.attrOid:
+			case 3:
 
 				if ((PageID) (t1.getObjectId().pageNo) == (PageID) ((t2
 						.getSubjectId()).pageNo)
 						&& t1.getObjectId().slotNo == (t2.getSubjectId()).slotNo) {
 					return 0;
 				}
-			case AttrType.attrSid:
+			case 1:
 
 				if ((PageID) (t1.getSubjectId().pageNo) == (PageID) ((t2
 						.getSubjectId()).pageNo)
@@ -180,29 +180,29 @@ public class TripleUtils {
 					return 0;
 
 				}
-			case AttrType.attrPid:
+			case 2:
 				return 1;
 			
 		}
 
-		case AttrType.attrPid:
+		case 2:
 			switch (t2_fldtype.attrType) {
 
-			case AttrType.attrPid:
+			case 2:
 
 				if ((PageID) (t1.getPredicateId().pageNo) == (PageID) ((t2
 						.getPredicateId()).pageNo)
 						&& t1.getPredicateId().slotNo == (t2.getPredicateId()).slotNo) {
 					return 0;
 				}
-			case AttrType.attrOid:
+			case 1:
 				return 1;
-			case AttrType.attrSid:
+			case 3:
 				return 1;
 
 			}
 		
-		case AttrType.attrValue:
+		case 4:
 			if(t1.getConfidence()==t2.getConfidence())
 			{
 				return 0;
@@ -231,7 +231,7 @@ public class TripleUtils {
 	public static float Value(Triple triple) throws IOException,
 			TripleUtilsException {
 		float temp;
-		temp = triple.getConfidence();
+		temp = (float) triple.getConfidence();
 		return temp;
 	}
 
@@ -259,16 +259,16 @@ public class TripleUtils {
 		
 		
 		switch (fldType.attrType) {
-		case AttrType.attrSid:
+		case 1:
 
 			t1.setSubjectId(t2.getSubjectId());
 			
-		case AttrType.attrOid:
+		case 2:
 			t1.setObjectId(t2.getObjectId());
-		case AttrType.attrPid:
+		case 3:
 			t1.setPredicateId(t2.getPredicateId());
-		case AttrType.attrValue:
-			t1.setConfidence(t2.getConfidence());
+		case 4:
+			t1.setConfidence((float)t2.getConfidence());
 		default:
 
 			throw new UnknowAttrType(null,
