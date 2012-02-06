@@ -85,6 +85,9 @@ public class rdfDB implements GlobalConst {
 	//predicateLabelHeapFile = new LabelHeapFile("PredicateLabelHeapFile.in");
  }  
   
+public rdfDB() {
+	// TODO Auto-generated constructor stub
+}
 public int getTripleCnt() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, IOException, InvalidTripleSizeException{
 	 return tripleHeapFile.getRecCnt();
  }
@@ -94,10 +97,10 @@ public int getEntityCnt() throws labelheap.InvalidSlotNumberException, InvalidLa
 public int getPredicateCnt() throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException, IOException{
 	  return predicateLabelHeapFile.getLabelCnt();
   }
-  /*int getSubjectCnt(){
+  /*public int getSubjectCnt(){
 	  return SubjectCnt;
   }
-  int Objectcnt(){
+  public int Objectcnt(){
 	  return ObjectCnt;
   }*/
 public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException, InvalidTripleSizeException {
@@ -1099,15 +1102,19 @@ class DBFirstPage extends DBHeaderPage {
 /**
  * DBDirectoryPage class which is a subclass of DBHeaderPage class
  */
-class DBDirectoryPage extends DBHeaderPage  { public static final int TripleCnt = 0;
-public static final int EntityCnt = 0;
-public static final int PredicateCnt = 0;
-public static final int SubjectCnt = 0;
-public static final int ObjectCnt = 0;
+class DBDirectoryPage extends DBHeaderPage  { public static int TripleCnt = 0;
+public static int EntityCnt = 0;
+public static int PredicateCnt = 0;
+public static int SubjectCnt = 0;
+public static int ObjectCnt = 0;
 
 //implements PageUsedBytes
 
-  /**
+public int totalTripleCnt()
+{ return TripleCnt;
+}
+
+/**
    * Default constructor
    */
   public DBDirectoryPage ()  { super(); }
