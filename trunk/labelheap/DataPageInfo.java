@@ -79,11 +79,11 @@ class DataPageInfo implements GlobalConst{
        throws InvalidLabelSizeException, IOException, InvalidTupleSizeException
   {   
      // need check _atuple size == this.size ?otherwise, throw new exception
-    if (_aLabel.getLength()!=12){
-      throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR");
-    }
+    //if (_aLabel.getLength()!=12){
+      //throw new InvalidTupleSizeException(null, "HEAPFILE: TUPLE SIZE ERROR");
+    //}
 
-    else{
+    
       data = _aLabel.returnLabelByteArray();
       offset = _aLabel.getOffset();
       
@@ -92,7 +92,6 @@ class DataPageInfo implements GlobalConst{
       pageId = new PageID();
       pageId.pid = Convert.getIntValue(offset+8, data);
       
-    }
   }
   
   

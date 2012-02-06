@@ -24,8 +24,17 @@ public class Label implements GlobalConst{
    * start position of this label in data[]
    */
   private int label_offset;
+  private String label;
 
-  /**
+  public String getLabel() {
+	return label;
+}
+
+public void setLabel(String label) {
+	this.label = label;
+}
+
+/**
    * length of this label
    */
   private int label_length;
@@ -114,7 +123,7 @@ public class Label implements GlobalConst{
     * @param length the length of the label
     */
 
-   public void labelInit(byte [] alabel, int offset, int length)
+   public void initLabel(byte [] alabel, int offset, int length)
    {
       data = alabel;
       label_offset = offset;
@@ -127,7 +136,7 @@ public class Label implements GlobalConst{
   * @param	offset  the offset of the label ( =0 by default)
   * @param	length	the length of the label
   */
- public void labelSet(byte [] record, int offset, int length)  
+ public void setLabel(byte [] record, int offset, int length)  
   {
       System.arraycopy(record, offset, data, 0, length);
       label_offset = 0;
