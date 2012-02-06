@@ -546,10 +546,14 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 		// length of label being returned
 		labLen = getSlotLength(slotNo);
 		slotCnt = Convert.getShortValue(SLOT_CNT, data);
-		 if (( slotNo >=0) && (slotNo < slotCnt) && (labLen >0) 
+		 if (( slotNo >=0) && (slotNo < slotCnt) 
 				  && (pageNo.pid == curPage.pid))
 				{
 				  offset = getSlotOffset (slotNo);
+				  if(labLen==0)
+				  {
+					  labLen=20;
+				  }
 				  label = new byte[labLen];
 				  System.arraycopy(data, offset, label, 0, labLen);
 				  Label tuple = new Label(label, 0, labLen);
