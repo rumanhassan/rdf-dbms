@@ -23,6 +23,7 @@ import diskmgr.Stream;
 import diskmgr.rdfDB;
 import global.*;
 import btree.*;
+
 /**
  * @author shodhan
  * 
@@ -33,17 +34,18 @@ public class testProject {
 	 * @param args
 	 */
 	static Pattern p = Pattern.compile("^[A-Za-z0-9]+$");
-	
+public static boolean excase=false;
 	public static void main(String[] args) throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
 		// TODO Auto-generated method stub
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				System.in));
 
 		for (;;) {
-			System.out.println("[1] Batch Insert");
+			System.out.println("[1] Batch Insert using unclusterd Btree");
 			System.out.println("[2] Query your Database ");
 			System.out.println("[3] Quit");
-			System.out.println("[4] print btree");
+			System.out.println("[4] report Database statistics");
+			System.out.println("[5] Batch insert on Heap Tree");
 			System.out.println("Select your option: ");
 			String selectedOption = null;
 			try {
@@ -51,6 +53,7 @@ public class testProject {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			try{
 			switch (Integer.parseInt(selectedOption)) {
 			case 1:
 				String filePath = null;
@@ -92,7 +95,7 @@ public class testProject {
 					break;
 				}
 				if (filePath != null && DBName != null && indexOption != null) {
-					BatchInsert.run(filePath, DBName, indexOption);
+					BatchInsert.run(filePath, DBName, indexOption,excase);
 					
 				} else {
 					System.out.println("please enter valid details to insert");
@@ -216,13 +219,66 @@ public class testProject {
 				System.out.println("exiting....");
 				System.exit(0);
 
-				System.out
-						.println("You entered an invalid option:please enter again");
 				break;
 			case 4:
-				System.out.println("printing BTREE....");
+				System.out.println("not yed coded");
+			//=================================
+			case 5:
+				excase=true;
+				String filePath2 = null;
+				String DBName2 = null;
+				String indexOption2 = null;
+				System.out.println("enter filepath to insert");
+				try {
+					filePath2 = reader.readLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				File f2 = new File(filePath2);
+				System.out
+						.println(f2
+								+ (f2.exists() ? " file is found "
+										: " file is missing "));
+				if (f2.exists() == false)
+					break;
+				System.out.println("enter RDFDBNAME");
+				try {
+					DBName2 = reader.readLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				if (!match(DBName2)) {
+					System.out.println("Database not found");
+					break;
+				}
+				System.out.println("enter Index option : 1--unclusterd Tree");
+				try {
+					indexOption2 = reader.readLine();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				int intIndexOption2 = Integer.parseInt(indexOption2);
+				if (intIndexOption2 != 1) {
+					System.out.println("invalid index option");
+					break;
+				}
+				if (filePath2 != null && DBName2 != null && indexOption2 != null) {
+					BatchInsert.run(filePath2, DBName2, indexOption2,excase);
+					
+				} else {
+					System.out.println("please enter valid details to insert");
+				}
+				
+				break;
 			}
+			}
+			catch(Exception E)
+			{
+				System.err.print("You entered an invalid option:please enter again or try again");
+			}
+
 		}
+
 	}
 
 	static boolean match(String s) {
