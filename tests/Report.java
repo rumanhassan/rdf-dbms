@@ -26,13 +26,32 @@ public class Report {
  * @throws LHFDiskMgrException 
  * @throws InvalidLabelSizeException 
  */
-public void printreport() throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, InvalidTripleSizeException, IOException, labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException
+public void printreport() //throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, InvalidTripleSizeException, IOException, labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException
 {
 	rdfDB r = new rdfDB();
 System.out.println(" Various statistics of RDF Database " );
-System.out.println(" Total number of Triples is " + r.getTripleCnt());
-System.out.println(" Total number of Entities is " + r.getEntityCnt());
-System.out.println(" Total number of Predicates is " + r.getPredicateCnt());
+try {
+	System.out.println(" Total number of Triples is " + r.getTripleCnt());
+} catch (InvalidSlotNumberException | InvalidTupleSizeException
+		| THFDiskMgrException | THFBufMgrException | InvalidTripleSizeException
+		| IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+try {
+	System.out.println(" Total number of Entities is " + r.getEntityCnt());
+} catch (labelheap.InvalidSlotNumberException | InvalidLabelSizeException
+		| LHFDiskMgrException | LHFBufMgrException | IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
+try {
+	System.out.println(" Total number of Predicates is " + r.getPredicateCnt());
+} catch (labelheap.InvalidSlotNumberException | InvalidLabelSizeException
+		| LHFDiskMgrException | LHFBufMgrException | IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
 System.out.println(" Total number of Disk Pages that were read is " + (new PCounter()).rcounter);
 System.out.println(" Total number of Disk Pages that were written is " + (new PCounter()).wcounter);
 }
