@@ -3,6 +3,7 @@
 package diskmgr;
 
 import java.io.*;
+
 import global.*;
 import btree.*;
 import bufmgr.*;
@@ -66,72 +67,106 @@ public class Stream implements GlobalConst{
 	  this.objectFilter = objectFilter;
 	  this.confidenceFilter = confidenceFilter;
 	  processFilters(subjectFilter, predicateFilter,objectFilter, confidenceFilter);
-	//initiate a scan of the whole index file, assume that the btree is in sorted order
+	//initiate a scan of the whole index file, assumes that the btree is in sorted order
 	  btScan = rdfDataBase.bTreeIndexFile.new_scan(null, null); 
   }
   
-  /** Retrieve the next triple in the stream
-   *
-   * @param tid Triple ID of the triple
-   * @return the Triple object with the specified TID. If no such triple 
-   * 		exists, return null.
- * @throws Exception 
- * @throws THFBufMgrException 
- * @throws THFDiskMgrException 
- * @throws THFException 
- * @throws InvalidTupleSizeException 
- * @throws InvalidSlotNumberException 
-   */
-  public Triple getNext() 
-    throws InvalidSlotNumberException, InvalidTupleSizeException, THFException, THFDiskMgrException, THFBufMgrException, Exception
-  {
-    Triple recptrtriple = null;
-  
-    // 1. Use rdfDataBase's b-tree structure to get the next Triple from the
-    //    triple heap file.   
-    LeafData dummyLeaf = null;
-    DataClass indexData = dummyLeaf; // upcast, hopefully some Java magic will happen soon...
-    indexData = btScan.get_next().data;  // when scanning the btree, type DataClass is returned
-    LeafData newLeaf = (LeafData)indexData; // MAGIC, downcasting is allowed since indexData references a LeafData object
-    //LeafData idxRecordData = (LeafData) btScan.get_next().data; //must cast DataClass to LeafData
-    if(newLeaf == null) // we have reached the end of the scan
-    	return null; 
-    else {    
-	    GENID genericID = newLeaf.getData();
-	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
-	    recptrtriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
-	    
-	 // 2. Check that the triple's data matches the filter
+	/** Retrieve the next triple in the stream by using the rdfDataBase's 
+	 *  b-tree structure to get the next Triple from the triple heap file  
+	 * @return The next Triple that matches the filter criteria, null if
+	 *         we have reached the end of the heap file
+	*/
+	public Triple getNext() 
+	  {
+		Triple aTriple = null;
+		
+	    // Just don't want to initialize these each time we iterate later
+		LeafData dummyLeaf = null;
+	    DataClass indexData = dummyLeaf; // upcast, hopefully some Java magic will happen soon...
+	    KeyDataEntry keyData = null;
 	    boolean weHaveAMatch = false;
-	    //---------------------------------------------
-	    EID subjEntity = recptrtriple.getSubjectId();	    
-	    // maybe later we can just call subjEntity.returnLID();
-	    LID subjLabel = new LID(subjEntity.pageNo, subjEntity.slotNo);	    
-	    String subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
-	    //---------------------------------------------
-	    PID currPred = recptrtriple.getPredicateId();	  
-	    // maybe later we can just call currPred.returnLID();
-	    LID predLabel = new LID(currPred.pageNo, subjEntity.slotNo);	    
-	    String predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
-	    //---------------------------------------------
-	    EID objEntity = recptrtriple.getObjectId();	    
-	    // maybe later we can just call objEntity.returnLID();
-	    LID objLabel = new LID(objEntity.pageNo, objEntity.slotNo);	    
-	    String objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
 	    
-	    weHaveAMatch = tripleDataMatchesFilter(subjStr, objStr, predStr, confidenceFilter);
-	 // 3. Return the triple with matching TID
-	    if(weHaveAMatch)
-	    	return recptrtriple;
-	    else // no matches, keep moving down the line
-	    	return getNext();	    
-    }
-  }
+	    EID subjEntity = null;
+	    LID subjLabel = null;
+	    String subjStr = null;
+	    PID currPred = null;	  
+	    LID predLabel = null;	    
+	    String predStr = null;
+	    EID objEntity = null;	    
+	    LID objLabel = null;	    
+	    String objStr = null;    
+	    
+	    do { // iterate here
+	    	try {
+				keyData = btScan.get_next();
+			} catch (ScanIteratorException e) {
+				System.out.println("STREAM: error when attempting to get next btree leaf node");
+				e.printStackTrace();
+			} // no matches yet, keep moving down the line
+	    	if(keyData != null) // we have not yet reached the end of the scan
+	    	{
+	    		indexData = keyData.data;  // when scanning the btree, type DataClass is returned
+	            LeafData currTreeNode = (LeafData)indexData; // MAGIC, downcasting is allowed since indexData references a LeafData object
+	
+	    	    try {    	    	
+		    	    // 2. Check that the triple's data matches the filter  
+		            GENID genericID = currTreeNode.getData();
+		      	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
+		      	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);    	      	    
+		      	    //---------------------------------------------
+		      	    subjEntity = aTriple.getSubjectId();
+		      	    subjLabel = subjEntity.returnLID();    
+		      	    subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
+		      	    //---------------------------------------------
+		      	    currPred = aTriple.getPredicateId();	  
+		      	    predLabel = currPred.returnLID();	    
+		      	    predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
+		      	    //---------------------------------------------
+		      	    objEntity = aTriple.getObjectId();	    
+		      	    objLabel = objEntity.returnLID();	    
+		      	    objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
+				} catch (InvalidSlotNumberException e) {
+					System.out.println("STREAM: error attempting access to triple heap file");
+					e.printStackTrace();
+				} catch (InvalidTupleSizeException e) {
+					System.out.println("STREAM: Invalid Triple size???");
+					e.printStackTrace();
+				} catch (THFException e) {
+					System.out.println("STREAM: error attempting access to triple heap file");
+					e.printStackTrace();
+				} catch (THFDiskMgrException e) {
+					System.out.println("STREAM: error attempting access to triple heap file");
+					e.printStackTrace();
+				} catch (THFBufMgrException e) {
+					System.out.println("STREAM: error attempting access to triple heap file");
+					e.printStackTrace();
+				} catch (Exception e) {
+					System.out.println("STREAM: error when attempting to get next btree leaf node");
+					e.printStackTrace();
+				}    	      	    	    
+	
+	    	    // Check that the triple's data matches the filter
+	    	    weHaveAMatch = tripleDataMatchesFilter(subjStr, objStr, predStr, confidenceFilter);
+	    	 
+	    	    if(weHaveAMatch)
+	    	    	keyData = null; // to break out of the do-while
+	    	}
+	   } while (keyData != null);
+	    
+	    return aTriple; // Return the triple with matching TID, null if no more matching triples    
+	  } // end getNext method
 
-    /** Closes the Stream object */
-    public void closeStream()
+    /** Closes the Stream object, performs necessary cleanup 
+     * @throws IOException 
+     * @throws HashEntryNotFoundException 
+     * @throws PageUnpinnedException 
+     * @throws ReplacerException 
+     * @throws InvalidFrameNumberException */
+    public void closeStream() 
+    throws 	InvalidFrameNumberException, ReplacerException, 
+    		PageUnpinnedException, HashEntryNotFoundException, IOException
     {
-    	// TODO Write code to perform cleanup
+    	btScan.DestroyBTreeFileScan();
     }
     
     /** Sets the filtersIncluded array to keep track of which filters are used
@@ -193,56 +228,5 @@ public class Stream implements GlobalConst{
     	
     	return matches;    	
     }
-    
-    public Triple getNextIterative() 
-    throws InvalidSlotNumberException, InvalidTupleSizeException, THFException,
-    	   THFDiskMgrException, THFBufMgrException, Exception
-  {
-    Triple aTriple = null;
-
-    LeafData idxRecordData = (LeafData) btScan.get_next().data; //must cast DataClass to LeafData
-    while(idxRecordData != null) // while we have not yet reached the end of the BTFileScan
-    {
-    	idxRecordData = (LeafData) btScan.get_next().data;
-    	GENID genericID = idxRecordData.getData();
-	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
-	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
-    }
-    return aTriple;
-//    if(idxRecordData == null) // we have reached the end of the scan
-//    	return null; 
-//    else {    
-//	    GENID genericID = idxRecordData.getData();
-//	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
-//	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
-//	    
-//	 // 2. Check that the triple's data matches the filter
-//	    boolean weHaveAMatch = false;
-//	    //---------------------------------------------
-//	    EID subjEntity = aTriple.getSubjectId();	    
-//	    // maybe later we can just call subjEntity.returnLID();
-//	    LID subjLabel = new LID(subjEntity.pageNo, subjEntity.slotNo);	    
-//	    String subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
-//	    //---------------------------------------------
-//	    PID currPred = aTriple.getPredicateId();	  
-//	    // maybe later we can just call currPred.returnLID();
-//	    LID predLabel = new LID(currPred.pageNo, subjEntity.slotNo);	    
-//	    String predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
-//	    //---------------------------------------------
-//	    EID objEntity = aTriple.getObjectId();	    
-//	    // maybe later we can just call objEntity.returnLID();
-//	    LID objLabel = new LID(objEntity.pageNo, objEntity.slotNo);	    
-//	    String objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
-//	    
-//	    weHaveAMatch = tripleDataMatchesFilter(subjStr, objStr, predStr, confidenceFilter);
-//	 // 3. Return the triple with matching TID
-//	    if(weHaveAMatch)
-//	    	return aTriple;
-//	    else // no matches, keep moving down the line
-//	    	return getNext();	    
-//    	}
-    
-  }
-    
   
 } // end of class Stream
