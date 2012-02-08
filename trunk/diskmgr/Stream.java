@@ -110,8 +110,8 @@ public class Stream implements GlobalConst{
 	
 	    	    try {    	    	
 		    	    // 2. Check that the triple's data matches the filter  
-		            GENID genericID = currTreeNode.getData();
-		      	    TID tripleID = new TID(genericID.pageNo, genericID.slotNo);
+		            TID myTID = currTreeNode.getData();
+		      	    TID tripleID = new TID(myTID.pageNo, myTID.slotNo);
 		      	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);    	      	    
 		      	    //---------------------------------------------
 		      	    subjEntity = aTriple.getSubjectId();
