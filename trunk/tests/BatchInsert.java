@@ -125,7 +125,7 @@ public class BatchInsert {
 			TripleHeapFile tripleFileObj= new TripleHeapFile("file_1");
 			LabelHeapFile entlabelfileObj= new LabelHeapFile("file_2");
 			LabelHeapFile prelabelFileObj= new LabelHeapFile("file_3");
-			LabelHeapFile dummyLabelFileObj= new LabelHeapFile("file_4");
+			TripleHeapFile dummyLabelFileObj= new TripleHeapFile("file_4");
 			String[] fileArray;
 			System.out.println("inserting file at " + args[0] + " in "
 					+ args[1] + "...");
@@ -266,11 +266,14 @@ public class BatchInsert {
 				tripObj.setSubjectId(senID);
 				tripObj.setPredicateId(penID);
 				tripObj.setObjectId(oenID);
-				tripleObj.setConfidence(Float.parseFloat(confidence));
-				triplebyte = tripObj.getTripleByteArray();
-				LID dummyTriple=new LID();
+				tripObj.setConfidence(Float.parseFloat(confidence));
+				
+				triplebyte = getTripleByteArray(tripObj);
+				
+				
+				TID dummyTriple=new TID();
 				//tripID = dummyLabelFileObj.insertLabel(triplebyte);
-				dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
+				dummyTriple = dummyLabelFileObj.insertTriple(triplebyte);
 				System.out.println("inserted..SID is  p: " + subID.pageNo + " "
 						+ " S "+subID.slotNo);
 				System.out.println("inserted..PID is p: " + objID.pageNo + " "
@@ -388,5 +391,27 @@ public class BatchInsert {
 		main(inputToMain);
 	}
 
+	 private static byte [] getTripleByteArray(Triple tripObj) 
+	   {
+		   byte[] triplecopy = new byte[28];
+			try {	
+			Convert.setIntValue(tripObj.subjectId.slotNo, 0, triplecopy);
+			Convert.setIntValue(tripObj.subjectId.pageNo.pid, 1, triplecopy);
+			Convert.setIntValue(tripObj.predicateId.slotNo, 2, triplecopy);
+			Convert.setIntValue(tripObj.predicateId.pageNo.pid, 3, triplecopy);
+			Convert.setIntValue(tripObj.objectId.slotNo, 4, triplecopy);
+			Convert.setIntValue(tripObj.objectId.pageNo.pid, 5, triplecopy);
+			Convert.setFloValue(tripObj.value, 6, triplecopy);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return triplecopy;
+	       /*byte [] triplecopy = new byte [triple_length];
+	       System.arraycopy(data, triple_offset, triplecopy, 0, triple_length);
+	       return triplecopy;*/
+	   }
+	
+	
 	
 }
