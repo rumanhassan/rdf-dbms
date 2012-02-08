@@ -5,7 +5,7 @@ package labelheap;
 
 
 import global.*;
-import heap.Tuple;
+import tripleheap.*;
 
 import java.io.*;
 

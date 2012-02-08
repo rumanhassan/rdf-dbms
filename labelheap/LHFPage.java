@@ -6,7 +6,7 @@ import java.io.*;
 import java.lang.*;
 
 import global.*;
-import heap.Tuple;
+import tripleheap.*;
 import diskmgr.*;
 
 /**
@@ -533,7 +533,7 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 	 *                I/O errors
 	 * @see Label
 	 */
-	public Label getlabel(LID lid) throws IOException,
+	public Label getLabel(LID lid) throws IOException,
 			InvalidSlotNumberException {
 		short labLen;
 		short offset;

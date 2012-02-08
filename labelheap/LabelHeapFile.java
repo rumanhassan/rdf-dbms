@@ -113,7 +113,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	       currentDataPageLid = currentDirPage.nextLabel(currentDataPageLid))
 	    {
 	      try{
-		atuple = currentDirPage.getlabel(currentDataPageLid);
+		atuple = currentDirPage.getLabel(currentDataPageLid);
 	      }
 	      catch (InvalidSlotNumberException e)// check error! return false(done) 
 		{
@@ -320,7 +320,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	        lid != null;	// rid==NULL means no more record
 	        lid = currentDirPage.nextLabel(lid))
 	     {
-	       aLabel = currentDirPage.getlabel(lid);
+	       aLabel = currentDirPage.getLabel(lid);
 	       DataPageInfo dpinfo;
 
 	       dpinfo = new DataPageInfo(aLabel);	       
@@ -394,7 +394,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	       currentDataPageLid = 
 		 currentDirPage.nextLabel(currentDataPageLid))
 	    {
-	      aLabel = currentDirPage.getlabel(currentDataPageLid);
+	      aLabel = currentDirPage.getLabel(currentDataPageLid);
 	      
 	      dpinfo = new DataPageInfo(aLabel);
 	      
@@ -832,7 +832,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       if(status != true) return null; // record not found 
       
       Label aLabel = new Label();
-      aLabel = dataPage.getlabel(lid);
+      aLabel = dataPage.getLabel(lid);
       
       /*
        * getRecord has copied the contents of rid into recPtr and fixed up
@@ -853,11 +853,12 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
   /** Initiate a sequential scan.
    * @exception InvalidLabelSizeException Invalid tuple size
    * @exception IOException I/O errors
+ * @throws InvalidTupleSizeException 
    *
    */
   public LScan openScan() 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
     {
       LScan newscan = new LScan(this);
       return newscan;
@@ -908,7 +909,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	      lid != null;
 	      lid = currentDirPage.nextLabel(lid))
 	    {
-	      aLabel = currentDirPage.getlabel(lid);
+	      aLabel = currentDirPage.getLabel(lid);
 	      DataPageInfo dpinfo = new DataPageInfo(aLabel);
 	      //int dpinfoLen = arecord.length;
 	      
