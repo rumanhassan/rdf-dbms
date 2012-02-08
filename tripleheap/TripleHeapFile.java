@@ -369,7 +369,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
    */
   public TID insertTriple(byte[] recPtr) 
     throws InvalidSlotNumberException,  
-	   InvalidTupleSizeException,
+	   InvalidTripleSizeException,
 	   SpaceNotAvailableException,
 	   THFException,
 	   THFBufMgrException,
@@ -458,15 +458,21 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		  // calling a HFPage function
 		  
 		  
-		  
 		  atriple = dpinfo.convertToTriple();
 		  
 		  byte [] tmpData = atriple.getTripleByteArray();
 		  currentDataPageTid = currentDirPage.insertTriple(tmpData);
+		  Page newPage= new Page(tmpData);
 		  
 		  TID tmptid = currentDirPage.firstTriple();
 		  
-		  
+		  try{
+			  SystemDefs.JavabaseDB.write_page(currentDataPageTid.pageNo, newPage);
+		  }
+		  catch(Exception e)
+		  {
+			  e.printStackTrace();
+		  }
 		  // need catch error here!
 		  if(currentDataPageTid == null)
 		    throw new THFException(null, "no space to insert rec.");  
@@ -569,8 +575,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       if ((dpinfo.pageId).pid == INVALID_PAGE) // check error!
 	throw new THFException(null, "invalid PageId");
       
-      //if (!(currentDataPage.available_space() >= recLen))
-	//throw new SpaceNotAvailableException(null, "no available space");
+      if (!(currentDataPage.available_space() >= recLen))
+	throw new SpaceNotAvailableException(null, "no available space");
       
       if (currentDataPage == null)
 	throw new THFException(null, "can't find Data page");
@@ -766,7 +772,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   public boolean updateRecord(TID tid, Triple newtriple) 
     throws InvalidSlotNumberException, 
 	   InvalidUpdateException, 
-	   InvalidTupleSizeException,
+	   InvalidTripleSizeException,
 	   THFException, 
 	   THFDiskMgrException,
 	   THFBufMgrException,
@@ -892,10 +898,10 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
   public void deleteFile()  
     throws InvalidSlotNumberException, 
 	   FileAlreadyDeletedException, 
-	   InvalidTupleSizeException, 
+	   InvalidTripleSizeException, 
 	   THFBufMgrException,
 	   THFDiskMgrException,
-	   IOException, InvalidTripleSizeException
+	   IOException
     {
       if(_file_deleted ) 
    	throw new FileAlreadyDeletedException(null, "file alread deleted");

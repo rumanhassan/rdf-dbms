@@ -547,11 +547,12 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 		tripLen = getSlotLength(slotNo);
 		slotCnt = Convert.getShortValue(SLOT_CNT, data);
 		if ((slotNo >= 0) && (slotNo < slotCnt) && (tripLen > 0)
-				&& (pageNo.pid == curPage.pid)) {
+				&& (pageNo.pid == curPage.pid)) 
+		{
 			offset = getSlotOffset(slotNo);
 			tripleArray = new byte[tripLen];
 			System.arraycopy(data, offset, tripleArray, 0, tripLen);
-			Triple triple = new Triple(tripleArray, 0); /*imp*/
+			Triple triple = new Triple(tripleArray, 0, tripLen); /*imp*/
 			return triple;
 		}
 
@@ -579,7 +580,6 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 			InvalidSlotNumberException {
 		short tripLen;
 		short offset;
-		byte[] tripleArray;
 		PageID pageNo = new PageID();
 		pageNo.pid = tid.pageNo.pid;
 		curPage.pid = Convert.getIntValue(CUR_PAGE, data);
@@ -588,12 +588,13 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 		// length of triple being returned
 		tripLen = getSlotLength(slotNo);
 		slotCnt = Convert.getShortValue(SLOT_CNT, data);
+		
 		if ((slotNo >= 0) && (slotNo < slotCnt) && (tripLen > 0)
 				&& (pageNo.pid == curPage.pid)) {
+			
+			
 			offset = getSlotOffset(slotNo);
-			tripleArray = new byte[tripLen];
-			System.arraycopy(data, offset, tripleArray, 0, tripLen); /*imp*/
-			Triple triple = new Triple(tripleArray, 0);
+			Triple triple = new Triple(data, offset, tripLen);
 			return triple;
 		}
 
