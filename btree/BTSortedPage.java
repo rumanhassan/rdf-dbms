@@ -174,7 +174,7 @@ public class BTSortedPage  extends THFPage{
    */
   public  boolean deleteSortedRecord(TID genid)
     throws DeleteRecException
-    {TID tid = null;
+    {TID tid = new TID();
       try {
 	tid.pageNo = genid.pageNo;
 	tid.slotNo = genid.slotNo;
@@ -188,6 +188,7 @@ public class BTSortedPage  extends THFPage{
 	if (e instanceof InvalidSlotNumberException)
 	  return false;
 	else
+		e.printStackTrace();
 	  throw new DeleteRecException(e, "delete record failed");
       }
     } // end of deleteSortedRecord

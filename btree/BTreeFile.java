@@ -407,8 +407,8 @@ public class BTreeFile extends IndexFile implements GlobalConst {
 
 	{
 		KeyDataEntry newRootEntry;
-
-		if (BT.getKeyLength(key) > 50)
+		System.out.println(key);
+		if (BT.getKeyLength(key) > 100)
 			throw new KeyTooLongException(null, "");
 
 		if (key instanceof StringKey) {
