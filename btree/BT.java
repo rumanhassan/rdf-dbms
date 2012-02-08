@@ -97,7 +97,7 @@ public class BT  implements GlobalConst{
   
   /** It gets the length of the data 
    *@param  pageType  NodeType.LEAF or  NodeType.INDEX. Input parameter.
-   *@return return 8 if it is of NodeType.LEAF; 
+   *@return return 8 if it is of NodeType.LEA; 
    *  return 4 if it is of NodeType.INDEX.
    *@exception  NodeNotMatchException pageType is neither NodeType.LEAF 
    *  nor NodeType.INDEX.
@@ -136,7 +136,7 @@ public class BT  implements GlobalConst{
    *@param keyType It specifies the type of key. It can be 
    *               AttrType.attrString or AttrType.attrInteger.
    *               Input parameter. 
-   *@param nodeType It specifies NodeType.LEAF or NodeType.INDEX. 
+   *@param nodeType It specifes NodeType.LEAF or NodeType.INDEX. 
    *                Input parameter.
    *@param length  The length of (key, data) in byte array "from".
    *               Input parameter.
@@ -164,7 +164,7 @@ public class BT  implements GlobalConst{
 	}
 	else if ( nodeType==NodeType.LEAF) {
 	  n=8;
-	  GENID genid=new GENID();
+	  TID genid=new TID();
 	  genid.slotNo =   Convert.getIntValue(offset+length-8, from);
 	  genid.pageNo =new PageID();
 	  genid.pageNo.pid= Convert.getIntValue(offset+length-4, from); 
@@ -280,7 +280,7 @@ public class BT  implements GlobalConst{
         System.out.println("Current Page ID: "+ indexPage.getCurPage().pid);
         System.out.println("Left Link      : "+ indexPage.getLeftLink().pid);
 	
-        GENID genid=new GENID();
+        TID genid=new TID();
 	
         for(KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
 	    entry=indexPage.getNext(genid)){
@@ -305,7 +305,7 @@ public class BT  implements GlobalConst{
         System.out.println("Left Link      : "+ leafPage.getPrevPage().pid);
         System.out.println("Right Link     : "+ leafPage.getNextPage().pid);
 	
-        GENID genid=new GENID();
+        TID genid=new TID();
 	
         for(KeyDataEntry entry=leafPage.getFirst(genid); entry!=null; 
 	    entry=leafPage.getNext(genid)){
@@ -402,7 +402,7 @@ private static void _printTree(PageID currentPageId, String prefix, int i,
 	System.out.println(i+prefix+ indexPage.getPrevPage());
 	_printTree( indexPage.getPrevPage(), prefix, i, keyType);
 	
-	GENID genid=new GENID();
+	TID genid=new TID();
 	for( KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
 	     entry=indexPage.getNext(genid)) {
 	  System.out.println(i+prefix+(IndexData)entry.data);
@@ -481,7 +481,7 @@ private static void _printAllLeafPages(PageID currentPageId,  int keyType)
 	
 	_printAllLeafPages( indexPage.getPrevPage(),  keyType);
 	
-	GENID genid=new GENID();
+	TID genid=new TID();
 	for( KeyDataEntry entry=indexPage.getFirst(genid); entry!=null; 
 	     entry=indexPage.getNext(genid)) {
 	  _printAllLeafPages( ((IndexData)entry.data).getData(),  keyType);
@@ -496,9 +496,3 @@ private static void _printAllLeafPages(PageID currentPageId,  int keyType)
       SystemDefs.JavabaseBM.unpinPage(currentPageId , true/*dirty*/);
     }
 } // end of BT
-
-
-
-
-
-
