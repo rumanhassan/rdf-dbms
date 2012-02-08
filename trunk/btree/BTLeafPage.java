@@ -14,7 +14,7 @@ import tripleheap.*;
 
 /**
  * A BTLeafPage is a leaf page on a B+ tree.  It holds abstract 
- * <key, GENID> pairs; it doesn't know anything about the keys 
+ * <key, TID> pairs; it doesn't know anything about the keys 
  * (their lengths or their types), instead relying on the abstract
  * interface consisting of BT.java.
  */
@@ -72,7 +72,7 @@ public class BTLeafPage extends BTSortedPage {
 
   
   /** insertRecord
-   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO GENIDs
+   * READ THIS DESCRIPTION CAREFULLY. THERE ARE TWO TIDs
    * WHICH MEAN TWO DIFFERENT THINGS.
    * Inserts a key, genid value into the leaf node. This is
    * accomplished by a call to SortedPage::insertRecord()
@@ -86,7 +86,7 @@ public class BTLeafPage extends BTSortedPage {
    *           i.e., the <key, dataGenid> pair.
    *@exception  LeafInsertRecException error when insert
    */   
-  public GENID insertRecord(KeyClass key, GENID dataGenid) 
+  public TID insertRecord(KeyClass key, TID dataGenid) 
     throws  LeafInsertRecException
     {
       KeyDataEntry entry;
@@ -111,7 +111,7 @@ public class BTLeafPage extends BTSortedPage {
    * null if no more record
    *@exception  IteratorException iterator error
    */
-  public KeyDataEntry getFirst(GENID genid) 
+  public KeyDataEntry getFirst(TID genid) 
     throws  IteratorException
     {
       
@@ -146,7 +146,7 @@ public class BTLeafPage extends BTSortedPage {
     *@exception IteratorException iterator error
     */
 
-   public KeyDataEntry getNext (GENID genid)
+   public KeyDataEntry getNext (TID genid)
      throws  IteratorException
    {
      KeyDataEntry  entry; 
@@ -180,7 +180,7 @@ public class BTLeafPage extends BTSortedPage {
    *@return return the current KeyDataEntry
    *@exception  IteratorException iterator error
    */ 
-   public KeyDataEntry getCurrent (GENID genid)
+   public KeyDataEntry getCurrent (TID genid)
        throws  IteratorException
    {  
      genid.slotNo--;
@@ -198,7 +198,7 @@ public class BTLeafPage extends BTSortedPage {
      throws  LeafDeleteException
     {
       KeyDataEntry  entry;
-      GENID genid=new GENID(); 
+      TID genid=new TID(); 
       
       try {
 	for(entry = getFirst(genid); entry!=null; entry=getNext(genid)) 
@@ -251,7 +251,7 @@ public class BTLeafPage extends BTSortedPage {
 	    
 	    
             //get its sibling's first record's key for adjusting parent pointer
-            GENID dummyGenid=new GENID();
+            TID dummyGenid=new TID();
             KeyDataEntry firstEntry;
             firstEntry=leafPage.getFirst(dummyGenid);
 
@@ -259,7 +259,7 @@ public class BTLeafPage extends BTSortedPage {
             leafPage.insertRecord(lastEntry);
             
             // delete the last record from the old page
-            GENID delGenid=new GENID();
+            TID delGenid=new TID();
             delGenid.pageNo = getCurPage();
             delGenid.slotNo = getSlotCnt()-1;
             if ( deleteSortedRecord(delGenid) == false )
@@ -292,12 +292,12 @@ public class BTLeafPage extends BTSortedPage {
 					    NodeType.LEAF);
 	    
             // insert it into its sibling
-            GENID dummyGenid=new GENID();
+            TID dummyGenid=new TID();
             leafPage.insertRecord(firstEntry);
             
 
             // delete the first record from the old page
-            GENID delGenid=new GENID();
+            TID delGenid=new TID();
             delGenid.pageNo = getCurPage();
             delGenid.slotNo = 0;
             if ( deleteSortedRecord(delGenid) == false) 
@@ -324,28 +324,3 @@ public class BTLeafPage extends BTSortedPage {
     } // end of redistribute
   
 } // end of BTLeafPage
-
-    
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

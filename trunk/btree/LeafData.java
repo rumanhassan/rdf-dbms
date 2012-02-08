@@ -5,7 +5,7 @@ import global.*;
  *   It defines the data "genid" for leaf node in B++ tree.
  */
 public class LeafData extends DataClass {
-  private GENID myGenid;
+  private TID myGenid;
 
   public String toString() {
      String s;
@@ -17,15 +17,15 @@ public class LeafData extends DataClass {
   /** Class constructor
    *  @param    genid  the data genid
    */
-  LeafData(GENID genid) {myGenid= new GENID(genid.pageNo, genid.slotNo);};  
+  LeafData(TID genid) {myGenid= new TID(genid.pageNo, genid.slotNo);};  
 
   /** get a copy of the genid
   *  @return the reference of the copy 
   */
-  public GENID getData() {return new GENID(myGenid.pageNo, myGenid.slotNo);};
+  public TID getData() {return new TID(myGenid.pageNo, myGenid.slotNo);};
 
   /** set the genid
    */ 
-  public void setData(GENID genid) { myGenid= new GENID(genid.pageNo, genid.slotNo);};
+  public void setData(TID genid) { myGenid= new TID(genid.pageNo, genid.slotNo);};
 }   
 

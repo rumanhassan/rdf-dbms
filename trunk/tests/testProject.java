@@ -33,6 +33,7 @@ public class testProject {
 	/**
 	 * @param args
 	 */
+
 	static Pattern p = Pattern.compile("^[A-Za-z0-9]+$");
 public static boolean excase=false;
 	public static void main(String[] args) throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
@@ -41,11 +42,11 @@ public static boolean excase=false;
 				System.in));
 
 		for (;;) {
-			System.out.println("[1] Batch Insert using unclusterd Btree");
+			System.out.println("[1] Batch Insert and index using unclusterd Btree");
 			System.out.println("[2] Query your Database ");
 			System.out.println("[3] Quit");
 			System.out.println("[4] report Database statistics");
-			System.out.println("[5] Batch insert on Heap Tree");
+			System.out.println("[5] Batch insert on Heap Tree without indexing");
 			System.out.println("Select your option: ");
 			String selectedOption = null;
 			try {
@@ -53,7 +54,7 @@ public static boolean excase=false;
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			try{
+			//try{
 			switch (Integer.parseInt(selectedOption)) {
 			case 1:
 				String filePath = null;
@@ -82,15 +83,16 @@ public static boolean excase=false;
 					System.out.println("Database not found");
 					break;
 				}
+			
 				System.out.println("enter Index option");
-				System.out.println("1--Unclustered Index");
+				System.out.println("1||2||3||4||5||6||");
 				try {
 					indexOption = reader.readLine();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 				int intIndexOption = Integer.parseInt(indexOption);
-				if (intIndexOption != 1) {
+				if (intIndexOption != 1&&intIndexOption != 2&&intIndexOption != 3&&intIndexOption != 4&&intIndexOption != 5&&intIndexOption != 6) {
 					System.out.println("invalid index option");
 					break;
 				}
@@ -165,10 +167,15 @@ public static boolean excase=false;
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				SystemDefs sysdef = new SystemDefs(dBName, 81930, 1000, "Clock");
+				SystemDefs sysdef = new SystemDefs(dBName, 81930, Integer.parseInt(numBuf), "Clock");
 					//SystemDefs.JavabaseDB = new rdfDB(Integer.parseInt(sortOption));
 				
-				Stream outStream;
+				Stream outStream=null;
+			
+					/*outStream = SystemDefs.JavabaseDB.openStream(
+							Integer.parseInt(sortOption), subjectFilter,
+							predicateFilter, objectFilter,
+							Float.parseFloat(confidenceFilter));*/
 				try {
 					outStream = new Stream(SystemDefs.JavabaseDB,
 							Integer.parseInt(sortOption), subjectFilter,
@@ -181,12 +188,6 @@ public static boolean excase=false;
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-
-				{
-					outStream = SystemDefs.JavabaseDB.openStream(
-							Integer.parseInt(sortOption), subjectFilter,
-							predicateFilter, objectFilter,
-							Float.parseFloat(confidenceFilter));
 					TID tid = new TID();
 					EID sLid = new EID();
 					PID pLid = new PID();
@@ -213,16 +214,20 @@ public static boolean excase=false;
 						e.printStackTrace();
 					}
 					
-				}
 
 			case 3:
-				System.out.println("exiting....");
+				System.out.println("exiting....exited");
 				System.exit(0);
 
 				break;
 			case 4:
-				System.out.println("not yed coded");
-			//=================================
+				Report rpt = new Report();
+				rpt.printreport();
+				System.out.println("Database Consists:");
+				System.out.println("Entity Count:"+BatchInsert.entityCount);
+				System.out.println("predicate Count:"+BatchInsert.predicateCount);
+				System.out.println("triple Count:"+BatchInsert.tripleCount);
+			break;
 			case 5:
 				excase=true;
 				String filePath2 = null;
@@ -271,11 +276,11 @@ public static boolean excase=false;
 				
 				break;
 			}
-			}
-			catch(Exception E)
+			//}
+			/*catch(Exception E)
 			{
 				System.err.print("You entered an invalid option:please enter again or try again");
-			}
+			}*/
 
 		}
 
