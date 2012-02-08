@@ -251,12 +251,18 @@ public class BatchInsert {
 				EID senID = new EID();
 				EID oenID = new EID();
 				PID penID = new PID();
-				senID.pageNo = subID.pageNo;
+				senID.pageNo = new PageID();
+				senID.pageNo.pid = subID.pageNo.pid;
 				senID.slotNo = subID.slotNo;
-				oenID.pageNo = objID.pageNo;
+				
+				oenID.pageNo = new PageID();
+				oenID.pageNo.pid = objID.pageNo.pid;
 				oenID.slotNo = objID.slotNo;
-				penID.pageNo = predicID.pageNo;
+				
+				penID.pageNo = new PageID();
+				penID.pageNo.pid = predicID.pageNo.pid;
 				penID.slotNo = predicID.slotNo;
+				
 				tripObj.setSubjectId(senID);
 				tripObj.setPredicateId(penID);
 				tripObj.setObjectId(oenID);
@@ -354,10 +360,11 @@ public class BatchInsert {
 			    	System.out.println("Printing B+ Tree : Indexed on <confidence>");
 					break;
 				}
-				BT.printAllLeafPages(btreeFile.getHeaderPage());
 				}
+				
 			}
 			
+			BT.printAllLeafPages(btreeFile.getHeaderPage());
 					
 			}
 		SystemDefs.JavabaseDB.closeDB();
