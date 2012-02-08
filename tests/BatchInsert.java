@@ -48,11 +48,14 @@ import tripleheap.*;
 /**
  * @author shodhan
  * 
+ * 
  */
+
+
 public class BatchInsert {
+	public static BTreeFile globalTree=null;
 
 	public static String[] dbNamelist = null;
-
 	/**
 	 * String[0]-file path String[1]-DB name String[2]-sort option
 	 * 
@@ -96,6 +99,9 @@ public class BatchInsert {
 	 * @throws tripleheap.SpaceNotAvailableException
 	 * @throws InvalidTripleSizeException
 	 */
+	public static int entityCount=0;
+	public static int predicateCount=0;
+	public static int tripleCount=0;
 	public static boolean excase=false;
 	public  BTreeFile btreeFile;
 	public static int keyType;
@@ -126,8 +132,8 @@ public class BatchInsert {
 			ReadFile readFile = new ReadFile(filePath);
 			fileArray = readFile.openFile();
 			keyType=AttrType.attrString;
-			BTreeFile btreeFile=new BTreeFile("file_2", keyType, 1000, 1);
-			
+			BTreeFile btreeFile=new BTreeFile(DBName, keyType, 1000, 1);
+			globalTree=btreeFile;
 			for (int i = 0; i < fileArray.length; i++) {
 				char[] lineString = fileArray[i].toCharArray();
 				int lineLength = lineString.length;
@@ -139,6 +145,7 @@ public class BatchInsert {
 				EID objectID = new EID();
 				PID predicateID = new PID();
 				TID tripleID = new TID();
+				String confidenceForKey;
 				for (int charNo = 0; charNo < lineLength; charNo++) {
 					char[] subjectArray = new char[100];
 					char[] predicateArray = new char[100];
@@ -186,6 +193,20 @@ public class BatchInsert {
 					predicate = new String(predicateArray).trim();
 					object = new String(objectArray).trim();
 					confidence = new String(confidenceArray).trim();
+					if(subject!=null)
+					{
+						entityCount++;
+					}
+					if(predicate!=null)
+					{
+						predicateCount++;
+					}
+					if(object!=null)
+					{
+						entityCount++;
+					}
+				tripleCount++;
+					
 				}
 				byte [] subjectBArray = new byte[150];
 				Convert.setStrValue(subject, 0, subjectBArray);
@@ -244,35 +265,105 @@ public class BatchInsert {
 				LID dummyTriple=new LID();
 				//tripID = dummyLabelFileObj.insertLabel(triplebyte);
 				dummyTriple = dummyLabelFileObj.insertLabel(triplebyte);
-				System.out.println("inserted..SID is " + subID.pageNo + " "
-						+ subID.slotNo);
-				System.out.println("inserted..PID is " + objID.pageNo + " "
-						+ objID.slotNo);
-				System.out.println("inserted..OID is " + predicID.pageNo + " "
-						+ predicID.slotNo);
+				System.out.println("inserted..SID is  p: " + subID.pageNo + " "
+						+ " S "+subID.slotNo);
+				System.out.println("inserted..PID is p: " + objID.pageNo + " "
+						+ " S "+objID.slotNo);
+				System.out.println("inserted..OID is  p: " + predicID.pageNo + " "
+						+ " S "+predicID.slotNo);
 				System.out.println("inserting..");
-				System.out.println("inserted..TID is " + dummyTriple.pageNo+"  "+dummyTriple.slotNo);
+				System.out.println("inserted..TID is p: " + dummyTriple.pageNo+"  "+" S "+dummyTriple.slotNo);
 				//createBtree("file_2");
 				TID tid=new TID();
 				tid.pageNo.pid=dummyTriple.pageNo.pid;
 				tid.slotNo=dummyTriple.slotNo;
 				Float floatkey=Float.parseFloat(confidence);
-				String confidenceForKey=confidence.substring(0,8);
-				System.out.println(confidenceForKey+"    "+confidenceForKey.length());
-				KeyClass realKey;
-				realKey=new StringKey(confidenceForKey);
-				btreeFile.insert(realKey, tid);
-			}
-			if(excase==false)
-			{
-				System.out.println("Printing B+ Tree : Indexed on <confidence>");
+				confidenceForKey=confidence.substring(0,8);
+				//System.out.println(confidenceForKey+"    "+confidenceForKey.length());
+				if(excase==false)
+				{
+				TID newtid=new TID(dummyTriple.pageNo,dummyTriple.slotNo);
+				String subjectForKey=null ;
+				String predicateForKey=null ;
+				String objectForKey=null;
+				String compositeKey =null;
+				String confidenceKey=null;
+				KeyClass crealKey,srealKey,prealKey,orealKey;
+				//prealKey=new StringKey(confidenceForKey);
+				//srealKey=new StringKey(confidenceForKey);
+				//orealKey=new StringKey(confidenceForKey);
+					switch(Integer.parseInt(args[2])){
+					case 1:
+						compositeKey = subject.substring(0,subject.length()).concat(predicate.substring(0,predicate.length()/2).concat( object.substring(0,object.length()/2).concat(confidenceForKey))).toLowerCase();
+						crealKey=new StringKey(compositeKey);
+					    btreeFile.insert(crealKey, newtid);
+					    System.out.println("key  "+crealKey+"    "+crealKey.toString().length());
+					    break;
+					case 2:
+						//System.out.println(subject.substring(0,8)+predicate);
+						compositeKey = predicate.substring(0, predicate.length()/2).concat(subject.substring(0,subject.length()/2).concat(object.substring(0,object.length()/2).concat(confidenceForKey))).toLowerCase();
+						prealKey=new StringKey(compositeKey);
+				        btreeFile.insert(prealKey, newtid);
+				        System.out.println("key  "+prealKey+"    "+prealKey.toString().length());
+				        break;
+				    case 3:
+				    	compositeKey = subject.substring(0,subject.length()/2).concat(confidenceForKey).toLowerCase();
+				    	srealKey=new StringKey(compositeKey);
+					    btreeFile.insert(srealKey, newtid);
+					    System.out.println("key  "+srealKey+"    "+srealKey.toString().length());
+					    break;
+					case 4:
+						compositeKey = predicate.substring(0,predicate.length()/2).concat(confidenceForKey).toLowerCase();
+						orealKey=new StringKey(compositeKey);
+				        btreeFile.insert(orealKey, newtid);
+				        System.out.println("key   "+orealKey+"    "+orealKey.toString().length());
+				        break;
+				    case 5:
+				    	compositeKey =  object.substring(0,object.length()/2).concat(confidenceForKey).toLowerCase();
+				    	orealKey=new StringKey(compositeKey);
+				        btreeFile.insert(orealKey, newtid);
+				        System.out.println("key  "+orealKey+"    "+orealKey.toString().length());
+				        break;
+				    case 6:
+				    	KeyClass realKey;
+						realKey=new StringKey(confidenceForKey);
+						btreeFile.insert(realKey, newtid);
+						System.out.println("key  "+realKey+"    "+realKey.toString().length());
+						break;
+					}
+				}
+				if (excase==false)
+				{
+				switch(Integer.parseInt(args[2])){
+				case 1:
+					System.out.println("Printing B+ Tree : Indexed on <subject,predicate,object,confidence> in order");
+				    break;
+				case 2:
+					System.out.println("Printing B+ Tree : Indexed on <pricate,subject,object,confidence> in order");
+			        break;
+			    case 3:
+			    	System.out.println("Printing B+ Tree : Indexed on <subject,confidence> in order");
+				    break;
+				case 4:
+					System.out.println("Printing B+ Tree : Indexed on <predicate,confidence> in order");
+			        break;
+			    case 5:
+			    	System.out.println("Printing B+ Tree : Indexed on <object,confidence> in order");
+			        break;
+			    case 6:
+			    	System.out.println("Printing B+ Tree : Indexed on <confidence>");
+					break;
+				}
 				BT.printAllLeafPages(btreeFile.getHeaderPage());
-				
+				}
 			}
+			
+					
+			}
+		SystemDefs.JavabaseDB.closeDB();
 			//newDatabase.closeDB();
 		}
 
-	}
 
 	public static void run(String path, String dbName, String sortOption ,boolean excase1 )
 			throws IOException, NumberFormatException, THFException,

@@ -92,12 +92,12 @@ public class BTSortedPage  extends THFPage{
    *@return its genid where the entry was inserted; null if no space left.
    *@exception  InsertRecException error when insert
    */
-   protected GENID insertRecord( KeyDataEntry entry)
+   protected TID insertRecord( KeyDataEntry entry)
           throws InsertRecException 
    {
      int i;
      short  nType;
-     GENID genid = null;
+     TID genid = new TID();
      TID tid;
      byte[] record;
      // ASSERTIONS:
@@ -172,7 +172,7 @@ public class BTSortedPage  extends THFPage{
    *@return true if success; false if genid is invalid(no record in the genid).
    *@exception DeleteRecException error when delete
    */
-  public  boolean deleteSortedRecord(GENID genid)
+  public  boolean deleteSortedRecord(TID genid)
     throws DeleteRecException
     {TID tid = null;
       try {
@@ -202,8 +202,3 @@ public class BTSortedPage  extends THFPage{
       return getSlotCnt();
     }
 };
-
-
-
-
-

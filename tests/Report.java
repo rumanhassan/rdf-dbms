@@ -28,9 +28,9 @@ public class Report {
  */
 public void printreport() //throws InvalidSlotNumberException, InvalidTupleSizeException, THFDiskMgrException, THFBufMgrException, InvalidTripleSizeException, IOException, labelheap.InvalidSlotNumberException, InvalidLabelSizeException, LHFDiskMgrException, LHFBufMgrException
 {
-	rdfDB r = new rdfDB();
+	//rdfDB r = new rdfDB()
 System.out.println(" Various statistics of RDF Database " );
-try {
+/*try {
 	System.out.println(" Total number of Triples is " + r.getTripleCnt());
 } catch (InvalidSlotNumberException | InvalidTupleSizeException
 		| THFDiskMgrException | THFBufMgrException | InvalidTripleSizeException
@@ -51,7 +51,7 @@ try {
 		| LHFDiskMgrException | LHFBufMgrException | IOException e) {
 	// TODO Auto-generated catch block
 	e.printStackTrace();
-}
+}*/
 System.out.println(" Total number of Disk Pages that were read is " + (new PCounter()).rcounter);
 System.out.println(" Total number of Disk Pages that were written is " + (new PCounter()).wcounter);
 }

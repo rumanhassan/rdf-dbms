@@ -7,7 +7,7 @@ package global;
 /** class TID
  */
 
-public class TID extends GENID{
+public class TID {
   
   /** public PageId pageNo
    */

@@ -292,13 +292,14 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
+ * @throws InvalidTupleSizeException 
    */
   public int getLabelCnt() 
     throws InvalidSlotNumberException, 
 	   InvalidLabelSizeException, 
 	   LHFDiskMgrException,
 	   LHFBufMgrException,
-	   IOException
+	   IOException, InvalidTupleSizeException
 	   
     {
       int answer = 0;
@@ -357,6 +358,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @exception IOException I/O errors
    *
    * @return the lid of the record
+ * @throws InvalidTupleSizeException 
    */
   public LID insertLabel(byte[] recPtr) 
     throws InvalidSlotNumberException,  
@@ -365,7 +367,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	   LHFException,
 	   LHFBufMgrException,
 	   LHFDiskMgrException,
-	   IOException
+	   IOException, InvalidTupleSizeException
     {
       int dpinfoLen = 0;	
       int recLen = recPtr.length;
@@ -451,11 +453,18 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  aLabel = dpinfo.convertToLabel(); //convert dpinfo into a Label object
 
 		  // insert the Label into the page as a byte array, and get the LID		  
-		  byte[] labelByteArray = LabelUtils.convertStringToByteArray(aLabel.getLabel());
-		  currentDataPageLid = currentDirPage.insertLabel(labelByteArray);  //
+		  byte[] labelByteArray = aLabel.getLabelByteArray();
+		  currentDataPageLid = currentDirPage.insertLabel(labelByteArray); 
+		  Page newPage= new Page(labelByteArray);
 		  
 		  LID tmplid = currentDirPage.firstLabel();
-		  
+		  try{
+			  SystemDefs.JavabaseDB.write_page(currentDataPageLid.pageNo, newPage);
+		  }
+		  catch(Exception e)
+		  {
+			  e.printStackTrace();
+		  }
 		  
 		  // need catch error here!
 		  if(currentDataPageLid == null)
@@ -543,7 +552,6 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	      // - dpinfo valid
 	      
 	      // System.out.println("find the dirpagerecord on current page");
-	      
 	      pinPage(dpinfo.pageId, currentDataPage, false);
 	      //currentDataPage.openHFpage(pageinbuffer);
 	      
@@ -816,7 +824,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       PageID currentDataPageId = new PageID();
       LID currentDataPageLid = new LID();
       
-      status = _findDataPage(lid,
+      status = _findDataPage(lid,  
 			     currentDirPageId, dirPage, 
 			     currentDataPageId, dataPage,
 			     currentDataPageLid);
@@ -864,6 +872,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
    * @exception LHFBufMgrException exception thrown from bufmgr layer
    * @exception LHFDiskMgrException exception thrown from diskmgr layer
    * @exception IOException I/O errors
+ * @throws InvalidTupleSizeException 
    */
   public void deleteFile()  
     throws InvalidSlotNumberException, 
@@ -871,7 +880,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 	   InvalidLabelSizeException, 
 	   LHFBufMgrException,
 	   LHFDiskMgrException,
-	   IOException
+	   IOException, InvalidTupleSizeException
     {
       if(_file_deleted ) 
    	throw new FileAlreadyDeletedException(null, "file alread deleted");

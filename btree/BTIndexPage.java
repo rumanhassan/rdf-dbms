@@ -80,10 +80,10 @@ public class BTIndexPage extends BTSortedPage{
    null if no space left.
    *@exception IndexInsertRecException error when insert
    */
-   public GENID insertKey(KeyClass key, PageID pageNo) 
+   public TID insertKey(KeyClass key, PageID pageNo) 
       throws  IndexInsertRecException
     {
-      GENID genid;
+      TID genid;
       KeyDataEntry entry;
       try {
         entry = new KeyDataEntry( key, pageNo); 
@@ -98,18 +98,18 @@ public class BTIndexPage extends BTSortedPage{
   
   /*  OPTIONAL: fullDeletekey 
    * This is optional, and is only needed if you want to do full deletion.
-   * Return its GENID.  delete key may != key.  But delete key <= key,
+   * Return its TID.  delete key may != key.  But delete key <= key,
    * and the delete key is the first biggest key such that delete key <= key 
    *@param key the key used to search. Input parameter.
    *@exception IndexFullDeleteException if no record deleted or failed by
    * any reason
-   *@return  GENID of the record deleted. Can not return null.
+   *@return  TID of the record deleted. Can not return null.
    */
-  GENID deleteKey(KeyClass key) 
+  TID deleteKey(KeyClass key) 
     throws IndexFullDeleteException 
     {
       KeyDataEntry  entry;
-      GENID genid=new GENID(); 
+      TID genid=new TID(); 
       
       
       try {
@@ -190,7 +190,7 @@ public class BTIndexPage extends BTSortedPage{
    *null if NO MORE RECORD
    *@exception IteratorException  iterator error
    */
-  public KeyDataEntry getFirst(GENID genid) 
+  public KeyDataEntry getFirst(TID genid) 
     throws IteratorException
     {
       
@@ -226,7 +226,7 @@ public class BTIndexPage extends BTSortedPage{
    *null if no more record
    *@exception IteratorException iterator error
    */
-  public KeyDataEntry getNext (GENID genid)
+  public KeyDataEntry getNext (TID genid)
     throws  IteratorException 
     {
       KeyDataEntry  entry; 
@@ -345,7 +345,7 @@ public class BTIndexPage extends BTSortedPage{
 	entry =  findKeyData( oldKey );
 	if (entry == null) return false;
 	
-	GENID genid=deleteKey( entry.key );
+	TID genid=deleteKey( entry.key );
 	if (genid==null) throw new IndexFullDeleteException(null, "Genid is null");
 	
 	genid=insertKey( newKey, ((IndexData)entry.data).getData());        
@@ -429,7 +429,7 @@ public class BTIndexPage extends BTSortedPage{
 	  }
 	  else {
             // get its sibling's first record's key 
-            GENID dummyGenid=new GENID();
+            TID dummyGenid=new TID();
             KeyDataEntry firstEntry, lastEntry;
             firstEntry=indexPage.getFirst(dummyGenid);
             
@@ -451,7 +451,7 @@ public class BTIndexPage extends BTSortedPage{
             indexPage.setLeftLink(((IndexData)(lastEntry.data)).getData() );
 	    
             // delete the last record from the old page
-            GENID delGenid=new GENID();
+            TID delGenid=new TID();
             delGenid.pageNo = getCurPage();
             delGenid.slotNo = getSlotCnt()-1;
 
@@ -497,7 +497,7 @@ public class BTIndexPage extends BTSortedPage{
             setLeftLink(((IndexData)(firstEntry.data)).getData());
             
             // delete the first record 
-            GENID delGenid=new GENID();
+            TID delGenid=new TID();
             delGenid.pageNo = getCurPage();
             delGenid.slotNo = 0;
             if (deleteSortedRecord(delGenid) == false )
@@ -515,4 +515,3 @@ public class BTIndexPage extends BTSortedPage{
       } 
     } // end of redistribute  
 };
-
