@@ -63,10 +63,11 @@ public class LScan implements GlobalConst{
      * @exception IOException I/O errors
      *
      * @param lhf A LabelHeapFile object
+     * @throws InvalidTupleSizeException 
      */
   public LScan(LabelHeapFile lhf) 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
   {
 	init(lhf);
   }
@@ -80,10 +81,11 @@ public class LScan implements GlobalConst{
    *
    * @param lid Label ID of the record
    * @return the Label of the retrieved record.
+ * @throws InvalidTupleSizeException 
    */
   public Label getNext(LID lid) 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
   {
     Label recptrlabel = null;
     
@@ -98,7 +100,7 @@ public class LScan implements GlobalConst{
     lid.slotNo = usertid.slotNo;
          
     try {
-      recptrlabel = datapage.getlabel(lid);
+      recptrlabel = datapage.getLabel(lid);
     }
     
     catch (Exception e) {
@@ -121,10 +123,11 @@ public class LScan implements GlobalConst{
      * @param lid Label ID of the given record
      * @return 	true if successful, 
      *			false otherwise.
+     * @throws InvalidTupleSizeException 
      */
   public boolean position(LID lid) 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
   { 
     LID    nxtlid = new LID();
     boolean bst;
@@ -186,10 +189,11 @@ public class LScan implements GlobalConst{
      * @exception IOException I/O errors
      *
      * @param lhf A LabelHeapFile object
+     * @throws InvalidTupleSizeException 
      */
     private void init(LabelHeapFile lhf) 
       throws InvalidLabelSizeException,
-	     IOException
+	     IOException, InvalidTupleSizeException
   {
 	_lhf = lhf;
 
@@ -243,10 +247,11 @@ public class LScan implements GlobalConst{
    * @exception IOException I/O errors
    * @return true if successful
    *         false otherwise
+ * @throws InvalidTupleSizeException 
    */
   private boolean firstDataPage() 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
   {
     DataPageInfo dpinfo;
     Label        reclabel = null;
@@ -393,10 +398,11 @@ public class LScan implements GlobalConst{
    *
    * @return 		true if successful
    *			false if unsuccessful
+ * @throws InvalidTupleSizeException 
    */
   private boolean nextDataPage() 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
   {
     DataPageInfo dpinfo;
     
@@ -589,10 +595,11 @@ public class LScan implements GlobalConst{
 
   /** Move to the next record in a sequential scan.
    * Also returns the LID of the (new) current record.
+ * @throws InvalidTupleSizeException 
    */
   private boolean mvNext(LID lid) 
     throws InvalidLabelSizeException,
-	   IOException
+	   IOException, InvalidTupleSizeException
   {
     LID nextrid;
     boolean status;
