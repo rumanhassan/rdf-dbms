@@ -462,7 +462,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		  
 		  byte [] tmpData = atriple.getTripleByteArray();
 		  currentDataPageTid = currentDirPage.insertTriple(tmpData);
-		  Page newPage= new Page(tmpData);
+		  /*Page newPage= new Page(tmpData);
 		  
 		  TID tmptid = currentDirPage.firstTriple();
 		  
@@ -472,7 +472,7 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
 		  catch(Exception e)
 		  {
 			  e.printStackTrace();
-		  }
+		  }*/
 		  // need catch error here!
 		  if(currentDataPageTid == null)
 		    throw new THFException(null, "no space to insert rec.");  
@@ -844,8 +844,8 @@ public class TripleHeapFile implements Filetype,  GlobalConst {
       THFPage dataPage = new THFPage();
       PageID currentDataPageId = new PageID();
       TID currentDataPageTid = new TID();
-      
-      status = _findDataPage(currentDataPageTid,
+      //changed currentDirPageId to tid
+      status = _findDataPage(tid,
 			     currentDirPageId, dirPage, 
 			     currentDataPageId, dataPage,
 			     currentDataPageTid);

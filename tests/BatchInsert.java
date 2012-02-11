@@ -6,6 +6,8 @@ package tests;
 import diskmgr.*;
 import global.*;
 
+import iterator.LabelUtils;
+
 import java.io.*;
 import java.lang.*;
 import java.util.*;
@@ -54,7 +56,9 @@ import tripleheap.*;
 
 public class BatchInsert {
 	public static BTreeFile globalTree=null;
-
+	public static TripleHeapFile globalTripleHeapFile=null;
+	public static LabelHeapFile globalEntityHeapFile=null;
+	public static LabelHeapFile globalPredicateHeapFile=null;
 	public static String[] dbNamelist = null;
 	/**
 	 * String[0]-file path String[1]-DB name String[2]-sort option
@@ -122,10 +126,13 @@ public class BatchInsert {
 			SystemDefs sysdef = new SystemDefs(DBName, 819300, 10000, "Clock");
 			//rdfDB newDatabase = new rdfDB(Integer.parseInt(indexOption));
 			//newDatabase.openDB(DBName);
-			TripleHeapFile tripleFileObj= new TripleHeapFile("file_1");
+			//TripleHeapFile tripleFileObj= new TripleHeapFile("file_1");
 			LabelHeapFile entlabelfileObj= new LabelHeapFile("file_2");
 			LabelHeapFile prelabelFileObj= new LabelHeapFile("file_3");
 			TripleHeapFile dummyLabelFileObj= new TripleHeapFile("file_4");
+			globalEntityHeapFile=entlabelfileObj;
+			globalPredicateHeapFile=prelabelFileObj;
+			globalTripleHeapFile=dummyLabelFileObj;
 			String[] fileArray;
 			System.out.println("inserting file at " + args[0] + " in "
 					+ args[1] + "...");
@@ -208,14 +215,14 @@ public class BatchInsert {
 				tripleCount++;
 					
 				}
-				byte [] subjectBArray = new byte[150];
-				Convert.setStrValue(subject, 0, subjectBArray);
+				byte [] subjectBArray =LabelUtils.convertStringToByteArray(subject);//subject.getBytes();//new byte[subject.length()*2];
+				//Convert.setStrValue(subject, 0, subjectBArray);
 
-				byte[] objectBArray = new byte[150];
-				Convert.setStrValue(object, 0, objectBArray);
+				byte[] objectBArray =LabelUtils.convertStringToByteArray(object);//object.getBytes(); //new byte[object.length()*2];
+				//Convert.setStrValue(object, 0, objectBArray);
 
-				byte[] predicateBArray = new byte[150];
-				Convert.setStrValue(predicate, 0, predicateBArray);
+				byte[] predicateBArray = LabelUtils.convertStringToByteArray(predicate);//predicate.getBytes();//new byte[predicate.length()*2];
+				//Convert.setStrValue(predicate, 0, predicateBArray);
 
 				/*Triple tripleObj = new Triple();
 				EID eid = new EID(subjectID.pageNo, subjectID.slotNo);
@@ -366,8 +373,10 @@ public class BatchInsert {
 				}
 				
 			}
-			
+			if (excase==false)
+			{
 			BT.printAllLeafPages(btreeFile.getHeaderPage());
+			}
 					
 			}
 		SystemDefs.JavabaseDB.closeDB();
@@ -396,12 +405,12 @@ public class BatchInsert {
 		   byte[] triplecopy = new byte[28];
 			try {	
 			Convert.setIntValue(tripObj.subjectId.slotNo, 0, triplecopy);
-			Convert.setIntValue(tripObj.subjectId.pageNo.pid, 1, triplecopy);
-			Convert.setIntValue(tripObj.predicateId.slotNo, 2, triplecopy);
-			Convert.setIntValue(tripObj.predicateId.pageNo.pid, 3, triplecopy);
-			Convert.setIntValue(tripObj.objectId.slotNo, 4, triplecopy);
-			Convert.setIntValue(tripObj.objectId.pageNo.pid, 5, triplecopy);
-			Convert.setFloValue(tripObj.value, 6, triplecopy);
+			Convert.setIntValue(tripObj.subjectId.pageNo.pid, 4, triplecopy);
+			Convert.setIntValue(tripObj.predicateId.slotNo, 8, triplecopy);
+			Convert.setIntValue(tripObj.predicateId.pageNo.pid, 12, triplecopy);
+			Convert.setIntValue(tripObj.objectId.slotNo, 16, triplecopy);
+			Convert.setIntValue(tripObj.objectId.pageNo.pid, 20, triplecopy);
+			Convert.setFloValue(tripObj.value, 24, triplecopy);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -411,6 +420,7 @@ public class BatchInsert {
 	       System.arraycopy(data, triple_offset, triplecopy, 0, triple_length);
 	       return triplecopy;*/
 	   }
+	 
 	
 	
 	
