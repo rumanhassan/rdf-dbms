@@ -113,9 +113,14 @@ public class Stream implements GlobalConst{
 		    	    // 2. Check that the triple's data matches the filter  
 		            TID myTID = currTreeNode.getData();
 		      	    TID tripleID = new TID(myTID.pageNo, myTID.slotNo);
-		      	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);    	      	    
-		      	    //---------------------------------------------
+		      	    if (tripleID.pageNo.pid != 0){
+		      	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID); 
 		      	    fillTriple=getTripleFromByteArray(aTriple.getTripleByteArray());
+		      	    }
+		      	    else
+		      	    	return null;
+		      	    //	      	    ---------------------------------------------
+		      	    
 		      	    
 		      	    subjEntity = fillTriple.getSubjectId();
 		      	    subjLabel = subjEntity.returnLID();    
@@ -123,13 +128,14 @@ public class Stream implements GlobalConst{
 		      	    //---------------------------------------------
 		      	   // currPred = fillTriple.getPredicateId();	
 		      	    currPred = fillTriple.getPredicateId();
-		      	    predLabel = currPred.returnPID();	    
+		      	    predLabel = currPred.returnLID();	    
 		      	    predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
 		      	    //---------------------------------------------
 		      	   // objEntity = fillTriple.getObjectId();
 		      	    objEntity = fillTriple.getObjectId();
 		      	    objLabel = objEntity.returnLID();	    
 		      	    objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
+		      	    this.confidenceFilter = fillTriple.value;
 				} catch (InvalidSlotNumberException e) {
 					System.out.println("STREAM: error attempting access to triple heap file");
 					e.printStackTrace();
@@ -211,10 +217,11 @@ public class Stream implements GlobalConst{
 				PID prid =new PID();
 				seid.slotNo=Convert.getIntValue(0, tripleAray);
 				seid.pageNo.pid=Convert.getIntValue(4, tripleAray);
-				oeid.slotNo=Convert.getIntValue(8, tripleAray);
-				oeid.pageNo.pid=Convert.getIntValue(12, tripleAray);
-				prid.slotNo=Convert.getIntValue(16, tripleAray);
-				prid.pageNo.pid=Convert.getIntValue(20, tripleAray);
+				prid.slotNo=Convert.getIntValue(8, tripleAray);
+				prid.pageNo.pid=Convert.getIntValue(12, tripleAray);
+				oeid.slotNo=Convert.getIntValue(16, tripleAray);
+				oeid.pageNo.pid=Convert.getIntValue(20, tripleAray);
+				
 				
 			atriple.subjectId=seid;
 			atriple.predicateId=prid;

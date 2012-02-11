@@ -7,7 +7,7 @@ import java.io.*;
 /** class EID
  */
 
-public class EID extends LID{
+public class EID {
   
   /** public int slotNo
    */
