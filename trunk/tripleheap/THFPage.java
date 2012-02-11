@@ -387,6 +387,16 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 			curPage.pid = Convert.getIntValue(CUR_PAGE, data);
 			tid.pageNo.pid=curPage.pid;
 			tid.slotNo = i;
+			 Page newPage= new Page(data);
+			  
+			 // LID tmplid = currentDirPage.firstLabel();
+			  try{
+				  SystemDefs.JavabaseDB.write_page(tid.pageNo, newPage);
+			  }
+			  catch(Exception e)
+			  {
+				  e.printStackTrace();
+			  }
 			return tid;
 		}
 	}

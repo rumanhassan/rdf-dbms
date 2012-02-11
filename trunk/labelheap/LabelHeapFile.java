@@ -458,13 +458,6 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
 		  Page newPage= new Page(labelByteArray);
 		  
 		  LID tmplid = currentDirPage.firstLabel();
-		  try{
-			  SystemDefs.JavabaseDB.write_page(currentDataPageLid.pageNo, newPage);
-		  }
-		  catch(Exception e)
-		  {
-			  e.printStackTrace();
-		  }
 		  
 		  // need catch error here!
 		  if(currentDataPageLid == null)
@@ -843,7 +836,8 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       unpinPage(currentDataPageId,false /*undirty*/);
       
       unpinPage(currentDirPageId,false /*undirty*/);
-      
+      byte [] imp=aLabel.getLabelByteArray();
+      aLabel.setLabel(new String(imp));
       
       return  aLabel.getLabel();  //(true?)OK, but the caller need check if aLabel==NULL
       

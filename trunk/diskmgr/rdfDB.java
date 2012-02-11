@@ -23,9 +23,9 @@ public class rdfDB implements GlobalConst {
   
   private static final int bits_per_page = MAX_SPACE * 8;
   public  static final String dbNamelist[]= {""};
-  TripleHeapFile tripleHeapFile = null;
-  public LabelHeapFile entityLabelHeapFile = null;
-  public LabelHeapFile predicateLabelHeapFile = null;
+  TripleHeapFile tripleHeapFile = BatchInsert.globalTripleHeapFile;
+  public LabelHeapFile entityLabelHeapFile = BatchInsert.globalEntityHeapFile;
+  public LabelHeapFile predicateLabelHeapFile = BatchInsert.globalPredicateHeapFile;
   public BTreeFile bTreeIndexFile = BatchInsert.globalTree;
   public LScan labelHeapScan = null;
   
@@ -69,6 +69,7 @@ public class rdfDB implements GlobalConst {
     num_pages = firstpg.getNumDBPages();
     
     unpinPage(pageId, false /* undirty*/);
+    //PCounter.initialize();
   }
   
   /** default constructor.
@@ -248,7 +249,7 @@ public boolean deleteTriple(TID tid) throws Exception {
     // Write the appropriate number of bytes.
     try{
       fp.write(apage.getpage());
-      PCounter.writeIncrement();
+      //PCounter.writeIncrement();
     }
     catch (IOException e) {
       throw new FileIOException(e, "DB file I/O error");

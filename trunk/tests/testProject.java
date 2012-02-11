@@ -245,7 +245,7 @@ public static boolean excase=false;
 								+ (f2.exists() ? " file is found "
 										: " file is missing "));
 				if (f2.exists() == false)
-					break;
+					break; 
 				System.out.println("enter RDFDBNAME");
 				try {
 					DBName2 = reader.readLine();
@@ -262,11 +262,13 @@ public static boolean excase=false;
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
+				
 				int intIndexOption2 = Integer.parseInt(indexOption2);
 				if (intIndexOption2 != 1) {
 					System.out.println("invalid index option");
 					break;
 				}
+				
 				if (filePath2 != null && DBName2 != null && indexOption2 != null) {
 					BatchInsert.run(filePath2, DBName2, indexOption2,excase);
 					

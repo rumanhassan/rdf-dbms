@@ -7,6 +7,7 @@ import java.io.*;
 import global.*;
 import btree.*;
 import bufmgr.*;
+import tests.BatchInsert;
 import tripleheap.*;
 
 /**	
@@ -78,8 +79,8 @@ public class Stream implements GlobalConst{
 	*/
 	public Triple getNext() 
 	  {
-		Triple aTriple = null;
-		
+		Triple aTriple = new Triple();
+		Triple fillTriple=new Triple();
 	    // Just don't want to initialize these each time we iterate later
 		LeafData dummyLeaf = null;
 	    DataClass indexData = dummyLeaf; // upcast, hopefully some Java magic will happen soon...
@@ -114,15 +115,19 @@ public class Stream implements GlobalConst{
 		      	    TID tripleID = new TID(myTID.pageNo, myTID.slotNo);
 		      	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);    	      	    
 		      	    //---------------------------------------------
-		      	    subjEntity = aTriple.getSubjectId();
+		      	    fillTriple=getTripleFromByteArray(aTriple.getTripleByteArray());
+		      	    
+		      	    subjEntity = fillTriple.getSubjectId();
 		      	    subjLabel = subjEntity.returnLID();    
 		      	    subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
 		      	    //---------------------------------------------
-		      	    currPred = aTriple.getPredicateId();	  
-		      	    predLabel = currPred.returnLID();	    
+		      	   // currPred = fillTriple.getPredicateId();	
+		      	    currPred = fillTriple.getPredicateId();
+		      	    predLabel = currPred.returnPID();	    
 		      	    predStr = rdfdatabase.predicateLabelHeapFile.getLabel(predLabel);
 		      	    //---------------------------------------------
-		      	    objEntity = aTriple.getObjectId();	    
+		      	   // objEntity = fillTriple.getObjectId();
+		      	    objEntity = fillTriple.getObjectId();
 		      	    objLabel = objEntity.returnLID();	    
 		      	    objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
 				} catch (InvalidSlotNumberException e) {
@@ -196,6 +201,34 @@ public class Stream implements GlobalConst{
 //    		filtersIncluded[CONFIDX] = NOT_INCLUDED;
 //    	else filtersIncluded[CONFIDX] = INCLUDED;    	
     }
+    private static Triple getTripleFromByteArray(byte [] tripleAray) 
+	   {
+		  // byte[] triplecopy = new byte[28];
+		 Triple atriple=new Triple();
+			try {
+				EID seid=new EID();
+				EID oeid =new EID();
+				PID prid =new PID();
+				seid.slotNo=Convert.getIntValue(0, tripleAray);
+				seid.pageNo.pid=Convert.getIntValue(4, tripleAray);
+				oeid.slotNo=Convert.getIntValue(8, tripleAray);
+				oeid.pageNo.pid=Convert.getIntValue(12, tripleAray);
+				prid.slotNo=Convert.getIntValue(16, tripleAray);
+				prid.pageNo.pid=Convert.getIntValue(20, tripleAray);
+				
+			atriple.subjectId=seid;
+			atriple.predicateId=prid;
+			atriple.objectId=oeid;
+			atriple.value=Convert.getIntValue(24, tripleAray);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return atriple;
+	       /*byte [] triplecopy = new byte [triple_length];
+	       System.arraycopy(data, triple_offset, triplecopy, 0, triple_length);
+	       return triplecopy;*/
+	   }
     
     /** Checks if a triple's data matches the filter criteria
      * @param subject

@@ -388,6 +388,15 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 			curPage.pid = Convert.getIntValue(CUR_PAGE, data);
 			lid.pageNo.pid = curPage.pid;
 			lid.slotNo = i;
+			Page newPage = new Page(data); 
+			try{
+				SystemDefs.JavabaseDB.write_page(lid.pageNo, newPage);
+				PCounter.writeIncrement();
+				}
+				catch(Exception e)
+				{
+				e.printStackTrace();
+				}
 			return lid;
 		}
 	}
@@ -550,10 +559,10 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 				  && (pageNo.pid == curPage.pid))
 				{
 				  offset = getSlotOffset (slotNo);
-				  if(labLen==0)
+				  /*if(labLen==0)
 				  {
 					  labLen=20;
-				  }
+				  }*/
 				  label = new byte[labLen];
 				  System.arraycopy(data, offset, label, 0, labLen);
 				  Label tuple = new Label(label, 0, labLen);
