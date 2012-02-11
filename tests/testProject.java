@@ -193,23 +193,25 @@ public static boolean excase=false;
 					PID pLid = new PID();
 					EID oLid = new EID();
 					Triple triple = new Triple();
+					triple = outStream.getNext();
 					try {
-						triple = outStream.getNext();
-						while(triple.subjectId != null){
+						do {
 							
 							sLid= triple.getSubjectId();
 							pLid= triple.getPredicateId();
 							oLid= triple.getObjectId();
-							float confidence = triple.getConfidence();
+							float confidence = triple.value;
 							String subjectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(sLid.returnLID());
 							String predicateLabel=SystemDefs.JavabaseDB.predicateLabelHeapFile.getLabel(pLid.returnLID());
 							String objectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(oLid.returnLID());
 							System.out.print("S:"+subjectLabel);
 							System.out.print(" P:"+predicateLabel);
 							System.out.print(" O:"+objectLabel);
-							System.out.println(" C:"+confidence);
+							System.out.format(" C:");
+							System.out.println(confidence);
 							triple = outStream.getNext();
-						}
+						}while(triple.subjectId != null);
+						
 						
 					} catch (InvalidTripleSizeException e) {
 						// TODO Auto-generated catch block
