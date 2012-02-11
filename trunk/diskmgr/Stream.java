@@ -97,7 +97,14 @@ public class Stream implements GlobalConst{
 	    LID objLabel = null;	    
 	    String objStr = null;    
 	    
-	    do { // iterate here
+	    try {
+			keyData = btScan.get_next();
+		} catch (ScanIteratorException e) {
+			System.out.println("STREAM: error when attempting to get next btree leaf node");
+			e.printStackTrace();
+		} // no matches yet, keep moving down the line
+	    
+	    while (keyData != null) { // iterate here
 	    	try {
 				keyData = btScan.get_next();
 			} catch (ScanIteratorException e) {
@@ -113,15 +120,10 @@ public class Stream implements GlobalConst{
 		    	    // 2. Check that the triple's data matches the filter  
 		            TID myTID = currTreeNode.getData();
 		      	    TID tripleID = new TID(myTID.pageNo, myTID.slotNo);
-		      	    if (tripleID.pageNo.pid != 0){
 		      	    aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID); 
+		      	    
 		      	    fillTriple=getTripleFromByteArray(aTriple.getTripleByteArray());
-		      	    }
-		      	    else
-		      	    	return null;
-		      	    //	      	    ---------------------------------------------
-		      	    
-		      	    
+		      	    //---------------------------------------------
 		      	    subjEntity = fillTriple.getSubjectId();
 		      	    subjLabel = subjEntity.returnLID();    
 		      	    subjStr = rdfdatabase.entityLabelHeapFile.getLabel(subjLabel);
@@ -158,12 +160,12 @@ public class Stream implements GlobalConst{
 	
 	    	    // Check that the triple's data matches the filter
 	    	    weHaveAMatch = tripleDataMatchesFilter(subjStr, objStr, predStr, confidenceFilter);
-	    	 
+
 	    	    if(weHaveAMatch)
 	    	    	keyData = null; // to break out of the do-while
 	    	}
-	   } while (keyData != null);
-	    
+	   } 
+	 
 	    return aTriple; // Return the triple with matching TID, null if no more matching triples    
 	  } // end getNext method
 
@@ -226,7 +228,7 @@ public class Stream implements GlobalConst{
 			atriple.subjectId=seid;
 			atriple.predicateId=prid;
 			atriple.objectId=oeid;
-			atriple.value=Convert.getIntValue(24, tripleAray);
+			atriple.value=Convert.getFloValue(24, tripleAray);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

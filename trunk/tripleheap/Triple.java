@@ -90,7 +90,7 @@ public class Triple implements GlobalConst {
 		this.subjectId=subjID;
 		this.predicateId=predID;
 		this.objectId=objID;
-		this.value=Convert.getIntValue(24, data);
+		this.value=Convert.getFloValue(24, data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -113,7 +113,7 @@ public class Triple implements GlobalConst {
 	    this.setPredicateId(fromTriple.getPredicateId());
 	    this.setObjectId(fromTriple.getObjectId());
 	    try {
-			this.value = Convert.getIntValue(24, data);
+			this.value = Convert.getFloValue(24, data);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
