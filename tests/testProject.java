@@ -194,26 +194,28 @@ public static boolean excase=false;
 					EID oLid = new EID();
 					Triple triple = new Triple();
 					try {
-						while(triple != null){
-							triple = outStream.getNext();
+						triple = outStream.getNext();
+						while(triple.subjectId != null){
+							
 							sLid= triple.getSubjectId();
 							pLid= triple.getPredicateId();
 							oLid= triple.getObjectId();
-							double confidence = triple.getConfidence();
-							String subjectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(sLid);
-							String predicateLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(pLid);
-							String objectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(oLid);
-							System.out.println("S:"+subjectLabel);
-							System.out.println("P:"+predicateLabel);
-							System.out.println("O:"+objectLabel);
-							System.out.println("C:"+confidence);
-							
+							float confidence = triple.getConfidence();
+							String subjectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(sLid.returnLID());
+							String predicateLabel=SystemDefs.JavabaseDB.predicateLabelHeapFile.getLabel(pLid.returnLID());
+							String objectLabel=SystemDefs.JavabaseDB.entityLabelHeapFile.getLabel(oLid.returnLID());
+							System.out.print("S:"+subjectLabel);
+							System.out.print(" P:"+predicateLabel);
+							System.out.print(" O:"+objectLabel);
+							System.out.println(" C:"+confidence);
+							triple = outStream.getNext();
 						}
+						
 					} catch (InvalidTripleSizeException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					
+					break;
 
 			case 3:
 				System.out.println("exiting....exited");

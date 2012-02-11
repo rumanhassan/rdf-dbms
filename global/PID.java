@@ -6,7 +6,7 @@ package global;
 /** class TID
  */
 
-public class PID extends LID{
+public class PID {
   
   /** public PageId pageNo
    */

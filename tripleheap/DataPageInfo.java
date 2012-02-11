@@ -26,7 +26,7 @@ class DataPageInfo implements GlobalConst{
     
   /** auxiliary fields of DataPageInfo */
 
-  public static final int size = 12;// size of DataPageInfo object in bytes
+  public static final int size = 28;// size of DataPageInfo object in bytes
 
   private byte [] data;  // a data buffer
   
@@ -45,7 +45,7 @@ class DataPageInfo implements GlobalConst{
    */
   public DataPageInfo()
   {  
-    data = new byte[12]; // size of datapageinfo
+    data = new byte[28]; // size of datapageinfo
     int availspace = 0;
     recct =0;
     pageId.pid = INVALID_PAGE;
@@ -76,7 +76,7 @@ class DataPageInfo implements GlobalConst{
        throws InvalidTripleSizeException, IOException
   {   
      // need check _atriple size == this.size ?otherwise, throw new exception
-    if (_atriple.getLength()!=12){
+    if (_atriple.getLength()!=28){
       throw new InvalidTripleSizeException(null, "TRIPLEHEAPFILE: TRIPLE SIZE ERROR");
     }
 
@@ -108,7 +108,7 @@ class DataPageInfo implements GlobalConst{
 
 
     // 2) creat a Triple object using this array
-    Triple atriple = new Triple(data, offset, size); 
+    Triple atriple = new Triple(data, offset, 28); 
  
     // 3) return triple object
     return atriple;

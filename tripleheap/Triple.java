@@ -55,9 +55,11 @@ public class Triple implements GlobalConst {
 	    */
 	public Triple() {
 		// Create a new triple
-		data = new byte[max_size];
+//		data = new byte[max_size];
+//		triple_offset = 0;
+//	       triple_offset = max_size;
+		data = new byte[LENGTH_OF_TRIPLE];
 		triple_offset = 0;
-	       triple_offset = max_size;
 	}
 
 	/** Constructor
@@ -71,7 +73,28 @@ public class Triple implements GlobalConst {
 		data = atriple;
 		triple_offset = offset;
 		triple_length = length;
-		
+
+		// byte[] triplecopy = new byte[28];
+		try {
+			EID subjID=new EID();
+			EID objID =new EID();
+			PID predID =new PID();
+			subjID.slotNo=Convert.getIntValue(0, data);
+			subjID.pageNo.pid=Convert.getIntValue(4, data);
+			predID.slotNo=Convert.getIntValue(8, data);
+			predID.pageNo.pid=Convert.getIntValue(12, data);
+			objID.slotNo=Convert.getIntValue(16, data);
+			objID.pageNo.pid=Convert.getIntValue(20, data);
+			
+			
+		this.subjectId=subjID;
+		this.predicateId=predID;
+		this.objectId=objID;
+		this.value=Convert.getIntValue(24, data);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
 	}
 
 	/** Constructor(used as triple copy)
@@ -86,6 +109,15 @@ public class Triple implements GlobalConst {
 		triple_offset = 0;
 	       fldCnt = fromTriple.noOfFlds(); 
 	       fldOffset = fromTriple.copyFldOffset();
+	    this.setSubjectId(fromTriple.getSubjectId());
+	    this.setPredicateId(fromTriple.getPredicateId());
+	    this.setObjectId(fromTriple.getObjectId());
+	    try {
+			this.value = Convert.getIntValue(24, data);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**  
@@ -136,7 +168,7 @@ public class Triple implements GlobalConst {
 		this.objectId = objectId;
 	}
 
-	public double getConfidence() {
+	public float getConfidence() {
 		return value;
 	}
 
