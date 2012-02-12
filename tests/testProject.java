@@ -193,10 +193,15 @@ public static boolean excase=false;
 					PID pLid = new PID();
 					EID oLid = new EID();
 					Triple triple = new Triple();
-					triple = outStream.getNext();
+					
 					try {
-						do {
+						while(triple != null) {
 							
+							triple = outStream.getNext();
+							if(triple == null){
+								break;
+							}
+							else{
 							sLid= triple.getSubjectId();
 							pLid= triple.getPredicateId();
 							oLid= triple.getObjectId();
@@ -209,8 +214,9 @@ public static boolean excase=false;
 							System.out.print(" O:"+objectLabel);
 							System.out.format(" C:");
 							System.out.println(confidence);
-							triple = outStream.getNext();
-						}while(triple.subjectId != null);
+							//triple = outStream.getNext();
+							}
+						}
 						
 						
 					} catch (InvalidTripleSizeException e) {
