@@ -65,5 +65,13 @@ public class TID {
       Convert.setIntValue ( slotNo, offset, ary);
       Convert.setIntValue ( pageNo.pid, offset+4, ary);
     }
+
+public LID returnLID() {
+	// TODO Auto-generated method stub
+	LID lid=new LID();
+	lid.pageNo.pid=this.pageNo.pid;
+	lid.slotNo=this.slotNo;
+	return lid;
+}
   
 }

@@ -80,6 +80,14 @@ public class LID {
 	    else
 	      return false;
 	  }
+
+	public TID returnTid() {
+		// TODO Auto-generated method stub
+		TID tid =new TID();
+		tid.pageNo.pid=this.pageNo.pid;
+		tid.slotNo=this.slotNo;
+		return tid;
+	}
 	  
 	}
 
