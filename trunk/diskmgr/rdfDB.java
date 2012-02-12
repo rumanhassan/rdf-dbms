@@ -23,10 +23,15 @@ public class rdfDB implements GlobalConst {
   
   private static final int bits_per_page = MAX_SPACE * 8;
   public  static final String dbNamelist[]= {""};
-  TripleHeapFile tripleHeapFile = BatchInsert.globalTripleHeapFile;
+  public TripleHeapFile tripleHeapFile = BatchInsert.globalTripleHeapFile;
   public LabelHeapFile entityLabelHeapFile = BatchInsert.globalEntityHeapFile;
   public LabelHeapFile predicateLabelHeapFile = BatchInsert.globalPredicateHeapFile;
-  public BTreeFile bTreeIndexFile = BatchInsert.globalTree;
+  public BTreeFile bTreeIndexFile1 = BatchInsert.globalTree1;
+  public BTreeFile bTreeIndexFile2 = BatchInsert.globalTree2;
+  public BTreeFile bTreeIndexFile3 = BatchInsert.globalTree3;
+  public BTreeFile bTreeIndexFile4 = BatchInsert.globalTree4;
+  public BTreeFile bTreeIndexFile5 = BatchInsert.globalTree5;
+  public BTreeFile bTreeIndexFile6 = BatchInsert.globalTree6;
   public LScan labelHeapScan = null;
   
   /** Open the database with the given name.
@@ -48,8 +53,6 @@ public class rdfDB implements GlobalConst {
 	   InvalidPageNumberException, 
 	   FileIOException,
 	   DiskMgrException {
-    
-	  
     name = fname;
     
     // Create a random access file
@@ -105,7 +108,7 @@ public int getPredicateCnt() throws labelheap.InvalidSlotNumberException, Invali
   public int Objectcnt(){
 	  return ObjectCnt;
   }*/
-public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException, InvalidTripleSizeException {
+/*public TID insertTriple(byte[] recPtr) throws InvalidSlotNumberException, InvalidTupleSizeException, SpaceNotAvailableException, THFException, THFBufMgrException, THFDiskMgrException, IOException, InvalidTripleSizeException {
 	 return tripleHeapFile.insertTriple(recPtr);
   }
 public PID insertPredicate(byte[] recPtr) throws labelheap.InvalidSlotNumberException, InvalidLabelSizeException, labelheap.SpaceNotAvailableException, LHFException, LHFBufMgrException, LHFDiskMgrException, IOException, labelheap.InvalidTupleSizeException{
@@ -118,10 +121,10 @@ public EID insertEntity(byte[] triplePtr) throws labelheap.InvalidSlotNumberExce
  
 public boolean deleteEntity(LID lid) throws Exception{
 	 return entityLabelHeapFile.deleteLabel(lid);
-}
+} 
 public boolean deleteTriple(TID tid) throws Exception {
 	 return tripleHeapFile.deleteTriple(tid);
- }
+ }*/
   
   
   /** DB Constructors.

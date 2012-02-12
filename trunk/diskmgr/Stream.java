@@ -70,7 +70,26 @@ public class Stream implements GlobalConst {
 				confidenceFilter);
 		// initiate a scan of the whole index file, assumes that the btree is in
 		// sorted order
-		btScan = rdfDataBase.bTreeIndexFile.new_scan(null, null);
+		switch (orderType) {
+		case 1:
+			 btScan = rdfDataBase.bTreeIndexFile1.new_scan(null, null); 
+			break;
+		case 2:
+			 btScan = rdfDataBase.bTreeIndexFile2.new_scan(null, null); 
+			break;
+		case 3:
+			 btScan = rdfDataBase.bTreeIndexFile3.new_scan(null, null); 
+			break;
+		case 4:
+			 btScan = rdfDataBase.bTreeIndexFile4.new_scan(null, null); 
+			break;
+		case 5:
+			 btScan = rdfDataBase.bTreeIndexFile5.new_scan(null, null); 
+			break;
+		case 6:
+			 btScan = rdfDataBase.bTreeIndexFile6.new_scan(null, null); 
+			break;
+		}
 	}
 
 	/**
@@ -282,55 +301,56 @@ public class Stream implements GlobalConst {
 			String object, float confidence) {
 		boolean matches = false;
 		boolean cmatches = false;
-		float confdiff;
-		// subject filter matches or is not considered
-		/*
-		 * if( filtersIncluded[SUBJIDX] == NOT_INCLUDED ||
-		 * (filtersIncluded[SUBJIDX] == INCLUDED &&
-		 * subject.equalsIgnoreCase(subjectFilter) ) ){ matches = true; } //
-		 * predicate filter matches or is not considered if(
-		 * filtersIncluded[PREDIDX] == NOT_INCLUDED || (filtersIncluded[PREDIDX]
-		 * == INCLUDED && predicate.equalsIgnoreCase(predicateFilter) ) ){
-		 * matches = true; } // object filter matches or is not considered if(
-		 * filtersIncluded[OBJIDX] == NOT_INCLUDED || (filtersIncluded[OBJIDX]
-		 * == INCLUDED && object.equalsIgnoreCase(objectFilter) ) ){ matches =
-		 * true; } // confidence is greater than or equal to the filter if(
-		 * Float.compare(confidenceFilter,confidence) >= 0 ){ // if you got to
-		 * this point, all criteria are met matches = true; }
-		 */
-		/*if (Float.compare(confidenceFilter, confidence) >= 0) {
-			// if you got to this point, all criteria are met
-			cmatches = true;
-		}*/
-		confdiff= confidence - confidenceFilter;
-		if ((confdiff) >= 0) {
+		boolean smatches = false;
+		boolean pmatches = false;
+		boolean omatches = false;
+		if (Float.compare(confidence, confidenceFilter) >= 0) {
 			// if you got to this point, all criteria are met
 			cmatches = true;
 		}
 		if (cmatches) {
 			
-			 if (filtersIncluded[SUBJIDX] == INCLUDED
-						&& subject.equalsIgnoreCase(subjectFilter)) {
-					matches = true;
-				}
-			
+			if (filtersIncluded[SUBJIDX] == INCLUDED
+					&& subject.equalsIgnoreCase(subjectFilter)) {
+				smatches = true;
+			}
+			else if(filtersIncluded[SUBJIDX] == NOT_INCLUDED)
+			{
+				smatches = false;
+			}
+
 			// predicate filter matches or is not considered
 			if (filtersIncluded[PREDIDX] == INCLUDED
-						&& predicate.equalsIgnoreCase(predicateFilter)) {
-					matches = true;
+					&& predicate.equalsIgnoreCase(predicateFilter)) {
+				pmatches = true;
+			}
+			else if(filtersIncluded[PREDIDX] == NOT_INCLUDED){
+				pmatches = false;
+			}
+
+			// object filter matches or is not considered
+
+			if (filtersIncluded[OBJIDX] == INCLUDED
+					&& object.equalsIgnoreCase(objectFilter)) {
+				omatches = true;
+			}else if (filtersIncluded[OBJIDX] == NOT_INCLUDED){
+				omatches = false;
 			}
 			
-			// object filter matches or is not considered
 			
-				if (filtersIncluded[OBJIDX] == INCLUDED
-						&& object.equalsIgnoreCase(objectFilter)) {
-					matches = true;
-				}
+			if (filtersIncluded[SUBJIDX] == NOT_INCLUDED && filtersIncluded[PREDIDX]== NOT_INCLUDED
+					&&  filtersIncluded[OBJIDX] == NOT_INCLUDED && cmatches ) {
+				matches = true;
+			}
+			if( smatches || pmatches || omatches){
+     		matches = true;
+			}
 			
+
 			// confidence is greater than or equal to the filter
 		}
 
 		return matches;
 	}
 
-} // end of class Stream
+}
