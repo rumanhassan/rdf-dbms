@@ -566,6 +566,8 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 				  label = new byte[labLen];
 				  System.arraycopy(data, offset, label, 0, labLen);
 				  Label tuple = new Label(label, 0, labLen);
+				 // String imp= new String(tuple.getLabelByteArray());
+				  tuple.setLabel(new String(tuple.getLabelByteArray()));
 				  return tuple;
 				}
 
