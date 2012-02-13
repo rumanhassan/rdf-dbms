@@ -58,7 +58,7 @@ import tripleheap.*;
  */
 
 public class BatchInsert {
-	
+
 	/**
 	 * String[0]-file path String[1]-DB name String[2]-sort option
 	 * 
@@ -144,7 +144,35 @@ public class BatchInsert {
 		String indexOption = args[2];
 		boolean dbExists = false;
 		if (dbExists == false) {
+			
 			SystemDefs sysdef = new SystemDefs(DBName, 819300, 10000, "Clock");
+			keyType = AttrType.attrString;
+			BTreeFile btreeFile1 = new BTreeFile("btreefile1", keyType, 1000, 1);
+			BTreeFile btreeFile2 = new BTreeFile("btreefile2", keyType, 1000, 1);
+			BTreeFile btreeFile3 = new BTreeFile("btreefile3", keyType, 1000, 1);
+			BTreeFile btreeFile4 = new BTreeFile("btreefile4", keyType, 1000, 1);
+			BTreeFile btreeFile5 = new BTreeFile("btreefile5", keyType, 1000, 1);
+			BTreeFile btreeFile6 = new BTreeFile("btreefile6", keyType, 1000, 1);
+			// creating 2 btrees on entityLF and predicateLF
+			BTreeFile labelBtreeFile1 = new BTreeFile("labelbtreefile1",
+					keyType, 1000, 1);
+			BTreeFile labelBtreeFile2 = new BTreeFile("labelbtreefile2",
+					keyType, 1000, 1);
+			globalTree1 = btreeFile1;
+			globalTree2 = btreeFile2;
+			globalTree3 = btreeFile3;
+			globalTree4 = btreeFile4;
+			globalTree5 = btreeFile5;
+			globalTree6 = btreeFile6;
+			SystemDefs.JavabaseDB.bTreeIndexFile1=globalTree1;
+			SystemDefs.JavabaseDB.bTreeIndexFile2=globalTree2;
+			SystemDefs.JavabaseDB.bTreeIndexFile3=globalTree3;
+			SystemDefs.JavabaseDB.bTreeIndexFile4=globalTree4;
+			SystemDefs.JavabaseDB.bTreeIndexFile5=globalTree5;
+			SystemDefs.JavabaseDB.bTreeIndexFile6=globalTree6;
+			// global trees for entityLF and predicateLF
+			labelGlobalTree1 = labelBtreeFile1;
+			labelGlobalTree2 = labelBtreeFile2;
 			// rdfDB newDatabase = new rdfDB(Integer.parseInt(indexOption));
 			// newDatabase.openDB(DBName);
 			// TripleHeapFile tripleFileObj= new TripleHeapFile("file_1");
@@ -154,30 +182,15 @@ public class BatchInsert {
 			globalEntityHeapFile = entlabelfileObj;
 			globalPredicateHeapFile = prelabelFileObj;
 			globalTripleHeapFile = dummyLabelFileObj;
+			SystemDefs.JavabaseDB.tripleHeapFile=globalTripleHeapFile;
+			SystemDefs.JavabaseDB.entityLabelHeapFile=globalEntityHeapFile;
+			SystemDefs.JavabaseDB.predicateLabelHeapFile=globalPredicateHeapFile;
 			String[] fileArray;
 			System.out.println("inserting file at " + args[0] + " in "
 					+ args[1] + "...");
 			ReadFile readFile = new ReadFile(filePath);
 			fileArray = readFile.openFile();
-			keyType = AttrType.attrString;
-			BTreeFile btreeFile1 = new BTreeFile("btreefile1", keyType, 1000, 1);
-			BTreeFile btreeFile2 = new BTreeFile("btreefile2", keyType, 1000, 1);
-			BTreeFile btreeFile3 = new BTreeFile("btreefile3", keyType, 1000, 1);
-			BTreeFile btreeFile4 = new BTreeFile("btreefile4", keyType, 1000, 1);
-			BTreeFile btreeFile5 = new BTreeFile("btreefile5", keyType, 1000, 1);
-			BTreeFile btreeFile6 = new BTreeFile("btreefile6", keyType, 1000, 1);
-			// creating 2 btrees on entityLF and predicateLF
-			BTreeFile labelBtreeFile1 = new BTreeFile("labelbtreefile1", keyType, 1000, 1);
-			BTreeFile labelBtreeFile2 = new BTreeFile("labelbtreefile2", keyType, 1000, 1);
-			globalTree1 = btreeFile1;
-			globalTree2 = btreeFile2;
-			globalTree3 = btreeFile3;
-			globalTree4 = btreeFile4;
-			globalTree5 = btreeFile5;
-			globalTree6 = btreeFile6;
-			// global trees for entityLF and predicateLF
-			labelGlobalTree1 = labelBtreeFile1;
-			labelGlobalTree2 = labelBtreeFile2;
+			
 			for (int i = 0; i < fileArray.length; i++) {
 				char[] lineString = fileArray[i].toCharArray();
 				int lineLength = lineString.length;
@@ -246,7 +259,6 @@ public class BatchInsert {
 					if (object != null) {
 						entityCount++;
 					}
-					tripleCount++;
 
 				}
 				byte[] subjectBArray = LabelUtils
@@ -302,8 +314,7 @@ public class BatchInsert {
 				KeyClass keyClass = null;
 				do {
 					keyData = entityLHF.get_next();
-					if(keyData==null)
-					{
+					if (keyData == null) {
 						break;
 					}
 					keyClass = keyData.key;
@@ -312,22 +323,20 @@ public class BatchInsert {
 						insertSubject = true;
 						break;
 					}
-					
+
 				} while (keyData != null);
-				if(insertSubject!=true)
-				{
-				subID = entlabelfileObj.insertLabel(subjectBArray);
-				KeyClass erealKey;
-				String eKey = subject.substring(0, subject.length())
-						.toLowerCase();
-				erealKey = new StringKey(eKey);
-				// inserting into entity btree if not duplicate
-				labelBtreeFile1.insert(erealKey, subID.returnTid());
-				}
-				else{
+				if (insertSubject != true) {
+					subID = entlabelfileObj.insertLabel(subjectBArray);
+					KeyClass erealKey;
+					String eKey = subject.substring(0, subject.length())
+							.toLowerCase();
+					erealKey = new StringKey(eKey);
+					// inserting into entity btree if not duplicate
+					labelBtreeFile1.insert(erealKey, subID.returnTid());
+				} else {
 					LeafData dummyLeaf = null;
 					DataClass indexData = dummyLeaf;
-					indexData=keyData.data;
+					indexData = keyData.data;
 					LeafData currTreeNode = (LeafData) indexData;
 					subID = currTreeNode.getData().returnLID();
 				}
@@ -335,8 +344,7 @@ public class BatchInsert {
 				entityLHF = labelBtreeFile2.new_scan(null, null);
 				do {
 					keyData = entityLHF.get_next();
-					if(keyData==null)
-					{
+					if (keyData == null) {
 						break;
 					}
 					keyClass = keyData.key;
@@ -345,31 +353,28 @@ public class BatchInsert {
 						insertPredicate = true;
 						break;
 					}
-					
+
 				} while (keyData != null);
-				if(insertPredicate!=true)
-				{
-				predicID = prelabelFileObj.insertLabel(predicateBArray);
-				KeyClass plrealKey;
-				String pKey = predicate.substring(0, predicate.length())
-						.toLowerCase();
-				plrealKey = new StringKey(pKey);
-				// inserting into predicate btree
-				labelBtreeFile2.insert(plrealKey, predicID.returnTid());
-				}
-				else{
+				if (insertPredicate != true) {
+					predicID = prelabelFileObj.insertLabel(predicateBArray);
+					KeyClass plrealKey;
+					String pKey = predicate.substring(0, predicate.length())
+							.toLowerCase();
+					plrealKey = new StringKey(pKey);
+					// inserting into predicate btree
+					labelBtreeFile2.insert(plrealKey, predicID.returnTid());
+				} else {
 					LeafData dummyLeaf = null;
 					DataClass indexData = dummyLeaf;
-					indexData=keyData.data;
+					indexData = keyData.data;
 					LeafData currTreeNode = (LeafData) indexData;
 					predicID = currTreeNode.getData().returnLID();
-				}			
+				}
 				// checking for duplicate objects
 				entityLHF = labelBtreeFile1.new_scan(null, null);
 				do {
 					keyData = entityLHF.get_next();
-					if(keyData==null)
-					{
+					if (keyData == null) {
 						break;
 					}
 					keyClass = keyData.key;
@@ -378,10 +383,9 @@ public class BatchInsert {
 						insertObject = true;
 						break;
 					}
-					
+
 				} while (keyData != null);
-				if(insertObject!=true)
-				{
+				if (insertObject != true) {
 					objID = entlabelfileObj.insertLabel(objectBArray);
 					// inserting into entity btree
 					KeyClass olrealKey;
@@ -389,11 +393,10 @@ public class BatchInsert {
 							.toLowerCase();
 					olrealKey = new StringKey(oKey);
 					labelBtreeFile1.insert(olrealKey, objID.returnTid());
-				}
-				else{
+				} else {
 					LeafData dummyLeaf = null;
 					DataClass indexData = dummyLeaf;
-					indexData=keyData.data;
+					indexData = keyData.data;
 					//
 					LeafData currTreeNode = (LeafData) indexData;
 					objID = currTreeNode.getData().returnLID();
@@ -422,39 +425,41 @@ public class BatchInsert {
 
 				TID dummyTriple = new TID();
 				// tripID = dummyLabelFileObj.insertLabel(triplebyte);
-				//cheking for duplicate triples
-				Stream outStream=null;
-				
-				/*outStream = SystemDefs.JavabaseDB.openStream(
-						Integer.parseInt(sortOption), subjectFilter,
-						predicateFilter, objectFilter,
-						Float.parseFloat(confidenceFilter));*/
-			try {
-				outStream = new Stream(sysdef.JavabaseDB,
-						Integer.parseInt(args[2]), subject,
-						predicate, object,
-						Float.parseFloat(confidence));
-			} catch (NumberFormatException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvalidTripleSizeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-				Triple triple = new Triple();
-				boolean dupTriple=false;
-				while(triple != null||dupTriple!=true) {
-					
-					triple = outStream.getNext();
-					if(triple!=null)
-					{
-						dupTriple=true;
+				// cheking for duplicate triples
+				Stream outStream = null;
+
+				/*
+				 * outStream = SystemDefs.JavabaseDB.openStream(
+				 * Integer.parseInt(sortOption), subjectFilter, predicateFilter,
+				 * objectFilter, Float.parseFloat(confidenceFilter));
+				 */
+				boolean dupTriple = false;
+				if (tripleCount != 0) {
+					try {
+						outStream = new Stream(SystemDefs.JavabaseDB,
+								Integer.parseInt(args[2]), subject, predicate,
+								object, Float.parseFloat(confidence));
+					} catch (NumberFormatException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InvalidTripleSizeException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					Triple triple = new Triple();
+					while (triple != null && dupTriple != true) {
+
+						triple = outStream.getNext();
+						if (triple != null) {
+							dupTriple = true;
+						}
 					}
 				}
-				if (dupTriple==false)
-				{
-				dummyTriple = dummyLabelFileObj.insertTriple(triplebyte);
+				if (dupTriple == false) {
+					dummyTriple = dummyLabelFileObj.insertTriple(triplebyte);
+					tripleCount++;
 				}
+				if (dupTriple == false) {
 				System.out.println("inserted..SID is  p: " + subID.pageNo + " "
 						+ " S " + subID.slotNo);
 				System.out.println("inserted..PID is p: " + objID.pageNo + " "
@@ -462,12 +467,12 @@ public class BatchInsert {
 				System.out.println("inserted..OID is  p: " + predicID.pageNo
 						+ " " + " S " + predicID.slotNo);
 				System.out.println("inserting..");
-				if(dupTriple==false){
-				System.out.println("inserted..TID is p: " + dummyTriple.pageNo
-						+ "  " + " S " + dummyTriple.slotNo);
-				}
-				else{
-					System.out.println("duplicate key...so not inserted ");
+				
+					System.out.println("inserted..TID is p: "
+							+ dummyTriple.pageNo + "  " + " S "
+							+ dummyTriple.slotNo);
+				} else {
+					System.out.println("duplicate triple...so not inserted ");
 				}
 				// createBtree("file_2");
 				TID tid = new TID();
@@ -476,7 +481,7 @@ public class BatchInsert {
 				Float floatkey = Float.parseFloat(confidence);
 				confidenceForKey = confidence.substring(0, 8);
 				// System.out.println(confidenceForKey+"    "+confidenceForKey.length());
-				if (excase == false) {
+				if (excase == false && dupTriple==false) {
 					TID newtid = new TID(dummyTriple.pageNo, dummyTriple.slotNo);
 					String subjectForKey = null;
 					String predicateForKey = null;
@@ -497,8 +502,10 @@ public class BatchInsert {
 							.toLowerCase();
 					crealKey = new StringKey(compositeKey);
 					btreeFile1.insert(crealKey, newtid);
-					/*System.out.println("key  " + crealKey + "    "
-							+ crealKey.toString().length());*/
+					/*
+					 * System.out.println("key  " + crealKey + "    " +
+					 * crealKey.toString().length());
+					 */
 					// 2 btree
 					compositeKey = predicate
 							.substring(0, predicate.length() / 2)
@@ -508,36 +515,46 @@ public class BatchInsert {
 											confidenceForKey))).toLowerCase();
 					prealKey = new StringKey(compositeKey);
 					btreeFile2.insert(prealKey, newtid);
-					/*System.out.println("key  " + prealKey + "    "
-							+ prealKey.toString().length());*/
+					/*
+					 * System.out.println("key  " + prealKey + "    " +
+					 * prealKey.toString().length());
+					 */
 					// 3 btree
 					compositeKey = subject.substring(0, subject.length() / 2)
 							.concat(confidenceForKey).toLowerCase();
 					srealKey = new StringKey(compositeKey);
 					btreeFile3.insert(srealKey, newtid);
-					/*System.out.println("key  " + srealKey + "    "
-							+ srealKey.toString().length());*/
+					/*
+					 * System.out.println("key  " + srealKey + "    " +
+					 * srealKey.toString().length());
+					 */
 					// 4 btree
 					compositeKey = predicate
 							.substring(0, predicate.length() / 2)
 							.concat(confidenceForKey).toLowerCase();
 					orealKey = new StringKey(compositeKey);
 					btreeFile4.insert(orealKey, newtid);
-					/*System.out.println("key   " + orealKey + "    "
-							+ orealKey.toString().length());*/
+					/*
+					 * System.out.println("key   " + orealKey + "    " +
+					 * orealKey.toString().length());
+					 */
 					// 5 btree
 					compositeKey = object.substring(0, object.length() / 2)
 							.concat(confidenceForKey).toLowerCase();
 					orealKey = new StringKey(compositeKey);
 					btreeFile5.insert(orealKey, newtid);
-					/*System.out.println("key  " + orealKey + "    "
-							+ orealKey.toString().length());*/
+					/*
+					 * System.out.println("key  " + orealKey + "    " +
+					 * orealKey.toString().length());
+					 */
 					// 6 btree
 					KeyClass realKey;
 					realKey = new StringKey(confidenceForKey);
 					btreeFile6.insert(realKey, newtid);
-					/*System.out.println("key  " + realKey + "    "
-							+ realKey.toString().length());*/
+					/*
+					 * System.out.println("key  " + realKey + "    " +
+					 * realKey.toString().length());
+					 */
 				}
 			}
 			if (excase == false) {
@@ -596,7 +613,8 @@ public class BatchInsert {
 			KeyNotMatchException, LeafInsertRecException,
 			IndexInsertRecException, UnpinPageException, PinPageException,
 			NodeNotMatchException, ConvertException, DeleteRecException,
-			IndexSearchException, LeafDeleteException, InsertException, ScanIteratorException {
+			IndexSearchException, LeafDeleteException, InsertException,
+			ScanIteratorException {
 
 		String[] inputToMain = { path, dbName, sortOption };
 		inputToMain[0] = path;

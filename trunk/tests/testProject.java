@@ -36,6 +36,7 @@ public class testProject {
 
 	static Pattern p = Pattern.compile("^[A-Za-z0-9]+$");
 public static boolean excase=false;
+public static boolean batchorquery=true;
 	public static void main(String[] args) throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
 		// TODO Auto-generated method stub
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -112,7 +113,7 @@ public static boolean excase=false;
 				String objectFilter = null;
 				String confidenceFilter = null;
 				String numBuf = null;
-
+				batchorquery=false;
 				System.out.println("You entered : " + selectedOption);
 				System.out.println("enter RDFDBNAME");
 				try {
