@@ -8,6 +8,7 @@ import global.*;
 import btree.*;
 import bufmgr.*;
 import tests.BatchInsert;
+import tests.testProject;
 import tripleheap.*;
 
 /**
@@ -72,22 +73,22 @@ public class Stream implements GlobalConst {
 		// sorted order
 		switch (orderType) {
 		case 1:
-			 btScan = rdfDataBase.bTreeIndexFile1.new_scan(null, null); 
+			btScan = rdfDataBase.bTreeIndexFile1.new_scan(null, null); 
 			break;
 		case 2:
-			 btScan = rdfDataBase.bTreeIndexFile2.new_scan(null, null); 
+			btScan = rdfDataBase.bTreeIndexFile2.new_scan(null, null);
 			break;
 		case 3:
-			 btScan = rdfDataBase.bTreeIndexFile3.new_scan(null, null); 
+			btScan = rdfDataBase.bTreeIndexFile3.new_scan(null, null);
 			break;
 		case 4:
-			 btScan = rdfDataBase.bTreeIndexFile4.new_scan(null, null); 
+			btScan = rdfDataBase.bTreeIndexFile4.new_scan(null, null);
 			break;
 		case 5:
-			 btScan = rdfDataBase.bTreeIndexFile5.new_scan(null, null); 
+			btScan = rdfDataBase.bTreeIndexFile5.new_scan(null, null);
 			break;
 		case 6:
-			 btScan = rdfDataBase.bTreeIndexFile6.new_scan(null, null); 
+			btScan = rdfDataBase.bTreeIndexFile6.new_scan(null, null);
 			break;
 		}
 	}
@@ -122,6 +123,7 @@ public class Stream implements GlobalConst {
 		do { // iterate here
 			try {
 				keyData = btScan.get_next();
+				
 			} catch (ScanIteratorException e) {
 				System.out
 						.println("STREAM: error when attempting to get next btree leaf node");
@@ -145,7 +147,8 @@ public class Stream implements GlobalConst {
 					TID myTID = currTreeNode.getData();
 					TID tripleID = new TID(myTID.pageNo, myTID.slotNo);
 					aTriple = rdfdatabase.tripleHeapFile.getTriple(tripleID);
-
+					if (aTriple!=null)
+					{
 					fillTriple = getTripleFromByteArray(aTriple
 							.getTripleByteArray());
 					// ---------------------------------------------
@@ -164,7 +167,8 @@ public class Stream implements GlobalConst {
 					objEntity = fillTriple.getObjectId();
 					objLabel = objEntity.returnLID();
 					objStr = rdfdatabase.entityLabelHeapFile.getLabel(objLabel);
-					this.confidenceFilter = fillTriple.value;
+					//this.confidenceFilter = fillTriple.value;
+					}
 				} catch (InvalidSlotNumberException e) {
 					System.out
 							.println("STREAM: error attempting access to triple heap file");
@@ -189,13 +193,15 @@ public class Stream implements GlobalConst {
 							.println("STREAM: error when attempting to get next btree leaf node");
 					e.printStackTrace();
 				}
-
+				if (aTriple!=null)
+				{
 				// Check that the triple's data matches the filter
-				weHaveAMatch = tripleDataMatchesFilter(subjStr, predStr, objStr,
-					confidenceFilter);
+				weHaveAMatch = tripleDataMatchesFilter(subjStr, predStr,
+						objStr, fillTriple.value);
 
 				if (weHaveAMatch) {
 					keyData = null; // to break out of the do-while
+				}
 				}
 			}
 		} while (keyData != null);
@@ -301,51 +307,50 @@ public class Stream implements GlobalConst {
 			String object, float confidence) {
 		boolean matches = false;
 		boolean cmatches = false;
-		boolean smatches = false;
-		boolean pmatches = false;
-		boolean omatches = false;
 		if (Float.compare(confidence, confidenceFilter) >= 0) {
 			// if you got to this point, all criteria are met
 			cmatches = true;
 		}
+		if(Float.compare(confidence, confidenceFilter) <= 0 && testProject.batchorquery==true)
+		{
+			cmatches =true;
+		}
 		if (cmatches) {
-			
-			if (filtersIncluded[SUBJIDX] == INCLUDED
-					&& subject.equalsIgnoreCase(subjectFilter)) {
-				smatches = true;
-			}
-			else if(filtersIncluded[SUBJIDX] == NOT_INCLUDED)
-			{
-				smatches = false;
-			}
 
-			// predicate filter matches or is not considered
-			if (filtersIncluded[PREDIDX] == INCLUDED
-					&& predicate.equalsIgnoreCase(predicateFilter)) {
-				pmatches = true;
+			if (filtersIncluded[SUBJIDX] == INCLUDED) {
+				if (subject.equalsIgnoreCase(subjectFilter)) {
+					matches = true;
+				} else {
+					matches = false;
+				}
 			}
-			else if(filtersIncluded[PREDIDX] == NOT_INCLUDED){
-				pmatches = false;
+			// predicate filter matches or is not considered
+			if (filtersIncluded[PREDIDX] == INCLUDED) {
+				if (predicate.equalsIgnoreCase(predicateFilter)) {
+					matches = true;
+				} else {
+					matches = false;
+				}
 			}
 
 			// object filter matches or is not considered
 
-			if (filtersIncluded[OBJIDX] == INCLUDED
-					&& object.equalsIgnoreCase(objectFilter)) {
-				omatches = true;
-			}else if (filtersIncluded[OBJIDX] == NOT_INCLUDED){
-				omatches = false;
+			if (filtersIncluded[OBJIDX] == INCLUDED) {
+				if (object.equalsIgnoreCase(objectFilter)) {
+					matches = true;
+				} else {
+					matches = false;
+				}
 			}
-			
-			
-			if (filtersIncluded[SUBJIDX] == NOT_INCLUDED && filtersIncluded[PREDIDX]== NOT_INCLUDED
-					&&  filtersIncluded[OBJIDX] == NOT_INCLUDED && cmatches ) {
+
+			if (filtersIncluded[SUBJIDX] == NOT_INCLUDED
+					&& filtersIncluded[PREDIDX] == NOT_INCLUDED
+					&& filtersIncluded[OBJIDX] == NOT_INCLUDED && cmatches) {
 				matches = true;
 			}
-			if( smatches || pmatches || omatches){
-     		matches = true;
-			}
-			
+			/*
+			 * if (smatches || pmatches || omatches) { matches = true; }
+			 */
 
 			// confidence is greater than or equal to the filter
 		}

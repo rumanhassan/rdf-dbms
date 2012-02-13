@@ -813,6 +813,7 @@ public class LabelHeapFile implements Filetype,  GlobalConst {
       boolean status;
       LHFPage dirPage = new LHFPage();
       PageID currentDirPageId = new PageID();
+      currentDirPageId=new PageID(_firstDirPageId.pid);//initialized as in insertlabel()
       LHFPage dataPage = new LHFPage();
       PageID currentDataPageId = new PageID();
       LID currentDataPageLid = new LID();
