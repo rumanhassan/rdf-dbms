@@ -2,6 +2,7 @@ package tripleheap;
 
 import global.AttrType;
 import global.Convert;
+import global.EID;
 import global.GlobalConst;
 import heap.FieldNumberOutOfBoundException;
 import heap.InvalidTupleSizeException;
@@ -34,21 +35,21 @@ public class BasicPatternClass implements GlobalConst{
 	  private int bp_offset;
 
 	  /**
-	   * length of this BasicPatternClass
+	   * length of this BasicPatternClass in bytes
 	   */
 	  private int bp_length;
 
 	  /** 
 	   * private field
-	   * Number of fields in this BasicPatternClass
+	   * Number of entities in this BasicPatternClass
 	   */
-	  private short fldCnt;
+	  private short entityCnt;
 
 	  /** 
 	   * private field
-	   * Array of offsets of the fields
+	   * Array of offsets of the entities
 	   */	 
-	  private short [] fldOffset; 
+	  private short [] entityOffset = {0}; 
 
      /**
       * Class constructor
@@ -84,8 +85,8 @@ public class BasicPatternClass implements GlobalConst{
 	       data = fromBasicPatternClass.getBPByteArray();
 	       bp_length = fromBasicPatternClass.getLength();
 	       bp_offset = 0;
-	       fldCnt = fromBasicPatternClass.noOfFlds(); 
-	       fldOffset = fromBasicPatternClass.copyFldOffset(); 
+	       entityCnt = fromBasicPatternClass.noOfEntities(); 
+	       entityOffset = fromBasicPatternClass.copyFldOffset(); 
 	   }
 
 	   /**  
@@ -98,7 +99,8 @@ public class BasicPatternClass implements GlobalConst{
 	       // Create a new tuple
 	       data = new byte[size];
 	       bp_offset = 0;
-	       bp_length = size;     
+	       bp_length = size; 
+	       entityCnt = 0;
 	  }
 	   
 	   /** Copy a tuple to the current tuple position
@@ -109,11 +111,12 @@ public class BasicPatternClass implements GlobalConst{
 	   {
 	       byte [] temparray = fromBasicPatternClass.getBPByteArray();
 	       System.arraycopy(temparray, 0, data, bp_offset, bp_length);   
-	       fldCnt = fromBasicPatternClass.noOfFlds(); 
-	       fldOffset = fromBasicPatternClass.copyFldOffset(); 
+	       entityCnt = fromBasicPatternClass.noOfEntities(); 
+	       entityOffset = fromBasicPatternClass.copyFldOffset(); 
 	   }
 
-	   /** This is used when you don't want to use the constructor
+	   /** This is used when you don't want to use the constructor.
+	    *  Assumes that aBP contains 1 entity
 	    * @param aBP  a byte array which contains the fromBasicPatternClass
 	    * @param offset the offset of the fromBasicPatternClass in the byte array
 	    * @param length the length of the fromBasicPatternClass
@@ -124,6 +127,7 @@ public class BasicPatternClass implements GlobalConst{
 	      data = aBP;
 	      bp_offset = offset;
 	      bp_length = length;
+	      entityCnt = 1;
 	   }
 
 	 /**
@@ -154,7 +158,7 @@ public class BasicPatternClass implements GlobalConst{
 	  */
 	  public short size()
 	   {
-	      return ((short) (fldOffset[fldCnt] - bp_offset));
+	      return ((short) (entityOffset[entityCnt] - bp_offset));
 	   }
 	 
 	   /** get the offset of a fromBasicPatternClass
@@ -169,9 +173,8 @@ public class BasicPatternClass implements GlobalConst{
 	    *  @return  byte[], a byte array contains the tuple
 	    *		the length of byte[] = length of the tuple
 	    */
-	    
-	   public byte [] getBPByteArray() 
-	   {
+
+	   public byte [] getBPByteArray() {
 	       byte [] tuplecopy = new byte [bp_length];
 	       System.arraycopy(data, bp_offset, tuplecopy, 0, bp_length);
 	       return tuplecopy;
@@ -181,32 +184,49 @@ public class BasicPatternClass implements GlobalConst{
 	    *  @return  data byte array 		
 	    */
 	    
-	   public byte [] returnBPByteArray()
-	   {
+	   public byte [] returnBPByteArray() {
 	       return data;
 	   }
-	   
+
 	   /**
 	    * Convert this field into integer 
-	    * 
+	    *
 	    * @param	fldNo	the field number
 	    * @return		the converted integer if success
-	    *			
+	    *
 	    * @exception   IOException I/O errors
 	    * @exception   FieldNumberOutOfBoundException Tuple field number out of bound
 	    */
 
-	  public int getIntFld(int fldNo) 
+	  public int getIntFld(int fldNo)
 	  	throws IOException, FieldNumberOutOfBoundException
-	  {           
+	  {
 	    int val;
-	    if ( (fldNo > 0) && (fldNo <= fldCnt))
+	    if ( (fldNo > 0) && (fldNo <= entityCnt))
 	     {
-	      val = Convert.getIntValue(fldOffset[fldNo -1], data);
+	      val = Convert.getIntValue(entityOffset[fldNo -1], data);
 	      return val;
 	     }
-	    else 
+	    else
 	     throw new FieldNumberOutOfBoundException (null, "BasicPatternClass:TUPLE_FLDNO_OUT_OF_BOUND");
+	  }
+	  
+	  /**
+	 * @param nodePos the position of the entity within the Basic Pattern
+	 * 				  (starts at 1).
+	 * @return the EID of the node at the given position
+	 * @throws IOException
+	 */
+	public EID getEIDbyNodePosition(int nodePos) throws IOException{
+		  EID retVal = new EID();
+		    if ( (nodePos > 0) && (nodePos <= entityCnt))
+		     {		    	
+		      retVal.slotNo = Convert.getIntValue(entityOffset[nodePos -1], data);
+		      retVal.pageNo.pid = Convert.getIntValue(entityOffset[nodePos -1] + Integer.SIZE , data);
+		     }
+		    else
+		    	System.out.println("BasicPatternClass: Node position out of bounds!");
+		  return retVal;
 	  }
 	    
 	   /**
@@ -223,9 +243,9 @@ public class BasicPatternClass implements GlobalConst{
 	    	throws IOException, FieldNumberOutOfBoundException
 	     {
 		float val;
-	      if ( (fldNo > 0) && (fldNo <= fldCnt))
+	      if ( (fldNo > 0) && (fldNo <= entityCnt))
 	       {
-	        val = Convert.getFloValue(fldOffset[fldNo -1], data);
+	        val = Convert.getFloValue(entityOffset[fldNo -1], data);
 	        return val;
 	       }
 	      else 
@@ -247,10 +267,10 @@ public class BasicPatternClass implements GlobalConst{
 	   	throws IOException, FieldNumberOutOfBoundException 
 	   { 
 	         String val;
-	    if ( (fldNo > 0) && (fldNo <= fldCnt))      
+	    if ( (fldNo > 0) && (fldNo <= entityCnt))      
 	     {
-	        val = Convert.getStrValue(fldOffset[fldNo -1], data, 
-			fldOffset[fldNo] - fldOffset[fldNo -1]); //strlen+2
+	        val = Convert.getStrValue(entityOffset[fldNo -1], data, 
+			entityOffset[fldNo] - entityOffset[fldNo -1]); //strlen+2
 	        return val;
 	     }
 	    else 
@@ -271,9 +291,9 @@ public class BasicPatternClass implements GlobalConst{
 	   	throws IOException, FieldNumberOutOfBoundException 
 	    {   
 	       char val;
-	      if ( (fldNo > 0) && (fldNo <= fldCnt))      
+	      if ( (fldNo > 0) && (fldNo <= entityCnt))      
 	       {
-	        val = Convert.getCharValue(fldOffset[fldNo -1], data);
+	        val = Convert.getCharValue(entityOffset[fldNo -1], data);
 	        return val;
 	       }
 	      else 
@@ -293,9 +313,9 @@ public class BasicPatternClass implements GlobalConst{
 	  public BasicPatternClass setIntFld(int fldNo, int val) 
 	  	throws IOException, FieldNumberOutOfBoundException
 	  { 
-	    if ( (fldNo > 0) && (fldNo <= fldCnt))
+	    if ( (fldNo > 0) && (fldNo <= entityCnt))
 	     {
-		Convert.setIntValue (val, fldOffset[fldNo -1], data);
+		Convert.setIntValue (val, entityOffset[fldNo -1], data);
 		return this;
 	     }
 	    else 
@@ -314,9 +334,9 @@ public class BasicPatternClass implements GlobalConst{
 	  public BasicPatternClass setFloFld(int fldNo, float val) 
 	  	throws IOException, FieldNumberOutOfBoundException
 	  { 
-	   if ( (fldNo > 0) && (fldNo <= fldCnt))
+	   if ( (fldNo > 0) && (fldNo <= entityCnt))
 	    {
-	     Convert.setFloValue (val, fldOffset[fldNo -1], data);
+	     Convert.setFloValue (val, entityOffset[fldNo -1], data);
 	     return this;
 	    }
 	    else  
@@ -336,9 +356,9 @@ public class BasicPatternClass implements GlobalConst{
 	   public BasicPatternClass setStrFld(int fldNo, String val) 
 			throws IOException, FieldNumberOutOfBoundException  
 	   {
-	     if ( (fldNo > 0) && (fldNo <= fldCnt))        
+	     if ( (fldNo > 0) && (fldNo <= entityCnt))        
 	      {
-	         Convert.setStrValue (val, fldOffset[fldNo -1], data);
+	         Convert.setStrValue (val, entityOffset[fldNo -1], data);
 	         return this;
 	      }
 	     else 
@@ -365,16 +385,16 @@ public class BasicPatternClass implements GlobalConst{
 	  if((numFlds +2)*2 > max_size)
 	    throw new InvalidTupleSizeException (null, "TUPLE: TUPLE_TOOBIG_ERROR");
 	  
-	  fldCnt = numFlds;
+	  entityCnt = numFlds;
 	  Convert.setShortValue(numFlds, bp_offset, data);
-	  fldOffset = new short[numFlds+1];
+	  entityOffset = new short[numFlds+1];
 	  int pos = bp_offset+2;  // start position for fldOffset[]
 	  
 	  //sizeof short =2  +2: array siaze = numFlds +1 (0 - numFilds) and
 	  //another 1 for fldCnt
-	  fldOffset[0] = (short) ((numFlds +2) * 2 + bp_offset);   
+	  entityOffset[0] = (short) ((numFlds +2) * 2 + bp_offset);   
 	   
-	  Convert.setShortValue(fldOffset[0], pos, data);
+	  Convert.setShortValue(entityOffset[0], pos, data);
 	  pos +=2;
 	  short strCount =0;
 	  short incr;
@@ -400,8 +420,8 @@ public class BasicPatternClass implements GlobalConst{
 	   default:
 	    throw new InvalidTypeException (null, "TUPLE: TUPLE_TYPE_ERROR");
 	   }
-	  fldOffset[i]  = (short) (fldOffset[i-1] + incr);
-	  Convert.setShortValue(fldOffset[i], pos, data);
+	  entityOffset[i]  = (short) (entityOffset[i-1] + incr);
+	  Convert.setShortValue(entityOffset[i], pos, data);
 	  pos +=2;
 	 
 	}
@@ -423,10 +443,10 @@ public class BasicPatternClass implements GlobalConst{
 	    throw new InvalidTypeException (null, "TUPLE: TUPLE_TYPE_ERROR");
 	   }
 
-	  fldOffset[numFlds] = (short) (fldOffset[i-1] + incr);
-	  Convert.setShortValue(fldOffset[numFlds], pos, data);
+	  entityOffset[numFlds] = (short) (entityOffset[i-1] + incr);
+	  Convert.setShortValue(entityOffset[numFlds], pos, data);
 	  
-	  bp_length = fldOffset[numFlds] - bp_offset;
+	  bp_length = entityOffset[numFlds] - bp_offset;
 
 	  if(bp_length > max_size)
 	   throw new InvalidTupleSizeException (null, "TUPLE: TUPLE_TOOBIG_ERROR");
@@ -434,15 +454,15 @@ public class BasicPatternClass implements GlobalConst{
 	     
 	  
 	  /**
-	   * Returns number of fields in this tuple
+	   * Returns number of entities in this Basic Pattern
 	   *
-	   * @return the number of fields in this tuple
+	   * @return the number of entities in this Basic Pattern
 	   *
 	   */
 
-	  public short noOfFlds() 
+	  public short noOfEntities() 
 	   {
-	     return fldCnt;
+	     return entityCnt;
 	   }
 
 	  /**
@@ -454,9 +474,9 @@ public class BasicPatternClass implements GlobalConst{
 
 	  public short[] copyFldOffset() 
 	   {
-	     short[] newFldOffset = new short[fldCnt + 1];
-	     for (int i=0; i<=fldCnt; i++) {
-	       newFldOffset[i] = fldOffset[i];
+	     short[] newFldOffset = new short[entityCnt + 1];
+	     for (int i=0; i<=entityCnt; i++) {
+	       newFldOffset[i] = entityOffset[i];
 	     }
 	     
 	     return newFldOffset;
@@ -475,6 +495,27 @@ public class BasicPatternClass implements GlobalConst{
 	  	public float getConfidence() {
 	  		return confidence;
 	  	}
+	  	
+	  	/**
+	  	 * @param eid the EID of an entity to add to the Basic Pattern
+	  	 * 			  the entity will be inserted at the end of the byte[] data
+	  	 * @throws IOException 
+	  	 */
+	  	public void addEntityToBP(EID eid) throws IOException{
+	  		
+	  		byte[] tempArray = new byte[data.length + eid_size];
+	  		System.arraycopy(data, bp_offset, tempArray, 0, bp_length);
+	  		Convert.setIntValue(eid.slotNo, data.length, tempArray);
+	  		Convert.setIntValue(eid.pageNo.pid, data.length+4, tempArray);
+	  		data = tempArray;	 
+	  		entityCnt++;
+	  		short[] tempOffsetArry = new short[entityOffset.length + 1];
+	  		System.arraycopy(entityOffset, 0, tempOffsetArry, 0, entityOffset.length);
+	  		short value = (short) (entityOffset[entityOffset.length-1] + 8);
+	  		tempOffsetArry[entityOffset.length] = value;
+	  		entityOffset = tempOffsetArry;
+	  		bp_length += eid_size;
+	  	}
 
 	 /**
 	  * Print out the tuple
@@ -489,22 +530,22 @@ public class BasicPatternClass implements GlobalConst{
 	  String sval;
 
 	  System.out.print("[");
-	  for (i=0; i< fldCnt-1; i++)
+	  for (i=0; i< entityCnt-1; i++)
 	   {
 	    switch(type[i].attrType) {
 
 	   case AttrType.attrInteger:
-	     val = Convert.getIntValue(fldOffset[i], data);
+	     val = Convert.getIntValue(entityOffset[i], data);
 	     System.out.print(val);
 	     break;
 
 	   case AttrType.attrReal:
-	     fval = Convert.getFloValue(fldOffset[i], data);
+	     fval = Convert.getFloValue(entityOffset[i], data);
 	     System.out.print(fval);
 	     break;
 
 	   case AttrType.attrString:
-	     sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
+	     sval = Convert.getStrValue(entityOffset[i], data,entityOffset[i+1] - entityOffset[i]);
 	     System.out.print(sval);
 	     break;
 	  
@@ -515,20 +556,20 @@ public class BasicPatternClass implements GlobalConst{
 	   System.out.print(", ");
 	 } 
 	 
-	 switch(type[fldCnt-1].attrType) {
+	 switch(type[entityCnt-1].attrType) {
 
 	   case AttrType.attrInteger:
-	     val = Convert.getIntValue(fldOffset[i], data);
+	     val = Convert.getIntValue(entityOffset[i], data);
 	     System.out.print(val);
 	     break;
 
 	   case AttrType.attrReal:
-	     fval = Convert.getFloValue(fldOffset[i], data);
+	     fval = Convert.getFloValue(entityOffset[i], data);
 	     System.out.print(fval);
 	     break;
 
 	   case AttrType.attrString:
-	     sval = Convert.getStrValue(fldOffset[i], data,fldOffset[i+1] - fldOffset[i]);
+	     sval = Convert.getStrValue(entityOffset[i], data,entityOffset[i+1] - entityOffset[i]);
 	     System.out.print(sval);
 	     break;
 
