@@ -1,40 +1,61 @@
 package iterator;
 
 import global.AttrType;
+import global.Convert;
 import global.PageID;
 import global.RID;
 import global.SystemDefs;
-import heap.Heapfile;
-import heap.Scan;
+import global.TID;
+import diskmgr.Stream;
 import heap.Tuple;
 import index.IndexException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import labelheap.InvalidTypeException;
+import btree.ConstructPageException;
+import btree.IteratorException;
+import btree.KeyNotMatchException;
+import btree.PinPageException;
+import btree.UnpinPageException;
 import bufmgr.PageNotReadException;
 import diskmgr.Page;
 import tripleheap.BasicPatternClass;
 import tripleheap.InvalidTripleSizeException;
-import tripleheap.InvalidTupleSizeException;
+import tripleheap.Triple;
 
 public class BP_Triple_Join {
 	
 	private AttrType      _in1[],  _in2[];
 	  private   int        in1_len, in2_len;
-	  private   Iterator  outer;
+	  private   BPIterator  outer;
 	  private   short t2_str_sizescopy[];
 	  private   CondExpr OutputFilter[];
 	  private   CondExpr RightFilter[];
 	  private   int        n_buf_pgs;        // # of buffer pages available.
 	  private   boolean        done,         // Is the join complete
 	    get_from_outer;                 // if TRUE, a tuple is got from outer
-	  private   BasicPatternClass     outer_BP, inner_BP;
+	  private   BasicPatternClass     outer_BP;
+	  private   Triple inner_BP;
 	  private   BasicPatternClass     joined_BP;           // Joined Basic Pattern
 	  private   FldSpec   perm_mat[];
 	  private   int        nOutFlds;
-	  private   Heapfile  hf;
-	  private   Scan      inner;
+	  private   Stream      tripleStream;
+	  
+	  private boolean joinOnSubj = false;
+	  private boolean joinOnObj = false;
+	  private boolean outputRightSubj = false;
+	  private boolean outputRightObj = false;
+	  
+	  private int amt_of_mem; // - available pages for theoperation
+	  private int num_left_nodes; // - the number of node IDs in the left basic pattern stream
+	  private BPIterator left_itr; // - the left basic pattern stream
+	  private int BPJoinNodePosition; // - the position of the join node in the basic pattern
+
+	  private int[] LeftOutNodePositions; //- positions of the projected nodes from the left source
+	  
+	  
 	
 	/**
 	 * @param amt_of_mem - available pages for the operation
@@ -49,14 +70,71 @@ public class BP_Triple_Join {
 	 * @param LeftOutNodePositions - positions of the projected nodes from the left source
 	 * @param OutputRightSubject - 0/1 project subject node from the right source?
 	 * @param OutputRightObject - 0/1 project object node from the right source?
+	 * @throws IOException 
+	 * @throws KeyNotMatchException 
+	 * @throws IteratorException 
+	 * @throws ConstructPageException 
+	 * @throws PinPageException 
+	 * @throws UnpinPageException 
+	 * @throws InvalidTripleSizeException 
 	 */
 	public BP_Triple_Join( int amt_of_mem, int num_left_nodes, BPIterator left_itr,
 			int BPJoinNodePosition, int JoinOnSubjectorObject, String
 			RightSubjectFilter, String RightPredicateFilter, String
-			RightObjectFilter, double RightConfidenceFilter, int [] LeftOutNodePositions,
-			int OutputRightSubject, int OutputRightObject) {
-		//TODO Auto-generated
+			RightObjectFilter, float RightConfidenceFilter, int [] LeftOutNodePositions,
+			int OutputRightSubject, int OutputRightObject) throws InvalidTripleSizeException, UnpinPageException, PinPageException, ConstructPageException, IteratorException, KeyNotMatchException, IOException {
+		
+		  this.amt_of_mem = amt_of_mem; 
+		  this.num_left_nodes = num_left_nodes; 
+		  this.left_itr = left_itr; 
+		  this.BPJoinNodePosition = BPJoinNodePosition; 
+		  if(JoinOnSubjectorObject == 0)
+			  joinOnSubj = true;
+		  else joinOnObj = true;
+ 
+		  this.LeftOutNodePositions = LeftOutNodePositions;
+		  if(OutputRightSubject == 1)
+			  outputRightSubj = true;
+		  if(OutputRightObject == 1)
+			  outputRightObj = true;
+		  
+		  tripleStream = new Stream(SystemDefs.JavabaseDB, 1, RightSubjectFilter, RightPredicateFilter, RightObjectFilter, RightConfidenceFilter);
 	} // end constructor
+	
+	/** Build the initial list of BPs using the left filter criteria
+	 * @param subjFilter
+	 * @param predFilter
+	 * @param objFilter
+	 * @param confFilter
+	 * @throws IOException 
+	 * @throws KeyNotMatchException 
+	 * @throws IteratorException 
+	 * @throws ConstructPageException 
+	 * @throws PinPageException 
+	 * @throws UnpinPageException 
+	 * @throws InvalidTripleSizeException 
+	 */
+	public void intializeBPIterator(String subjFilter, String predFilter,
+			String objFilter, float confFilter) throws InvalidTripleSizeException, UnpinPageException, PinPageException, ConstructPageException, IteratorException, KeyNotMatchException, IOException{
+		left_itr.bpList = new ArrayList<BasicPatternClass>();
+		Stream leftStream = new Stream(SystemDefs.JavabaseDB, 6, subjFilter, predFilter, objFilter, confFilter);
+		Triple trip = leftStream.getNext();
+		while(trip != null){
+			// adding the first entity to a BP takes some work
+			byte[] temp = new byte[BasicPatternClass.eid_size];
+			Convert.setIntValue(trip.getSubjectId().slotNo, 0, temp);
+			Convert.setIntValue(trip.getSubjectId().pageNo.pid, 4, temp);
+			BasicPatternClass bp = new BasicPatternClass(BasicPatternClass.eid_size);
+			bp.bpInit(temp, 0, 8);
+			// now that the BP contains at least 1 entity, adding is easier
+			bp.addEntityToBP(trip.getObjectId());
+			bp.setConfidence(trip.getConfidence());
+			left_itr.bpList.add(bp);
+			
+			trip = leftStream.getNext();
+		} // end while
+		
+	}
 	
 
 	  
@@ -85,7 +163,7 @@ public class BP_Triple_Join {
 	   *@exception UnknownKeyTypeException key type unknown
 	   *@exception Exception other exceptions
 	   */
-	  public BasicPatternClass getnext() 
+	  public BasicPatternClass get_next() 
 	    throws IOException,
 		   JoinsException ,
 		   IndexException,
@@ -115,26 +193,26 @@ public class BP_Triple_Join {
 		  if (get_from_outer == true)
 		    {
 		      get_from_outer = false;
-		      if (inner != null)     // If this not the first time,
+		      if (tripleStream != null)     // If this not the first time,
 			{
 			  // close scan
-			  inner = null;
+			  tripleStream = null;
 			}
 		    
 		      try {
-			inner = hf.openScan();
+			tripleStream = new Stream(SystemDefs.JavabaseDB, in1_len, null, null, null, in1_len);
 		      }
 		      catch(Exception e){
 			throw new NestedLoopException(e, "openScan failed");
 		      }
 		      
-		      if ((outer_BP=outer.get_next()) == null) //call to Iterator.get_next
+		      if ((outer_BP=outer.get_next()) == null) //call to BPIterator.get_next
 			{
 			  done = true;
-			  if (inner != null) 
+			  if (tripleStream != null) 
 			    {
 	                      
-			      inner = null;
+			      tripleStream = null;
 			    }
 			  
 			  return null;
@@ -147,8 +225,8 @@ public class BP_Triple_Join {
 		  // is no match (with pred),get a tuple from the inner.
 		  
 		 
-		      RID rid = new RID();
-		      while ((inner_BP = inner.getNext(rid)) != null)
+		      TID tid = new TID();
+		      while ((inner_BP = tripleStream.getNext()) != null)
 			{
 			  inner_BP.setHdr((short)in2_len, _in2,t2_str_sizescopy);
 			  if (PredEval.Eval(RightFilter, inner_BP, null, _in2, null) == true)
@@ -170,7 +248,7 @@ public class BP_Triple_Join {
 		      
 		      get_from_outer = true; // Loop back to top and get next outer tuple.	      
 		} while (true);
-	   }
+	   } // end getnext() method
 
 	  /**
 	   *@exception IOException I/O errors
