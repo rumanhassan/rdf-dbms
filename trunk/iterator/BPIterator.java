@@ -16,9 +16,9 @@ public class BPIterator {
 	private int currentIndex;
 	public ArrayList<BasicPatternClass> bpList;
 
-	public BPIterator(ArrayList<BasicPatternClass> abc)
+	public BPIterator()
 	{	
-		bpList=abc;
+		bpList=new ArrayList<BasicPatternClass>();
 		currentIndex = 0;
 	}
 	
