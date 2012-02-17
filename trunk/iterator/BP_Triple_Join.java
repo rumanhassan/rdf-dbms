@@ -57,7 +57,7 @@ public class BP_Triple_Join {
 	  private BPIterator left_itr; // - the left basic pattern stream
 	  private int BPJoinNodePosition; // - the position of the join node in the basic pattern
 
-	  private int[] LeftOutNodePositions; //- positions of the projected nodes from the left source
+	  private ArrayList<Integer> LeftOutNodePositions; //- positions of the projected nodes from the left source
 	  
 	  
 	
@@ -85,7 +85,7 @@ public class BP_Triple_Join {
 	public BP_Triple_Join( int amt_of_mem, int num_left_nodes, BPIterator left_itr,
 			int BPJoinNodePosition, int JoinOnSubjectorObject, String
 			RightSubjectFilter, String RightPredicateFilter, String
-			RightObjectFilter, float RightConfidenceFilter, int [] LeftOutNodePositions,
+			RightObjectFilter, float RightConfidenceFilter, ArrayList<Integer> LeftOutNodePositions,
 			int OutputRightSubject, int OutputRightObject) throws InvalidTripleSizeException, UnpinPageException, PinPageException, ConstructPageException, IteratorException, KeyNotMatchException, IOException {
 		
 		  this.amt_of_mem = amt_of_mem; 
@@ -219,27 +219,45 @@ public class BP_Triple_Join {
 		  // while the inner is not completely scanned && there
 		  // is no match ,get a BP from the inner.
 		    EID joinEid;
-		    while ((inner_BP = left_itr.get_next()) != null)
+		    while ( (inner_BP = left_itr.get_next()) != null)
 			{
 				  joinEid = inner_BP.getEIDbyNodePosition(BPJoinNodePosition); // joining on this guy from the set of BPs
 				  
 				  if(joinOnSubj){
-					  if(joinEid.equals(outer_Triple.subjectId)){						  
-						  inner_BP.addEntityToBP(outer_Triple.subjectId);
+					  if(joinEid.equals(outer_Triple.subjectId)){
+						  // here we join! lets have some fun!
+						  BasicPatternClass returnBP = new BasicPatternClass();
+						  for(int itr=0 ; itr < LeftOutNodePositions.size() ; itr++){
+							  int leftOutIdx = Integer.valueOf(LeftOutNodePositions.get(itr));
+							  returnBP.addEntityToBP(inner_BP.getEIDbyNodePosition(leftOutIdx));
+						  }
+						  if(outputRightSubj)
+							  returnBP.addEntityToBP(outer_Triple.subjectId);
+						  if(outputRightObj)
+							  returnBP.addEntityToBP(outer_Triple.objectId);
 						  // take the minimum of the two confidence values
 						  if(outer_Triple.value < inner_BP.getConfidence())
 							  inner_BP.setConfidence(outer_Triple.value);							  
-						  return inner_BP;
+						  return returnBP;
 				  	  }
 					  
 				  }
 				  else if(joinOnObj){
 					  if(joinEid.equals(outer_Triple.objectId)){						  
-						  inner_BP.addEntityToBP(outer_Triple.objectId);
+						// here we join! lets have some fun!
+						  BasicPatternClass returnBP = new BasicPatternClass();
+						  for(int itr=0 ; itr < LeftOutNodePositions.size() ; itr++){
+							  int leftOutIdx = Integer.valueOf(LeftOutNodePositions.get(itr));
+							  returnBP.addEntityToBP(inner_BP.getEIDbyNodePosition(leftOutIdx));
+						  }
+						  if(outputRightSubj)
+							  returnBP.addEntityToBP(outer_Triple.subjectId);
+						  if(outputRightObj)
+							  returnBP.addEntityToBP(outer_Triple.objectId);
 						  // take the minimum of the two confidence values
 						  if(outer_Triple.value < inner_BP.getConfidence())
 							  inner_BP.setConfidence(outer_Triple.value);
-						  return inner_BP;
+						  return returnBP;
 				  	  }
 				  }
 			}
