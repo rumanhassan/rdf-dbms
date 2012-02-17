@@ -2,6 +2,7 @@ package iterator;
 
 import global.AttrType;
 import global.Convert;
+import global.EID;
 import global.PageID;
 import global.RID;
 import global.SystemDefs;
@@ -36,12 +37,15 @@ public class BP_Triple_Join {
 	  private   int        n_buf_pgs;        // # of buffer pages available.
 	  private   boolean        done,         // Is the join complete
 	    get_from_outer;                 // if TRUE, a tuple is got from outer
-	  private   BasicPatternClass     outer_BP;
-	  private   Triple inner_BP;
+	  private   Triple     outer_Triple;
+	  private   BasicPatternClass inner_BP;
 	  private   BasicPatternClass     joined_BP;           // Joined Basic Pattern
 	  private   FldSpec   perm_mat[];
 	  private   int        nOutFlds;
 	  private   Stream      tripleStream;
+	  private Triple currentTriple;
+	  
+	  private int leftBPIndex;
 	  
 	  private boolean joinOnSubj = false;
 	  private boolean joinOnObj = false;
@@ -99,6 +103,9 @@ public class BP_Triple_Join {
 			  outputRightObj = true;
 		  
 		  tripleStream = new Stream(SystemDefs.JavabaseDB, 1, RightSubjectFilter, RightPredicateFilter, RightObjectFilter, RightConfidenceFilter);
+		  get_from_outer = true;
+		  done = false;
+		  leftBPIndex = 0;
 	} // end constructor
 	
 	/** Build the initial list of BPs using the left filter criteria
@@ -181,9 +188,9 @@ public class BP_Triple_Join {
 	      
 	      
 	      if (done)
-		return null;
+	    	  return null;
 	      
-	      do
+	    do
 		{
 		  // If get_from_outer is true, Get a tuple from the outer, delete
 		  // an existing scan on the file, and reopen a new scan on the file.
@@ -193,26 +200,14 @@ public class BP_Triple_Join {
 		  if (get_from_outer == true)
 		    {
 		      get_from_outer = false;
-		      if (tripleStream != null)     // If this not the first time,
-			{
-			  // close scan
-			  tripleStream = null;
-			}
-		    
-		      try {
-			tripleStream = new Stream(SystemDefs.JavabaseDB, in1_len, null, null, null, in1_len);
-		      }
-		      catch(Exception e){
-			throw new NestedLoopException(e, "openScan failed");
-		      }
 		      
-		      if ((outer_BP=outer.get_next()) == null) //call to BPIterator.get_next
+		      if ((outer_Triple=tripleStream.getNext()) == null) //call to Stream.getNext
 			{
 			  done = true;
 			  if (tripleStream != null) 
 			    {
 	                      
-			      tripleStream = null;
+			      tripleStream.closeStream(); 
 			    }
 			  
 			  return null;
@@ -220,35 +215,82 @@ public class BP_Triple_Join {
 		    }  // ENDS: if (get_from_outer == TRUE)
 		 
 		  
-		  // The next step is to get a tuple from the inner,
+		  // The next step is to get a BP from the inner,
 		  // while the inner is not completely scanned && there
-		  // is no match (with pred),get a tuple from the inner.
-		  
-		 
-		      TID tid = new TID();
-		      while ((inner_BP = tripleStream.getNext()) != null)
+		  // is no match ,get a BP from the inner.
+		    EID joinEid;
+		    while ((inner_BP = left_itr.get_next()) != null)
 			{
-			  inner_BP.setHdr((short)in2_len, _in2,t2_str_sizescopy);
-			  if (PredEval.Eval(RightFilter, inner_BP, null, _in2, null) == true)
-			    {
-			      if (PredEval.Eval(OutputFilter, outer_BP, inner_BP, _in1, _in2) == true)
-				{
-				  // Apply a projection on the outer and inner tuples.
-				  Projection.Join(outer_BP, _in1, 
-						  inner_BP, _in2, 
-						  joined_BP, perm_mat, nOutFlds);
-				  return joined_BP;
-				}
-			    }
+				  joinEid = inner_BP.getEIDbyNodePosition(BPJoinNodePosition); // joining on this guy from the set of BPs
+				  
+				  if(joinOnSubj){
+					  if(joinEid.equals(outer_Triple.subjectId)){						  
+						  inner_BP.addEntityToBP(outer_Triple.subjectId);
+						  // take the minimum of the two confidence values
+						  if(outer_Triple.value < inner_BP.getConfidence())
+							  inner_BP.setConfidence(outer_Triple.value);							  
+						  return inner_BP;
+				  	  }
+					  
+				  }
+				  else if(joinOnObj){
+					  if(joinEid.equals(outer_Triple.objectId)){						  
+						  inner_BP.addEntityToBP(outer_Triple.objectId);
+						  // take the minimum of the two confidence values
+						  if(outer_Triple.value < inner_BP.getConfidence())
+							  inner_BP.setConfidence(outer_Triple.value);
+						  return inner_BP;
+				  	  }
+				  }
 			}
+		    left_itr.resetIndex(); // allow for scanning the inner set of BPs again
 		      
 		      // There has been no match. (otherwise, we would have 
-		      //returned from t//he while loop. Hence, inner is 
-		      //exhausted, => set get_from_outer = TRUE, go to top of loop
-		      
+		      //returned from the while loop. Hence, inner is 
+		      //exhausted, => set get_from_outer = TRUE, go to top of loop		      
 		      get_from_outer = true; // Loop back to top and get next outer tuple.	      
 		} while (true);
 	   } // end getnext() method
+	  
+	  public BasicPatternClass get_next_DONOTUSE() throws IOException{
+		  
+		  BasicPatternClass retVal = null;
+		  do {		  
+			  currentTriple = tripleStream.getNext();
+			  boolean joinSuccess = false;
+			  if(currentTriple != null){ // IF01  -- have not yet reached end of triple stream	  
+			  
+				  int itr;
+				  EID leftEid = null;
+				  BasicPatternClass leftBp = null;
+				  // go thru all the BPs, if one can be joined, join it and return it
+				  for(itr = leftBPIndex ; itr<left_itr.bpList.size();itr++){
+					  leftBp = left_itr.bpList.get(itr);
+					  leftEid = leftBp.getEIDbyNodePosition(BPJoinNodePosition); // joining on this guy from the set of BPs
+					  
+					  if(joinOnSubj){
+						  if(leftEid.equals(currentTriple.subjectId)){						  
+							  leftBp.addEntityToBP(currentTriple.subjectId);
+							  retVal = leftBp;
+							  break;
+					  	  }
+						  
+					  }
+					  else if(joinOnObj){
+						  if(leftEid.equals(currentTriple.objectId)){						  
+							  leftBp.addEntityToBP(currentTriple.objectId);
+							  retVal = leftBp;
+							  break;
+					  	  }
+					  }
+					  
+				  } // end for
+			  } // END IF01
+		  }
+		  while(currentTriple != null);
+		  
+		  return retVal;
+	  }
 
 	  /**
 	   *@exception IOException I/O errors

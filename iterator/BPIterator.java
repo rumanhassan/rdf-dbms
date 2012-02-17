@@ -13,28 +13,34 @@ import tripleheap.BasicPatternClass;
 
 public class BPIterator {
 
-public ArrayList<BasicPatternClass> bpList;
+	private int currentIndex;
+	public ArrayList<BasicPatternClass> bpList;
 
-public BPIterator(ArrayList abc)
-{
+	public BPIterator(ArrayList<BasicPatternClass> abc)
+	{	
+		bpList=abc;
+		currentIndex = 0;
+	}
+	
+	public void addBP( BasicPatternClass b){
+		bpList.add(b);
+	}
+	
+	public BasicPatternClass get_next() {
+		if(currentIndex >= bpList.size())
+			return null;
+		else {
+			currentIndex++;
+			return bpList.get(currentIndex-1);
+		}
+	}
+	
+	public void resetIndex(){
+		currentIndex = 0;
+	}
 
-	bpList=abc;
-}
-
-public void addBP( BasicPatternClass b)
-{bpList.add(b);
-}
-
-public BasicPatternClass get_next() {
-	// TODO Auto generated stub
-	return null;
-}
-
-
-
-
-public ArrayList getArrayList()
-{
-	return bpList;
-}
+	public ArrayList getArrayList()
+	{
+		return bpList;
+	}
 }
