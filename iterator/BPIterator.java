@@ -13,21 +13,28 @@ import tripleheap.BasicPatternClass;
 
 public class BPIterator {
 
-ArrayList al = new ArrayList();
+public ArrayList<BasicPatternClass> bpList;
 
 public BPIterator(ArrayList abc)
 {
 
-al=abc;
+	bpList=abc;
 }
 
 public void addBP( BasicPatternClass b)
-{al.add(b);
+{bpList.add(b);
 }
+
+public BasicPatternClass get_next() {
+	// TODO Auto generated stub
+	return null;
+}
+
+
 
 
 public ArrayList getArrayList()
 {
-	return al;
+	return bpList;
 }
 }
