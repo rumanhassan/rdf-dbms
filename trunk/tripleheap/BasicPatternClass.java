@@ -496,25 +496,37 @@ public class BasicPatternClass implements GlobalConst{
 	  		return confidence;
 	  	}
 	  	
-	  	/**
+	  	/** Add the entity to the Basic Pattern. Will not add duplicate entities.
 	  	 * @param eid the EID of an entity to add to the Basic Pattern
 	  	 * 			  the entity will be inserted at the end of the byte[] data
 	  	 * @throws IOException 
 	  	 */
 	  	public void addEntityToBP(EID eid) throws IOException{
+	  		boolean entityAlreadyInBP = false;
+	  		EID itrEid;
+	  		for(int i=0 ; i<entityCnt ; i++){
+	  			itrEid = getEIDbyNodePosition(i);
+	  			if(itrEid.equals(eid)){
+	  				entityAlreadyInBP = true;
+	  				break;
+	  			}	  				
+	  		}	  		
 	  		
-	  		byte[] tempArray = new byte[data.length + eid_size];
-	  		System.arraycopy(data, bp_offset, tempArray, 0, bp_length);
-	  		Convert.setIntValue(eid.slotNo, data.length, tempArray);
-	  		Convert.setIntValue(eid.pageNo.pid, data.length+4, tempArray);
-	  		data = tempArray;	 
-	  		entityCnt++;
-	  		short[] tempOffsetArry = new short[entityOffset.length + 1];
-	  		System.arraycopy(entityOffset, 0, tempOffsetArry, 0, entityOffset.length);
-	  		short value = (short) (entityOffset[entityOffset.length-1] + 8);
-	  		tempOffsetArry[entityOffset.length] = value;
-	  		entityOffset = tempOffsetArry;
-	  		bp_length += eid_size;
+	  		if(!entityAlreadyInBP) // the entity is not in the list, add it!
+	  		{
+		  		byte[] tempArray = new byte[data.length + eid_size];
+		  		System.arraycopy(data, bp_offset, tempArray, 0, bp_length);
+		  		Convert.setIntValue(eid.slotNo, data.length, tempArray);
+		  		Convert.setIntValue(eid.pageNo.pid, data.length+4, tempArray);
+		  		data = tempArray;	 
+		  		entityCnt++;
+		  		short[] tempOffsetArry = new short[entityOffset.length + 1];
+		  		System.arraycopy(entityOffset, 0, tempOffsetArry, 0, entityOffset.length);
+		  		short value = (short) (entityOffset[entityOffset.length-1] + 8);
+		  		tempOffsetArry[entityOffset.length] = value;
+		  		entityOffset = tempOffsetArry;
+		  		bp_length += eid_size;
+	  		}
 	  	}
 
 	 /**
