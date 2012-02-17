@@ -58,22 +58,27 @@ public class BasicPatternClass implements GlobalConst{
 	  public  BasicPatternClass()
 	  {
 	       // Create a new BasicPatternClass
-	       data = new byte[max_size];
+	       data = new byte[1];
 	       bp_offset = 0;
-	       bp_length = max_size;
+	       bp_length = 0;
+	       entityCnt = 0;
 	  }
 	   
 	   /** Constructor
 	    * @param aBP a byte array which contains the BasicPatternClass
-	    * @param offset the start position of the BasicPatternClass in the byte array
-	    * @param length the length of the BasicPatternClass
 	    */
-	   public BasicPatternClass(byte [] aBP, int offset, int length)
+	   public BasicPatternClass(byte [] aBP)
 	   {
 	      data = aBP;
-	      bp_offset = offset;
-	      bp_length = length;
-	    //  fldCnt = getShortValue(offset, data);
+	      bp_offset = 0;
+	      bp_length = aBP.length;
+	      entityCnt = (short) (aBP.length/eid_size);
+	      
+	      entityOffset = new short[entityCnt];
+	      entityOffset[0] = 0;
+	      for(int offs=1; offs<entityCnt ; offs++){
+	    	  entityOffset[offs] = (short) (entityOffset[offs-1] + eid_size);
+	      }
 	   }
 	   
 	   /** Constructor(used as tuple copy)
@@ -504,6 +509,7 @@ public class BasicPatternClass implements GlobalConst{
 	  	public void addEntityToBP(EID eid) throws IOException{
 	  		boolean entityAlreadyInBP = false;
 	  		EID itrEid;
+	  		// check if entity is already in the Basic Pattern
 	  		for(int i=0 ; i<entityCnt ; i++){
 	  			itrEid = getEIDbyNodePosition(i);
 	  			if(itrEid.equals(eid)){
@@ -514,6 +520,9 @@ public class BasicPatternClass implements GlobalConst{
 	  		
 	  		if(!entityAlreadyInBP) // the entity is not in the list, add it!
 	  		{
+	  			if(entityCnt==0 && data.length>0){ // check for empty list, handle gracefully
+	  				this.addFirstEntity(eid);
+	  			}	  			
 		  		byte[] tempArray = new byte[data.length + eid_size];
 		  		System.arraycopy(data, bp_offset, tempArray, 0, bp_length);
 		  		Convert.setIntValue(eid.slotNo, data.length, tempArray);
@@ -527,6 +536,18 @@ public class BasicPatternClass implements GlobalConst{
 		  		entityOffset = tempOffsetArry;
 		  		bp_length += eid_size;
 	  		}
+	  	}
+	  	
+	  	/** Adds the first entity to the Basic Pattern
+	  	 * @param eid The EID of the entity to add
+	  	 * @throws IOException
+	  	 */
+	  	private void addFirstEntity(EID eid) throws IOException{
+	  		data = new byte[eid_size];
+	  		Convert.setIntValue(eid.slotNo, 0, data);
+	  		Convert.setIntValue(eid.pageNo.pid, 4, data);	 
+	  		entityCnt++;
+	  		bp_length = eid_size;
 	  	}
 
 	 /**
