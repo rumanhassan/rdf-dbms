@@ -572,41 +572,55 @@ public class testProject {
 				
 				BPIterator bpIterator = new BPIterator();
 				BP_Triple_Join bpTripleJoin1 = new BP_Triple_Join(
-						Integer.parseInt(numPages.toString().trim()), 2, bpIterator,
-						jNPosition1, jOnObjOrSub1,
-						rightSubjectArray1.toString(),
-						rightPredicateArray1.toString(),
-						rightObjectArray1.toString(),
-						Float.parseFloat(rightConfidenceArray1.toString()),
+						Integer.parseInt(numPages), 2, bpIterator,
+						jNPosition1, jOnObjOrSub1,rightSubjectArray1,rightPredicateArray1,
+						rightObjectArray1,Float.parseFloat(rightConfidenceArray1),
 						leftOutNodes1, opRightSubject1, opRightObject1);
-				bpTripleJoin1.intializeBPIterator(leftSubjectArray.toString(),
-						leftPredicateArray.toString(),
-						leftObjectArray.toString(),
-						Float.parseFloat(leftConfidenceArray.toString()));
+				
+				bpTripleJoin1.intializeBPIterator(leftSubjectArray,leftPredicateArray,leftObjectArray,
+						Float.parseFloat(leftConfidenceArray));
+				
+				System.out.println("\nAfter applying left side filters:");
+				for(int cursor=0 ; cursor < bpTripleJoin1.left_itr.bpList.size() ; cursor++){
+					BasicPatternClass abp = bpTripleJoin1.left_itr.bpList.get(cursor);
+					System.out.print("BP " + cursor + ": ");
+					abp.print();
+				}
 				
 				BPIterator bpIterator1= new BPIterator();
 				
 				BasicPatternClass bpTemp = bpTripleJoin1.get_next();				
-				while( bpTemp != null );
+				while( bpTemp != null )
 				{
 					bpIterator1.addBP(bpTemp);
 					bpTemp = bpTripleJoin1.get_next();
 				}
+				System.out.println("\nAfter 1st join:");
+				for(int cursor=0 ; cursor < bpIterator1.bpList.size() ; cursor++){
+					BasicPatternClass abp = bpIterator1.bpList.get(cursor);
+					System.out.print("BP " + cursor + ": ");
+					abp.print();
+				}
 				
 				//second join
 				BP_Triple_Join bpTripleJoin2 = new BP_Triple_Join(
-						Integer.parseInt(numPages.toString()), 2, bpIterator,
-						jNPosition2, jOnObjOrSub2,
-						rightSubjectArray2.toString(),
-						rightPredicateArray2.toString(),
-						rightObjectArray2.toString(),
-						Float.parseFloat(rightConfidenceArray2.toString()),
+						Integer.parseInt(numPages.toString()), 2, bpIterator1,
+						jNPosition2, jOnObjOrSub2, rightSubjectArray2,rightPredicateArray2,
+						rightObjectArray2,Float.parseFloat(rightConfidenceArray2),
 						leftOutNodes2, opRightSubject2, opRightObject2);
 				BPIterator bpIterator2= new BPIterator();
-				BasicPatternClass bpTemp2 ;
-				while((bpTemp2=bpTripleJoin1.get_next())!=null);
+				
+				BasicPatternClass bpTemp2 = bpTripleJoin2.get_next();				
+				while( bpTemp2 != null )
 				{
 					bpIterator2.addBP(bpTemp2);
+					bpTemp2 = bpTripleJoin2.get_next();
+				}
+				System.out.println("\nAfter 2nd join:");
+				for(int cursor=0 ; cursor < bpIterator2.bpList.size() ; cursor++){
+					BasicPatternClass abp = bpIterator2.bpList.get(cursor);
+					System.out.print("BP " + cursor + ": ");
+					abp.print();
 				}
 				BPOrder sort_order=new BPOrder(sortOrder);
 				BPSort bpSort= new BPSort(bpIterator2, sort_order, nodePointer,Integer.parseInt(numPages.toString()));
