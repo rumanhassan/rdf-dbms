@@ -97,16 +97,16 @@ public class Stream implements GlobalConst {
 			break;
 		}
 		int btreeFilterNo=orderType;
-		if (subjectFilter != null) {
+		if (subjectFilter != "0") {
 			btreeFilterNo=3;
 			finalKey = subjectFilter.substring(0, subjectFilter.length() / 2);
-			if (predicateFilter != null) {
+			if (predicateFilter != "0") {
 				btreeFilterNo=1;
 				finalKey = subjectFilter.substring(0,
 						subjectFilter.length() / 2).concat(
 						predicateFilter.substring(0,
 								predicateFilter.length() / 2));
-				if (objectFilter != null) {
+				if (objectFilter != "0") {
 					btreeFilterNo=1;
 					finalKey = subjectFilter
 							.substring(0, subjectFilter.length() / 2)
@@ -116,18 +116,18 @@ public class Stream implements GlobalConst {
 									objectFilter.length() / 2));
 				}
 			}
-			if (objectFilter != null && predicateFilter == null) {
+			if (objectFilter != "0" && predicateFilter == "0") {
 				btreeFilterNo=2;
 				finalKey = subjectFilter.substring(0,
 						subjectFilter.length() / 2).concat(
 						objectFilter.substring(0, objectFilter.length() / 2));
 			}
 		} else {
-			if (predicateFilter != null) {
+			if (predicateFilter != "0") {
 				btreeFilterNo=4;
 				finalKey = predicateFilter.substring(0,
 						predicateFilter.length() / 2);
-				if (objectFilter != null) {
+				if (objectFilter != "0") {
 					btreeFilterNo=1;
 					finalKey = predicateFilter.substring(0,
 							predicateFilter.length() / 2)
@@ -135,7 +135,7 @@ public class Stream implements GlobalConst {
 									objectFilter.length() / 2));
 				}
 			} else {
-				if (objectFilter != null) {
+				if (objectFilter != "0") {
 					btreeFilterNo=5;
 					finalKey = objectFilter.substring(0,
 							objectFilter.length() / 2);
@@ -172,7 +172,8 @@ public class Stream implements GlobalConst {
 			break;
 		}
 		if (btScanFilter == null) {
-			btScanFilter = btScan;
+			btScanFilter =rdfDataBase.bTreeIndexFile6.new_scan(null,
+					null);
 		}
 		LeafData dummyLeaf = null;
 		DataClass indexData = dummyLeaf;
@@ -265,7 +266,7 @@ public class Stream implements GlobalConst {
 						itHasInList=true;
 					}
 				}
-				if (!itHasInList) {
+				if (!itHasInList && btScanFilter!=null) {
 					
 					continue;
 				}
