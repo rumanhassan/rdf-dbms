@@ -219,6 +219,9 @@ public class BP_Triple_Join {
 		    EID joinEid;
 		    while ( (inner_BP = left_itr.get_next()) != null)
 			{
+		    	if(BPJoinNodePosition <= inner_BP.noOfEntities()){ // don't join if the BP has less entities than join position
+		    		
+		    	
 				  joinEid = inner_BP.getEIDbyNodePosition(BPJoinNodePosition); // joining on this guy from the set of BPs
 				  
 				  if(joinOnSubj){
@@ -236,7 +239,9 @@ public class BP_Triple_Join {
 							  returnBP.addEntityToBP(outer_Triple.objectId);
 						  // take the minimum of the two confidence values
 						  if(outer_Triple.value < inner_BP.getConfidence())
-							  inner_BP.setConfidence(outer_Triple.value);							  
+							  returnBP.setConfidence(outer_Triple.value);
+							  //inner_BP.setConfidence(outer_Triple.value);	
+						  else returnBP.setConfidence(inner_BP.getConfidence());
 						  return returnBP;
 				  	  }
 					  
@@ -255,10 +260,14 @@ public class BP_Triple_Join {
 							  returnBP.addEntityToBP(outer_Triple.objectId);
 						  // take the minimum of the two confidence values
 						  if(outer_Triple.value < inner_BP.getConfidence())
-							  inner_BP.setConfidence(outer_Triple.value);
+							  returnBP.setConfidence(outer_Triple.value);
+//							  inner_BP.setConfidence(outer_Triple.value);
+						  else returnBP.setConfidence(inner_BP.getConfidence());
 						  return returnBP;
 				  	  }
 				  } // end if(joinOnObj)
+				  
+		    	}
 			} // end while
 		    left_itr.resetIndex(); // allow for scanning the inner set of BPs again
 		      
