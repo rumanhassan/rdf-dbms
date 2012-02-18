@@ -4,10 +4,19 @@ import global.AttrType;
 import global.Convert;
 import global.EID;
 import global.GlobalConst;
+import global.LID;
+import global.PageID;
 import heap.FieldNumberOutOfBoundException;
 import heap.InvalidTupleSizeException;
 import heap.InvalidTypeException;
 import java.io.IOException;
+
+import labelheap.InvalidLabelSizeException;
+import labelheap.InvalidSlotNumberException;
+import labelheap.LHFBufMgrException;
+import labelheap.LHFDiskMgrException;
+import labelheap.LHFException;
+import labelheap.LabelHeapFile;
 
 public class BasicPatternClass implements GlobalConst{
 	 /** 
@@ -613,6 +622,29 @@ public class BasicPatternClass implements GlobalConst{
 	   System.out.println("]");
 
 	 }
+	 
+	 public String[] convertIdsToStrings() throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
+		 LabelHeapFile entlabelfileObj = new LabelHeapFile("file_2");
+			int length = entityCnt;
+			int noOfDataBites = data.length;
+			 String [] bpStringArray = new String[length];
+			 LID bpeid = new LID();
+			 int j=0;
+			 for(int i = 0; i<noOfDataBites;i = i+4){
+				 byte [] tempArray = new byte[data.length];
+					System.arraycopy(data, i, tempArray, 0, 4);
+					PageID pageNo = new PageID();
+					pageNo.pid = Integer.parseInt((tempArray.toString()));
+					bpeid.pageNo = pageNo;
+					System.arraycopy(data, i+4, tempArray, 0, 4);
+					bpeid.slotNo= Integer.parseInt((tempArray.toString()));
+					String label = entlabelfileObj.getLabel(bpeid);
+					bpStringArray[j]= label ;
+					j++;
+			 }
+			 return bpStringArray;
+			
+		}
 
 	
 
