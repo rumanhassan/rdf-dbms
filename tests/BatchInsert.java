@@ -457,10 +457,10 @@ public class BatchInsert {
 				if (dupTriple == false) {
 				System.out.println("inserted..SID is  p: " + subID.pageNo + " "
 						+ " S " + subID.slotNo);
-				System.out.println("inserted..PID is p: " + objID.pageNo + " "
-						+ " S " + objID.slotNo);
-				System.out.println("inserted..OID is  p: " + predicID.pageNo
-						+ " " + " S " + predicID.slotNo);
+				System.out.println("inserted..PID is p: " + predicID.pageNo + " " 
+						+ " S " + predicID.slotNo);
+				System.out.println("inserted..OID is  p: " + objID.pageNo
+						+ " " + " S " + objID.slotNo);
 				System.out.println("inserting..");
 				
 					System.out.println("inserted..TID is p: "
