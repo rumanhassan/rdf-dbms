@@ -392,6 +392,7 @@ public class THFPage extends Page implements ConstSlot, GlobalConst {
 			 // LID tmplid = currentDirPage.firstLabel();
 			  try{
 				  SystemDefs.JavabaseDB.write_page(tid.pageNo, newPage);
+				  //PCounter.writeIncrement();
 			  }
 			  catch(Exception e)
 			  {
