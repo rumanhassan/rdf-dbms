@@ -54,7 +54,7 @@ public class BP_Triple_Join {
 	  
 	  private int amt_of_mem; // - available pages for theoperation
 	  private int num_left_nodes; // - the number of node IDs in the left basic pattern stream
-	  private BPIterator left_itr; // - the left basic pattern stream
+	  public BPIterator left_itr; // - the left basic pattern stream
 	  private int BPJoinNodePosition; // - the position of the join node in the basic pattern
 
 	  private ArrayList<Integer> LeftOutNodePositions; //- positions of the projected nodes from the left source
@@ -102,7 +102,7 @@ public class BP_Triple_Join {
 		  if(OutputRightObject == 1)
 			  outputRightObj = true;
 		  
-		  tripleStream = new Stream(SystemDefs.JavabaseDB, 1, RightSubjectFilter, RightPredicateFilter, RightObjectFilter, RightConfidenceFilter);
+		  tripleStream = new Stream(SystemDefs.JavabaseDB, 2, RightSubjectFilter, RightPredicateFilter, RightObjectFilter, RightConfidenceFilter);
 		  get_from_outer = true;
 		  done = false;
 		  leftBPIndex = 0;
@@ -124,18 +124,15 @@ public class BP_Triple_Join {
 	public void intializeBPIterator(String subjFilter, String predFilter,
 			String objFilter, float confFilter) throws InvalidTripleSizeException, UnpinPageException, PinPageException, ConstructPageException, IteratorException, KeyNotMatchException, IOException{
 		left_itr.bpList = new ArrayList<BasicPatternClass>();
-		Stream leftStream = new Stream(SystemDefs.JavabaseDB, 6, subjFilter, predFilter, objFilter, confFilter);
+		Stream leftStream = new Stream(SystemDefs.JavabaseDB, 2, subjFilter, predFilter, objFilter, confFilter);
 		Triple trip = leftStream.getNext();
 		while(trip != null){
-			// adding the first entity to a BP takes some work
-			byte[] temp = new byte[BasicPatternClass.eid_size];
-			Convert.setIntValue(trip.getSubjectId().slotNo, 0, temp);
-			Convert.setIntValue(trip.getSubjectId().pageNo.pid, 4, temp);
-			BasicPatternClass bp = new BasicPatternClass(BasicPatternClass.eid_size);
-			bp.bpInit(temp, 0, 8);
-			// now that the BP contains at least 1 entity, adding is easier
+			
+			BasicPatternClass bp = new BasicPatternClass();
+			bp.addEntityToBP(trip.getSubjectId());	
 			bp.addEntityToBP(trip.getObjectId());
 			bp.setConfidence(trip.getConfidence());
+
 			left_itr.bpList.add(bp);
 			
 			trip = leftStream.getNext();
@@ -192,7 +189,7 @@ public class BP_Triple_Join {
 	      
 	    do
 		{
-		  // If get_from_outer is true, Get a tuple from the outer, delete
+		  // If get_from_outer is true, Get a triple from the outer stream, delete
 		  // an existing scan on the file, and reopen a new scan on the file.
 		  // If a get_next on the outer returns DONE?, then the nested loops
 		  //join is done too.
@@ -201,14 +198,15 @@ public class BP_Triple_Join {
 		    {
 		      get_from_outer = false;
 		      
-		      if ((outer_Triple=tripleStream.getNext()) == null) //call to Stream.getNext
+		      outer_Triple=tripleStream.getNext(); //call to Stream.getNext     
+		      if ( outer_Triple == null ) 
 			{
 			  done = true;
-			  if (tripleStream != null) 
-			    {
-	                      
-			      tripleStream.closeStream(); 
-			    }
+//			  if (tripleStream != null) 
+//			    {
+//	                      
+//			      tripleStream.closeStream(); 
+//			    }
 			  
 			  return null;
 			}   
@@ -226,6 +224,7 @@ public class BP_Triple_Join {
 				  if(joinOnSubj){
 					  if(joinEid.equals(outer_Triple.subjectId)){
 						  // here we join! lets have some fun!
+						  System.out.println("Joining on:" + joinEid.pageNo.pid + "/" + joinEid.slotNo);
 						  BasicPatternClass returnBP = new BasicPatternClass();
 						  for(int itr=0 ; itr < LeftOutNodePositions.size() ; itr++){
 							  int leftOutIdx = Integer.valueOf(LeftOutNodePositions.get(itr));
@@ -241,7 +240,7 @@ public class BP_Triple_Join {
 						  return returnBP;
 				  	  }
 					  
-				  }
+				  } // end if(joinOnSubj)
 				  else if(joinOnObj){
 					  if(joinEid.equals(outer_Triple.objectId)){						  
 						// here we join! lets have some fun!
@@ -259,8 +258,8 @@ public class BP_Triple_Join {
 							  inner_BP.setConfidence(outer_Triple.value);
 						  return returnBP;
 				  	  }
-				  }
-			}
+				  } // end if(joinOnObj)
+			} // end while
 		    left_itr.resetIndex(); // allow for scanning the inner set of BPs again
 		      
 		      // There has been no match. (otherwise, we would have 

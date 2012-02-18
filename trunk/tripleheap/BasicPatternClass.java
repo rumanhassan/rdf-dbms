@@ -538,22 +538,28 @@ public class BasicPatternClass implements GlobalConst{
 	  		if(!entityAlreadyInBP) // the entity is not in the list, add it!
 	  		{
 	  			if(entityCnt==0 && data.length>0){ // check for empty list, handle gracefully
+//	  				System.out.println("Empty BP, adding " + eid.pageNo.pid + "/" + eid.slotNo + " to start of BP's data.");
 	  				this.addFirstEntity(eid);
-	  			}	  			
-		  		byte[] tempArray = new byte[data.length + eid_size];
-		  		System.arraycopy(data, bp_offset, tempArray, 0, bp_length);
-		  		Convert.setIntValue(eid.slotNo, data.length, tempArray);
-		  		Convert.setIntValue(eid.pageNo.pid, data.length+4, tempArray);
-		  		data = tempArray;	 
-		  		entityCnt++;
-		  		short[] tempOffsetArry = new short[entityOffset.length + 1];
-		  		System.arraycopy(entityOffset, 0, tempOffsetArry, 0, entityOffset.length);
-		  		short value = (short) (entityOffset[entityOffset.length-1] + 8);
-		  		tempOffsetArry[entityOffset.length] = value;
-		  		entityOffset = tempOffsetArry;
-		  		bp_length += eid_size;
-	  		}
-	  	}
+//	  				System.out.println("There is now " + entityCnt + " entity in the BP.");
+	  			}
+	  			else { // non-empty list
+			  		byte[] tempArray = new byte[data.length + eid_size];
+			  		System.arraycopy(data, bp_offset, tempArray, 0, bp_length);
+			  		Convert.setIntValue(eid.slotNo, data.length, tempArray);
+			  		Convert.setIntValue(eid.pageNo.pid, data.length+4, tempArray);
+			  		data = tempArray;	 
+			  		entityCnt++;
+			  		short[] tempOffsetArry = new short[entityOffset.length + 1];
+			  		System.arraycopy(entityOffset, 0, tempOffsetArry, 0, entityOffset.length);
+			  		short value = (short) (entityOffset[entityOffset.length-1] + 8);
+			  		tempOffsetArry[entityOffset.length] = value;
+			  		entityOffset = tempOffsetArry;
+			  		bp_length += eid_size;
+//			  		System.out.println("Added " + eid.pageNo.pid + "/" + eid.slotNo + " to end of BP's data.");
+//			  		System.out.println("There are now " + entityCnt + " entities in the BP.");
+	  			} // end else
+	  		} // end if
+	  	} // end addEntityToBP method
 	  	
 	  	/** Adds the first entity to the Basic Pattern
 	  	 * @param eid The EID of the entity to add
@@ -570,66 +576,33 @@ public class BasicPatternClass implements GlobalConst{
 	 /**
 	  * Print out the tuple
 	  * @param type  the types in the tuple
-	  * @Exception IOException I/O exception
+	 * @throws Exception 
+	 * @throws InvalidLabelSizeException 
+	 * @throws InvalidSlotNumberException 
+	 * @Exception IOException I/O exception
 	  */
-	 public void print(AttrType type[])
-	    throws IOException 
+	 public void print()
+	    throws InvalidSlotNumberException, InvalidLabelSizeException, Exception 
 	 {
-	  int i, val;
-	  float fval;
-	  String sval;
+		  String stringVal;
+		  EID printEID;
+		  LID bpeid = new LID();
+		  LabelHeapFile entlabelfileObj = new LabelHeapFile("file_2");	  
+	
+		  System.out.print( "[" );
+		  for (int i=1; i<= entityCnt; i++)
+		   {
+			  printEID = this.getEIDbyNodePosition(i);
+			  bpeid.slotNo = printEID.slotNo;
+			  bpeid.pageNo.pid = printEID.pageNo.pid;
+			  stringVal = entlabelfileObj.getLabel(bpeid);
+			  
+			  System.out.print( stringVal + "," );
+		   }
+		  System.out.print( Float.toString(this.getConfidence()) );
+		 System.out.println( "]" );
 
-	  System.out.print("[");
-	  for (i=0; i< entityCnt-1; i++)
-	   {
-	    switch(type[i].attrType) {
-
-	   case AttrType.attrInteger:
-	     val = Convert.getIntValue(entityOffset[i], data);
-	     System.out.print(val);
-	     break;
-
-	   case AttrType.attrReal:
-	     fval = Convert.getFloValue(entityOffset[i], data);
-	     System.out.print(fval);
-	     break;
-
-	   case AttrType.attrString:
-	     sval = Convert.getStrValue(entityOffset[i], data,entityOffset[i+1] - entityOffset[i]);
-	     System.out.print(sval);
-	     break;
-	  
-	   case AttrType.attrNull:
-	   case AttrType.attrSymbol:
-	     break;
-	   }
-	   System.out.print(", ");
-	 } 
-	 
-	 switch(type[entityCnt-1].attrType) {
-
-	   case AttrType.attrInteger:
-	     val = Convert.getIntValue(entityOffset[i], data);
-	     System.out.print(val);
-	     break;
-
-	   case AttrType.attrReal:
-	     fval = Convert.getFloValue(entityOffset[i], data);
-	     System.out.print(fval);
-	     break;
-
-	   case AttrType.attrString:
-	     sval = Convert.getStrValue(entityOffset[i], data,entityOffset[i+1] - entityOffset[i]);
-	     System.out.print(sval);
-	     break;
-
-	   case AttrType.attrNull:
-	   case AttrType.attrSymbol:
-	     break;
-	   }
-	   System.out.println("]");
-
-	 }
+	 } // end print() method
 	 
 	 public String[] convertIdsToStrings() throws InvalidSlotNumberException, InvalidLabelSizeException, LHFException, LHFDiskMgrException, LHFBufMgrException, Exception {
 		 LabelHeapFile entlabelfileObj = new LabelHeapFile("file_2");
