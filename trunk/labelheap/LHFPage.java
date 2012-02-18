@@ -391,7 +391,7 @@ public class LHFPage extends Page implements ConstSlot, GlobalConst {
 			Page newPage = new Page(data); 
 			try{
 				SystemDefs.JavabaseDB.write_page(lid.pageNo, newPage);
-				PCounter.writeIncrement();
+				//PCounter.writeIncrement();
 				}
 				catch(Exception e)
 				{
