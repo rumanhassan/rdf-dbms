@@ -42,7 +42,7 @@ public class Stream implements GlobalConst {
 	private BTFileScan btScan = null;
 	private BTFileScan btScanFilter = null;// for scanning the index of the
 											// rdfDB
-	ArrayList<TID> tidListFromFilter = new ArrayList<>();
+	ArrayList<TID> tidListFromFilter = new ArrayList<TID>();
 
 	/**
 	 * The constructor initializes the Stream's private data members from the
