@@ -304,18 +304,18 @@ public class testProject {
 				String[] fileArray1;
 				ReadFile readFile1 = new ReadFile(filePath1);
 				fileArray1 = readFile1.openFile();
-				char[] leftSubjectArray = new char[100];
-				char[] rightSubjectArray1 = new char[100];
-				char[] rightSubjectArray2 = new char[100];
-				char[] leftPredicateArray = new char[100];
-				char[] rightPredicateArray1 = new char[100];
-				char[] rightPredicateArray2 = new char[100];
-				char[] leftObjectArray = new char[100];
-				char[] rightObjectArray1 = new char[100];
-				char[] rightObjectArray2 = new char[100];
-				char[] leftConfidenceArray = new char[100];
-				char[] rightConfidenceArray1 = new char[100];
-				char[] rightConfidenceArray2 = new char[100];
+				String leftSubjectArray = "";
+				String rightSubjectArray1 = "";
+				String rightSubjectArray2 = "";
+				String leftPredicateArray = "";
+				String rightPredicateArray1 = "";
+				String rightPredicateArray2 = "";
+				String leftObjectArray = "";
+				String rightObjectArray1 = "";
+				String rightObjectArray2 = "";
+				String leftConfidenceArray = "";
+				String rightConfidenceArray1 = "";
+				String rightConfidenceArray2 = "";
 				int jNPosition1 = -1;
 				int jNPosition2 = -1;
 				// if 0-join on subject ,else join on object.
@@ -330,7 +330,7 @@ public class testProject {
 				int opRightObject2 = -1;
 				int sortOrder = -1;
 				int nodePointer = -1;
-				char[] numPages = new char[10];
+				String numPages = "";
 				char[] lineString1 = fileArray1[1].toCharArray();
 				int lineLength1 = lineString1.length;
 				for (int charNo = 0; charNo < lineLength1 - 1; charNo++) {
@@ -341,28 +341,28 @@ public class testProject {
 					// second line from file
 					// get left subject filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						leftSubjectArray[count] = lineString1[charNo];
+						leftSubjectArray += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get left predicate filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						leftPredicateArray[count] = lineString1[charNo];
+						leftPredicateArray += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get left object filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						leftObjectArray[count] = lineString1[charNo];
+						leftObjectArray += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get left confidence filter
 					for (int count = 0; lineString1[charNo] != ']'; count++) {
-						leftConfidenceArray[count] = lineString1[charNo];
+						leftConfidenceArray += lineString1[charNo];
 						count++;
 						charNo++;
 					}
@@ -387,28 +387,28 @@ public class testProject {
 					// get right subject filter
 					charNo++;
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightSubjectArray1[count] = lineString1[charNo];
+						rightSubjectArray1 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get right predicate filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightPredicateArray1[count] = lineString1[charNo];
+						rightPredicateArray1 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get right object filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightObjectArray1[count] = lineString1[charNo];
+						rightObjectArray1 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get right confidence filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightConfidenceArray1[count] = lineString1[charNo];
+						rightConfidenceArray1 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
@@ -461,28 +461,28 @@ public class testProject {
 					charNo++;
 					// get right subject filter
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightSubjectArray2[count] = lineString1[charNo];
+						rightSubjectArray2 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get right predicate filter--second
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightPredicateArray2[count] = lineString1[charNo];
+						rightPredicateArray2 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get right object filter--second
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightObjectArray2[count] = lineString1[charNo];
+						rightObjectArray2 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
 					charNo++;
 					// get right confidence filter--second
 					for (int count = 0; lineString1[charNo] != ','; count++) {
-						rightConfidenceArray2[count] = lineString1[charNo];
+						rightConfidenceArray2 += lineString1[charNo];
 						count++;
 						charNo++;
 					}
@@ -538,7 +538,7 @@ public class testProject {
 					// get no.of pages
 					int count = 0;
 					while (charNo < lineString1.length) {
-						numPages[count] = lineString1[charNo];
+						numPages += lineString1[charNo];
 						charNo++;
 						count++;
 					}
@@ -569,9 +569,10 @@ public class testProject {
 				System.out.println(sortOrder);
 				System.out.println(nodePointer);
 				System.out.println(numPages);
+				
 				BPIterator bpIterator = new BPIterator();
 				BP_Triple_Join bpTripleJoin1 = new BP_Triple_Join(
-						Integer.parseInt(numPages.toString()), 2, bpIterator,
+						Integer.parseInt(numPages.toString().trim()), 2, bpIterator,
 						jNPosition1, jOnObjOrSub1,
 						rightSubjectArray1.toString(),
 						rightPredicateArray1.toString(),
@@ -582,11 +583,14 @@ public class testProject {
 						leftPredicateArray.toString(),
 						leftObjectArray.toString(),
 						Float.parseFloat(leftConfidenceArray.toString()));
+				
 				BPIterator bpIterator1= new BPIterator();
-				BasicPatternClass bpTemp ;
-				while((bpTemp=bpTripleJoin1.get_next())!=null);
+				
+				BasicPatternClass bpTemp = bpTripleJoin1.get_next();				
+				while( bpTemp != null );
 				{
 					bpIterator1.addBP(bpTemp);
+					bpTemp = bpTripleJoin1.get_next();
 				}
 				
 				//second join
