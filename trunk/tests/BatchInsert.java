@@ -446,14 +446,9 @@ public class BatchInsert {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					Triple triple = new Triple();
-					while (triple != null && dupTriple != true) {
+					//Triple triple = new Triple();
 
-						triple = outStream.getNext();
-						if (triple != null) {
-							dupTriple = true;
-						}
-					}
+						dupTriple = outStream.checkForDuplicates();
 				}
 				if (dupTriple == false) {
 					dummyTriple = dummyLabelFileObj.insertTriple(triplebyte);
@@ -494,7 +489,7 @@ public class BatchInsert {
 					// orealKey=new StringKey(confidenceForKey);
 					// 1 btree
 					compositeKey = subject
-							.substring(0, subject.length())
+							.substring(0, subject.length()/2)
 							.concat(predicate.substring(0,
 									predicate.length() / 2).concat(
 									object.substring(0, object.length() / 2)
