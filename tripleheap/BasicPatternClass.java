@@ -236,7 +236,15 @@ public class BasicPatternClass implements GlobalConst{
 		    if ( (nodePos > 0) && (nodePos <= entityCnt))
 		     {		    	
 		      retVal.slotNo = Convert.getIntValue(entityOffset[nodePos -1], data);
-		      retVal.pageNo.pid = Convert.getIntValue(entityOffset[nodePos -1] + Integer.SIZE , data);
+		      retVal.pageNo.pid = Convert.getIntValue(entityOffset[nodePos -1] + 4 , data);
+		      
+		      
+//		      byte [] tempArray = null; 
+//              System.arraycopy(data, offset, tempArray, 0, 4);
+//              EID bpeid = new EID();
+//              bpeid.pageNo.pid = Integer.parseInt((tempArray.toString()));
+//              System.arraycopy(data, offset+4, tempArray, 0, 4);
+//              bpeid.slotNo= Integer.parseInt((tempArray.toString()));
 		     }
 		    else
 		    	System.out.println("BasicPatternClass: Node position out of bounds!");
@@ -519,7 +527,7 @@ public class BasicPatternClass implements GlobalConst{
 	  		boolean entityAlreadyInBP = false;
 	  		EID itrEid;
 	  		// check if entity is already in the Basic Pattern
-	  		for(int i=0 ; i<entityCnt ; i++){
+	  		for(int i=1 ; i<=entityCnt ; i++){
 	  			itrEid = getEIDbyNodePosition(i);
 	  			if(itrEid.equals(eid)){
 	  				entityAlreadyInBP = true;
