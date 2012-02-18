@@ -252,7 +252,7 @@ public boolean deleteTriple(TID tid) throws Exception {
     // Write the appropriate number of bytes.
     try{
       fp.write(apage.getpage());
-      //PCounter.writeIncrement();
+     PCounter.writeIncrement();
     }
     catch (IOException e) {
       throw new FileIOException(e, "DB file I/O error");
