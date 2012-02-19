@@ -39,7 +39,7 @@ public class BPIterator {
 		currentIndex = 0;
 	}
 
-	public ArrayList getArrayList()
+	public ArrayList<BasicPatternClass> getArrayList()
 	{
 		return bpList;
 	}
