@@ -227,7 +227,6 @@ public class BP_Triple_Join {
 				  if(joinOnSubj){
 					  if(joinEid.equals(outer_Triple.subjectId)){
 						  // here we join! lets have some fun!
-						  System.out.println("Joining on:" + joinEid.pageNo.pid + "/" + joinEid.slotNo);
 						  BasicPatternClass returnBP = new BasicPatternClass();
 						  for(int itr=0 ; itr < LeftOutNodePositions.size() ; itr++){
 							  int leftOutIdx = Integer.valueOf(LeftOutNodePositions.get(itr));
