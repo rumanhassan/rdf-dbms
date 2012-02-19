@@ -25,11 +25,12 @@ public class BPSort /* implements Comparator */{
 	 * @throws labelheap.InvalidSlotNumberException
 	 */
 	@SuppressWarnings("unchecked")
-	public BPSort(BPIterator input_itr, BPOrder returnEiD, int SortNodeIDPos,
+	public BPSort(BPIterator input_itr, BPOrder order, int SortNodeIDPos,
 			int n_pages) throws labelheap.InvalidSlotNumberException,
 			InvalidLabelSizeException, Exception {
-		java.util.Iterator<BasicPatternClass> bpIterator = input_itr
-				.getArrayList().listIterator();
+		ArrayList<BasicPatternClass> basicPatterns = input_itr.getArrayList();
+		java.util.Iterator<BasicPatternClass> bpIterator = basicPatterns
+				.listIterator();
 		LabelHeapFile entlabelfileObj = new LabelHeapFile("file_2");
 		EID eid = new EID();
 		LID lid = new LID();
@@ -46,10 +47,22 @@ public class BPSort /* implements Comparator */{
 			b1.add(label);
 		}
 
-		bpIterator = input_itr.getArrayList().listIterator();
-		Collections.sort(b1, new sort1());
-		int blength;
-		blength = b1.size();
+		bpIterator = basicPatterns.listIterator();
+		switch (order.basicPatternOrder)
+		{
+		case 0:	
+			Collections.sort(b1, new sort1());
+			break;
+		case 1:
+			Collections.sort(b1, new sort1());
+			Collections.reverse(b1);
+			break;
+		case 2:
+			break;
+			
+		}
+		
+		int blength = b1.size();
 		System.out.print("Sorted Patterns \n");
 		for (int i = 0; i < blength; i++) {
 			String compareLabel = b1.get(i);
@@ -61,11 +74,11 @@ public class BPSort /* implements Comparator */{
 				lid.slotNo = eid.slotNo;
 				String label = entlabelfileObj.getLabel(lid);
 				if (compareLabel.equalsIgnoreCase(label)) {
-					System.out.print("BP " + i+ ": ");
+					System.out.print("BP " + i + ": ");
 					bpc_temp.print();
 				}
 			}
-			bpIterator = input_itr.getArrayList().listIterator();
+			bpIterator = basicPatterns.listIterator();
 		}
 	}
 }
@@ -78,5 +91,8 @@ class sort1 implements Comparator {
 		String s2 = (String) o2;
 
 		return s1.toLowerCase().compareTo(s2.toLowerCase());
+	}
+	void printSorted(){
+		
 	}
 }
