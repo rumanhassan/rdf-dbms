@@ -26,6 +26,7 @@ import tripleheap.THFDiskMgrException;
 import tripleheap.THFException;
 import tripleheap.Triple;
 
+import diskmgr.PCounter;
 import diskmgr.Stream;
 import diskmgr.rdfDB;
 import global.*;
@@ -70,6 +71,7 @@ public class testProject {
 			// try{
 			switch (Integer.parseInt(selectedOption)) {
 			case 1:
+				PCounter.initialize();
 				String filePath = null;
 				String DBName = null;
 				String indexOption = null;
@@ -120,6 +122,7 @@ public class testProject {
 
 				break;
 			case 2:
+				PCounter.initialize();
 				String dBName = null;
 				String sortOption = null;
 				String subjectFilter = null;
@@ -259,6 +262,7 @@ public class testProject {
 				System.out.println("triple Count:" + BatchInsert.tripleCount);
 				break;
 			case 5:
+				PCounter.initialize();
 				String filePath1 = null;
 				String dBName1 = null;
 				System.out.println("enter filepath to insert");
